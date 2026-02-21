@@ -73,28 +73,7 @@ export default async function ProjectDetailPage({ params }: Props) {
       <div className="space-y-2">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-semibold tracking-tight">{project?.title ?? "Projekt"}</h1>
-          <div className="text-sm text-zinc-700">ID: {id}</div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border bg-white px-4 py-3">
-            <div className="text-xs font-medium text-zinc-700">Projektnummer</div>
-            <div className="mt-1 text-sm font-semibold text-zinc-900">
-              {project?.project_number ?? "—"}
-            </div>
-          </div>
-          <div className="rounded-xl border bg-white px-4 py-3">
-            <div className="text-xs font-medium text-zinc-700">Projektingang</div>
-            <div className="mt-1 text-sm font-semibold text-zinc-900">{project?.received_at ?? "—"}</div>
-          </div>
-          <div className="rounded-xl border bg-white px-4 py-3">
-            <div className="text-xs font-medium text-zinc-700">Kunde</div>
-            <div className="mt-1 text-sm font-semibold text-zinc-900">{customerName || "—"}</div>
-          </div>
-          <div className="rounded-xl border bg-white px-4 py-3">
-            <div className="text-xs font-medium text-zinc-700">Status</div>
-            <div className="mt-1 text-sm font-semibold text-zinc-900">{project?.status ?? "—"}</div>
-          </div>
+          <div className="text-sm text-zinc-800">ID: {id}</div>
         </div>
       </div>
 
@@ -111,15 +90,15 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b px-4 py-3 font-medium">Projektinfos</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-700">Projektnummer</div>
+                  <div className="text-zinc-900">Projektnummer</div>
                   <div className="font-medium">{project?.project_number ?? "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-700">Projektingang</div>
+                  <div className="text-zinc-900">Projektingang</div>
                   <div className="font-medium">{project?.received_at ?? "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-700">Projektstatus</div>
+                  <div className="text-zinc-900">Projektstatus</div>
                   <div className="font-medium">{project?.status ?? "—"}</div>
                 </div>
               </div>
@@ -129,15 +108,15 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b px-4 py-3 font-medium">Kunde</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-700">Name</div>
+                  <div className="text-zinc-900">Name</div>
                   <div className="font-medium">{customerName || "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-700">Adresse</div>
+                  <div className="text-zinc-900">Adresse</div>
                   <div className="font-medium">{customerAddress || "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-700">Kontakt</div>
+                  <div className="text-zinc-900">Kontakt</div>
                   <div className="space-y-1">
                     <div className="text-zinc-900">
                       {(customerContact?.phone_landline ?? "").toString() || "—"}
@@ -157,7 +136,7 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b px-4 py-3 font-medium">Ausführungsort</div>
               <div className="p-4 space-y-4">
                 <div className="text-sm">
-                  <div className="text-zinc-700">Adresse</div>
+                  <div className="text-zinc-900">Adresse</div>
                   <div className="font-medium">{locationLabel || "—"}</div>
                 </div>
 

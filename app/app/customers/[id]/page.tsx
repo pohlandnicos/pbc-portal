@@ -86,7 +86,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       <div className="space-y-2">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-semibold tracking-tight">{name ?? "Kunde"}</h1>
-          <div className="text-sm text-zinc-700">ID: {id}</div>
+          <div className="text-sm text-zinc-800">ID: {id}</div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -126,24 +126,24 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-medium">Kundendaten</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-700">Kundenname</div>
+                  <div className="text-zinc-900">Kundenname</div>
                   <div className="font-medium">{name ?? ""}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-700">Typ</div>
+                  <div className="text-zinc-900">Typ</div>
                   <div className="font-medium">{typeLabel ?? ""}</div>
                 </div>
 
                 {customer?.customer_number ? (
                   <div className="text-sm">
-                    <div className="text-zinc-700">Kundennummer</div>
+                    <div className="text-zinc-900">Kundennummer</div>
                     <div className="font-medium">{customer.customer_number}</div>
                   </div>
                 ) : null}
 
                 {customer?.description ? (
                   <div className="text-sm">
-                    <div className="text-zinc-700">Beschreibung</div>
+                    <div className="text-zinc-900">Beschreibung</div>
                     <div className="font-medium whitespace-pre-wrap">{customer.description}</div>
                   </div>
                 ) : null}
@@ -154,7 +154,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-medium">Rechnungsadresse</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-700">Adresse</div>
+                  <div className="text-zinc-900">Adresse</div>
                   <div className="font-medium">{address ?? ""}</div>
                 </div>
 

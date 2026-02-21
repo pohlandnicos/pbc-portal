@@ -153,15 +153,15 @@ export function CustomerContactSection({ customerId, contact }: Props) {
       {contact && !open ? (
         <div className="mt-3 space-y-3">
           <div className="text-sm">
-            <div className="text-zinc-700">Festnetz</div>
+            <div className="text-zinc-900">Festnetz</div>
             <div className="font-medium">{contact.phone_landline ?? ""}</div>
           </div>
           <div className="text-sm">
-            <div className="text-zinc-700">Mobil</div>
+            <div className="text-zinc-900">Mobil</div>
             <div className="font-medium">{contact.phone_mobile ?? ""}</div>
           </div>
           <div className="text-sm">
-            <div className="text-zinc-700">E-Mail</div>
+            <div className="text-zinc-900">E-Mail</div>
             <div className="font-medium">{contact.email ?? ""}</div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
         <form className="mt-3 space-y-3" onSubmit={onSubmit}>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="text-sm">
-              <div className="text-zinc-700">Festnetz</div>
+              <div className="text-zinc-900">Festnetz</div>
               <input
                 className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                 value={form.phone_landline}
@@ -179,7 +179,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
               />
             </div>
             <div className="text-sm">
-              <div className="text-zinc-700">Mobil</div>
+              <div className="text-zinc-900">Mobil</div>
               <input
                 className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
                 value={form.phone_mobile}
@@ -188,7 +188,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
             </div>
           </div>
           <div className="text-sm">
-            <div className="text-zinc-700">E-Mail</div>
+            <div className="text-zinc-900">E-Mail</div>
             <input
               className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
               value={form.email}
@@ -217,7 +217,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
           </div>
         </form>
       ) : (
-        <div className="mt-2 text-sm text-zinc-600">Kein Kontakt hinterlegt</div>
+        <div className="mt-2 text-sm text-zinc-800">Kein Kontakt hinterlegt</div>
       )}
     </div>
   );
