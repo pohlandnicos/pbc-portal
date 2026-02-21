@@ -10,10 +10,10 @@ type Props = {
 const baseSchema = z.object({
   type: z.enum(["private", "company"]),
 
-  company_name: z.string().trim().min(1, "Firma ist Pflichtfeld").optional(),
-  salutation: z.string().trim().min(1, "Anrede ist Pflichtfeld").optional(),
-  first_name: z.string().trim().min(1, "Vorname ist Pflichtfeld").optional(),
-  last_name: z.string().trim().min(1, "Nachname ist Pflichtfeld").optional(),
+  company_name: z.string().optional(),
+  salutation: z.string().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
 
   description: z.string().optional(),
   customer_number: z.string().optional(),
