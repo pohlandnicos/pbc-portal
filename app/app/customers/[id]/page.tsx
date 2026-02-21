@@ -172,7 +172,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             <div className="border-b px-4 py-3 font-semibold">Projekte</div>
             <div className="p-4">
               <table className="w-full text-sm">
-                <thead className="border-b text-left text-zinc-800">
+                <thead className="border-b border-zinc-200 text-left text-zinc-800">
                   <tr>
                     <th className="py-2 pr-3 font-medium">Name</th>
                     <th className="py-2 pr-3 font-medium">Nr</th>
@@ -189,7 +189,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                     </tr>
                   ) : (
                     projects.map((p: any) => (
-                      <tr key={p.id} className="border-b last:border-b-0">
+                      <tr key={p.id} className="border-b border-zinc-200 last:border-b-0">
                         <td className="py-3 pr-3">
                           <a className="underline" href={`/app/projects/${p.id}`}>
                             {p.title}
@@ -213,12 +213,12 @@ export default async function CustomerDetailPage({ params }: Props) {
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-semibold">Angebote</div>
+            <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Angebote</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-semibold">Rechnungen</div>
+            <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Rechnungen</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
