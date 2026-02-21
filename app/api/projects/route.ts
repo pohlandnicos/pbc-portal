@@ -44,13 +44,28 @@ export async function GET(request: NextRequest) {
   const { orgId } = await getCurrentOrgId();
   if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
 
-  const { data, error } = await supabase
+  const url = new URL(request.url);
+  const customerId = url.searchParams.get("customer_id");
+  if (customerId) {
+    const parsedCustomerId = z.string().uuid().safeParse(customerId);
+    if (!parsedCustomerId.success) {
+      return NextResponse.json({ error: "invalid_customer_id" }, { status: 400 });
+    }
+  }
+
+  let q = supabase
     .from("projects")
     .select(
       "id, title, project_number, received_at, created_at, customers(id, type, company_name, salutation, first_name, last_name), project_locations(city, street, house_number, postal_code, is_billing_address)"
     )
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
+
+  if (customerId) {
+    q = q.eq("customer_id", customerId);
+  }
+
+  const { data, error } = await q;
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
 

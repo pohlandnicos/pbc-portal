@@ -46,6 +46,22 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   const contact = contactsRes?.ok ? (contactsJson?.data?.[0] ?? null) : null;
 
+  const projectsRes = await fetch(
+    `${origin}/api/projects?customer_id=${encodeURIComponent(id)}`,
+    {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    }
+  ).catch(() => null);
+
+  const projectsJson = (await projectsRes?.json().catch(() => null)) as
+    | { data?: any[]; error?: string }
+    | null;
+
+  const projects = projectsRes?.ok ? (projectsJson?.data ?? []) : [];
+
   const name = customer
     ? customer.type === "company"
       ? customer.company_name
@@ -158,7 +174,24 @@ export default async function CustomerDetailPage({ params }: Props) {
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Projekte</div>
-            <div className="p-4 text-sm text-zinc-600">Noch keine Projekte verknüpft.</div>
+            <div className="p-4 text-sm">
+              {projects.length === 0 ? (
+                <div className="text-zinc-600">Noch keine Projekte verknüpft.</div>
+              ) : (
+                <div className="space-y-2">
+                  {projects.map((p: any) => (
+                    <div key={p.id} className="flex items-center justify-between gap-4">
+                      <a className="underline" href={`/app/projects/${p.id}`}>
+                        {p.title}
+                      </a>
+                      <div className="text-zinc-600">
+                        {(p.project_number ?? "").toString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="rounded-xl border bg-white">
