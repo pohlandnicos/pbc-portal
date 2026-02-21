@@ -1,4 +1,5 @@
 import { cookies, headers } from "next/headers";
+import { CustomerContactSection } from "@/components/customers/CustomerContactSection";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -150,31 +151,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="border-t pt-4">
-              <div className="text-sm font-medium">Kontakt</div>
-              {!contact ? (
-                <div className="mt-2 text-sm text-zinc-600">Kein Kontakt hinterlegt</div>
-              ) : (
-                <div className="mt-3 space-y-3">
-                  <div className="text-sm">
-                    <div className="text-zinc-500">Kontaktname</div>
-                    <div className="font-medium">{contact.contact_name ?? ""}</div>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-zinc-500">Festnetz</div>
-                    <div className="font-medium">{contact.phone_landline ?? ""}</div>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-zinc-500">Mobil</div>
-                    <div className="font-medium">{contact.phone_mobile ?? ""}</div>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-zinc-500">E-Mail</div>
-                    <div className="font-medium">{contact.email ?? ""}</div>
-                  </div>
-                </div>
-              )}
-            </div>
+            <CustomerContactSection customerId={id} contact={contact} />
           </div>
         </div>
 
