@@ -47,13 +47,19 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from("customers")
     .select(
-      "id, type, company_name, salutation, first_name, last_name, customer_number, billing_city, created_at"
+      "id, type, company_name, salutation, first_name, last_name, customer_number, billing_address_extra, billing_city, created_at, projects(count)"
     )
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
-  return NextResponse.json({ data });
+  const mapped = (data ?? []).map((row: any) => {
+    const projectsCount = Array.isArray(row.projects) ? row.projects[0]?.count ?? 0 : 0;
+    const { projects, ...rest } = row;
+    return { ...rest, projectsCount };
+  });
+
+  return NextResponse.json({ data: mapped });
 }
 
 export async function POST(request: NextRequest) {
