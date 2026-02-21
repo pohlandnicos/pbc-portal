@@ -45,11 +45,11 @@ export default function ProjectsPage() {
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-zinc-900">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Projekte</h1>
-          <p className="text-sm text-zinc-700">Übersicht</p>
+          <p className="text-sm text-zinc-900">Übersicht</p>
         </div>
         <ProjectCreateDialog
           onCreated={() => {
@@ -100,12 +100,12 @@ export default function ProjectsPage() {
                       {r.title}
                     </Link>
                   </td>
-                  <td className="px-4 py-3">{r.project_number ?? ""}</td>
+                  <td className="px-4 py-3 text-zinc-900">{r.project_number ?? ""}</td>
                   <td className="px-4 py-3">
                     <ProjectStatusBadge status={r.status} />
                   </td>
-                  <td className="px-4 py-3">{r.executionLocation ?? ""}</td>
-                  <td className="px-4 py-3">{r.customerName ?? ""}</td>
+                  <td className="px-4 py-3 text-zinc-900">{r.executionLocation ?? ""}</td>
+                  <td className="px-4 py-3 text-zinc-900">{r.customerName ?? ""}</td>
                 </tr>
               ))
             )}

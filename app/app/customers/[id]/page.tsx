@@ -169,7 +169,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-semibold">Projekte</div>
+            <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Projekte</div>
             <div className="p-4">
               <table className="w-full text-sm">
                 <thead className="border-b border-zinc-200 text-left text-zinc-800">

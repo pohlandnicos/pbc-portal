@@ -4,6 +4,10 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export type ProjectStatus =
+  | "open"
+  | "in_progress"
+  | "done"
+  | "cancelled"
   | "new_project"
   | "appointment_planned"
   | "appointment_documented"
@@ -22,6 +26,30 @@ type StatusDef = {
 };
 
 const STATUSES: StatusDef[] = [
+  {
+    value: "open",
+    label: "Offen",
+    dotClassName: "bg-sky-500",
+    badgeClassName: "bg-sky-50 text-sky-800 ring-sky-200",
+  },
+  {
+    value: "in_progress",
+    label: "In Bearbeitung",
+    dotClassName: "bg-amber-500",
+    badgeClassName: "bg-amber-50 text-amber-900 ring-amber-200",
+  },
+  {
+    value: "done",
+    label: "Abgeschlossen",
+    dotClassName: "bg-emerald-600",
+    badgeClassName: "bg-emerald-50 text-emerald-900 ring-emerald-200",
+  },
+  {
+    value: "cancelled",
+    label: "Abgebrochen",
+    dotClassName: "bg-slate-500",
+    badgeClassName: "bg-slate-50 text-slate-800 ring-slate-200",
+  },
   {
     value: "new_project",
     label: "Neues Projekt",
