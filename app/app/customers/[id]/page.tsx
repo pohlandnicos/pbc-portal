@@ -29,6 +29,22 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   const customer = res?.ok ? json?.data : null;
 
+  const contactsRes = await fetch(
+    `${origin}/api/customer-contacts?customer_id=${encodeURIComponent(id)}`,
+    {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    }
+  ).catch(() => null);
+
+  const contactsJson = (await contactsRes?.json().catch(() => null)) as
+    | { data?: any[]; error?: string }
+    | null;
+
+  const contact = contactsRes?.ok ? (contactsJson?.data?.[0] ?? null) : null;
+
   const name = customer
     ? customer.type === "company"
       ? customer.company_name
@@ -54,7 +70,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
-          <div className="rounded-xl border bg-white p-4 space-y-3">
+          <div className="rounded-xl border bg-white p-4 space-y-6">
             <div className="text-sm">
               <div className="text-zinc-500">Name</div>
               <div className="font-medium">{name ?? ""}</div>
@@ -66,6 +82,32 @@ export default async function CustomerDetailPage({ params }: Props) {
             <div className="text-sm">
               <div className="text-zinc-500">USt-ID</div>
               <div className="font-medium">{customer?.vat_id ?? ""}</div>
+            </div>
+
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium">Kontakt</div>
+              {!contact ? (
+                <div className="mt-2 text-sm text-zinc-600">Kein Kontakt hinterlegt</div>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Kontaktname</div>
+                    <div className="font-medium">{contact.contact_name ?? ""}</div>
+                  </div>
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Festnetz</div>
+                    <div className="font-medium">{contact.phone_landline ?? ""}</div>
+                  </div>
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Mobil</div>
+                    <div className="font-medium">{contact.phone_mobile ?? ""}</div>
+                  </div>
+                  <div className="text-sm">
+                    <div className="text-zinc-500">E-Mail</div>
+                    <div className="font-medium">{contact.email ?? ""}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

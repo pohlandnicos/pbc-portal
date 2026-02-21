@@ -14,6 +14,47 @@ const schema = z
   })
   .strict();
 
+export async function GET(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const rl = rateLimit(`customer-contacts:list:${ip}`, { limit: 120, windowSeconds: 60 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
+  }
+
+  const url = new URL(request.url);
+  const customerId = url.searchParams.get("customer_id");
+  if (!customerId) {
+    return NextResponse.json({ error: "missing_customer_id" }, { status: 400 });
+  }
+
+  const parsedCustomerId = z.string().uuid().safeParse(customerId);
+  if (!parsedCustomerId.success) {
+    return NextResponse.json({ error: "invalid_customer_id" }, { status: 400 });
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const { orgId } = await getCurrentOrgId();
+  if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
+
+  const { data, error } = await supabase
+    .from("customer_contacts")
+    .select("id, contact_name, phone_landline, phone_mobile, email, created_at")
+    .eq("org_id", orgId)
+    .eq("customer_id", parsedCustomerId.data)
+    .order("created_at", { ascending: false });
+
+  if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  return NextResponse.json({ data: data ?? [] });
+}
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`customer-contacts:create:${ip}`, { limit: 30, windowSeconds: 60 });
