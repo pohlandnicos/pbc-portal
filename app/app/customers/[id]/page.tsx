@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { CustomerContactSection } from "@/components/customers/CustomerContactSection";
+import { AddressMapEmbed } from "@/components/maps/AddressMapEmbed";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -131,6 +132,8 @@ export default async function CustomerDetailPage({ params }: Props) {
                   <div className="text-zinc-700">Adresse</div>
                   <div className="font-medium">{address ?? ""}</div>
                 </div>
+
+                {address ? <AddressMapEmbed address={address} title="Rechnungsadresse" /> : null}
               </div>
             </div>
 

@@ -1,4 +1,5 @@
 import { cookies, headers } from "next/headers";
+import { AddressMapEmbed } from "@/components/maps/AddressMapEmbed";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -77,6 +78,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="text-zinc-700">Ausführungsort</div>
               <div className="font-medium">{locationLabel}</div>
             </div>
+
+            {locationLabel ? <AddressMapEmbed address={locationLabel} title="Ausführungsort" /> : null}
           </div>
         </div>
 
