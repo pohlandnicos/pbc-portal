@@ -52,7 +52,15 @@ export default async function CustomerDetailPage({ params }: Props) {
     : null;
 
   const address = customer
-    ? `${customer.billing_street} ${customer.billing_house_number}, ${customer.billing_postal_code} ${customer.billing_city}`
+    ? `${customer.billing_street} ${customer.billing_house_number}${
+        customer.billing_address_extra ? `, ${customer.billing_address_extra}` : ""
+      }, ${customer.billing_postal_code} ${customer.billing_city}`
+    : null;
+
+  const typeLabel = customer
+    ? customer.type === "company"
+      ? "Firmenkunde"
+      : "Privatkunde"
     : null;
 
   return (
@@ -71,17 +79,75 @@ export default async function CustomerDetailPage({ params }: Props) {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
           <div className="rounded-xl border bg-white p-4 space-y-6">
-            <div className="text-sm">
-              <div className="text-zinc-500">Name</div>
-              <div className="font-medium">{name ?? ""}</div>
+            <div>
+              <div className="text-sm font-medium">Kundendaten</div>
+              <div className="mt-3 space-y-3">
+                <div className="text-sm">
+                  <div className="text-zinc-500">Kundenname</div>
+                  <div className="font-medium">{name ?? ""}</div>
+                </div>
+                <div className="text-sm">
+                  <div className="text-zinc-500">Typ</div>
+                  <div className="font-medium">{typeLabel ?? ""}</div>
+                </div>
+
+                {customer?.customer_number ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Kundennummer</div>
+                    <div className="font-medium">{customer.customer_number}</div>
+                  </div>
+                ) : null}
+
+                {customer?.description ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Beschreibung</div>
+                    <div className="font-medium whitespace-pre-wrap">{customer.description}</div>
+                  </div>
+                ) : null}
+              </div>
             </div>
-            <div className="text-sm">
-              <div className="text-zinc-500">Adresse</div>
-              <div className="font-medium">{address ?? ""}</div>
+
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium">Rechnungsadresse</div>
+              <div className="mt-3 space-y-3">
+                <div className="text-sm">
+                  <div className="text-zinc-500">Adresse</div>
+                  <div className="font-medium">{address ?? ""}</div>
+                </div>
+              </div>
             </div>
-            <div className="text-sm">
-              <div className="text-zinc-500">USt-ID</div>
-              <div className="font-medium">{customer?.vat_id ?? ""}</div>
+
+            <div className="border-t pt-4">
+              <div className="text-sm font-medium">IDs</div>
+              <div className="mt-3 space-y-3">
+                {customer?.vat_id ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">USt-ID</div>
+                    <div className="font-medium">{customer.vat_id}</div>
+                  </div>
+                ) : null}
+
+                {customer?.leitweg_id ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Leitweg-ID</div>
+                    <div className="font-medium">{customer.leitweg_id}</div>
+                  </div>
+                ) : null}
+
+                {customer?.supplier_number ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Lieferantennummer</div>
+                    <div className="font-medium">{customer.supplier_number}</div>
+                  </div>
+                ) : null}
+
+                {customer?.vendor_number ? (
+                  <div className="text-sm">
+                    <div className="text-zinc-500">Vendor Nummer</div>
+                    <div className="font-medium">{customer.vendor_number}</div>
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className="border-t pt-4">
