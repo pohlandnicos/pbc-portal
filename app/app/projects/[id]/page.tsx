@@ -87,7 +87,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="md:col-span-1">
           <div className="space-y-6">
             <div className="rounded-xl border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Projektinfos</div>
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Projektinfos</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Projektnummer</div>
@@ -105,7 +105,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </div>
 
             <div className="rounded-xl border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Kunde</div>
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Kunde</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Name</div>
@@ -133,7 +133,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             </div>
 
             <div className="rounded-xl border border-zinc-200 bg-white">
-              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Ausführungsort</div>
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Ausführungsort</div>
               <div className="p-4 space-y-4">
                 <div className="text-sm">
                   <div className="text-zinc-900">Adresse</div>
@@ -163,12 +163,12 @@ export default async function ProjectDetailPage({ params }: Props) {
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b border-zinc-200 px-4 py-3 font-medium">Angebote</div>
+            <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Angebote</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b border-zinc-200 px-4 py-3 font-medium">Rechnungen</div>
+            <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Rechnungen</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>

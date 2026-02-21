@@ -123,7 +123,7 @@ export default async function CustomerDetailPage({ params }: Props) {
         <div className="md:col-span-1">
           <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-6">
             <div>
-              <div className="text-sm font-medium">Kundendaten</div>
+              <div className="text-sm font-semibold">Kundendaten</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Kundenname</div>
@@ -151,7 +151,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             </div>
 
             <div className="border-t border-zinc-200 pt-4">
-              <div className="text-sm font-medium">Rechnungsadresse</div>
+              <div className="text-sm font-semibold">Rechnungsadresse</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Adresse</div>
@@ -163,7 +163,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             </div>
 
             <div className="border-t border-zinc-200 pt-4">
-              <div className="text-sm font-medium">IDs</div>
+              <div className="text-sm font-semibold">IDs</div>
               <div className="mt-3 space-y-3">
                 {customer?.vat_id ? (
                   <div className="text-sm">
@@ -201,7 +201,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-medium">Projekte</div>
+            <div className="border-b px-4 py-3 font-semibold">Projekte</div>
             <div className="p-4 text-sm">
               {projects.length === 0 ? (
                 <div className="text-zinc-900">Noch keine Projekte verknüpft.</div>
@@ -223,12 +223,12 @@ export default async function CustomerDetailPage({ params }: Props) {
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-medium">Angebote</div>
+            <div className="border-b px-4 py-3 font-semibold">Angebote</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
-            <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
+            <div className="border-b px-4 py-3 font-semibold">Rechnungen</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
