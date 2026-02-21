@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,16 +16,22 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (signUpError) {
+      const json = (await res.json().catch(() => null)) as
+        | { error?: string; message?: string }
+        | null;
+
+      if (!res.ok) {
+        const msg = json?.message;
+        if (msg?.toLowerCase().includes("already") || msg?.toLowerCase().includes("registered")) {
+          setError("Account existiert bereits. Bitte einloggen.");
+          return;
+        }
         setError("Registrierung fehlgeschlagen");
         return;
       }

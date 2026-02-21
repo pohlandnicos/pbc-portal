@@ -2,7 +2,6 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 function LoginInner() {
   const router = useRouter();
@@ -20,15 +19,26 @@ function LoginInner() {
     setLoading(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-      if (signInError) {
+
+      const json = (await res.json().catch(() => null)) as
+        | { error?: string; message?: string }
+        | null;
+
+      if (!res.ok) {
+        const msg = json?.message?.toLowerCase();
+        if (msg?.includes("email") && msg.includes("confirm")) {
+          setError("Bitte E-Mail bestätigen und dann einloggen.");
+          return;
+        }
         setError("Login fehlgeschlagen");
         return;
       }
+
       router.replace(next);
       router.refresh();
     } finally {
