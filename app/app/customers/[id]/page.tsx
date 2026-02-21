@@ -83,9 +83,34 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Kunde</h1>
-        <p className="text-sm text-zinc-600">ID: {id}</p>
+      <div className="space-y-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-semibold tracking-tight">{name ?? "Kunde"}</h1>
+          <div className="text-sm text-zinc-700">ID: {id}</div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Typ</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">{typeLabel ?? "—"}</div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Kundennummer</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">
+              {customer?.customer_number ?? "—"}
+            </div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Ort</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">
+              {customer?.billing_city ?? "—"}
+            </div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Projekte</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">{projects.length}</div>
+          </div>
+        </div>
       </div>
 
       {!customer ? (
