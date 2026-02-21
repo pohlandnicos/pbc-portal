@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -10,8 +10,17 @@ export default async function CustomerDetailPage({ params }: Props) {
   const proto = h.get("x-forwarded-proto") ?? "https";
   const origin = host ? `${proto}://${host}` : "";
 
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+
   const res = await fetch(`${origin}/api/customers/${id}`, {
     cache: "no-store",
+    headers: {
+      cookie: cookieHeader,
+    },
   }).catch(() => null);
 
   const json = (await res?.json().catch(() => null)) as
