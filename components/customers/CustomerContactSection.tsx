@@ -6,7 +6,6 @@ import { z } from "zod";
 
 type Contact = {
   id: string;
-  contact_name: string | null;
   phone_landline: string | null;
   phone_mobile: string | null;
   email: string | null;
@@ -19,7 +18,6 @@ type Props = {
 
 const schema = z
   .object({
-    contact_name: z.string().optional(),
     phone_landline: z.string().optional(),
     phone_mobile: z.string().optional(),
     email: z.string().email("Ungültige E-Mail").optional(),
@@ -27,7 +25,6 @@ const schema = z
   .strict()
   .superRefine((val, ctx) => {
     const filled =
-      (val.contact_name ?? "").trim().length > 0 ||
       (val.phone_landline ?? "").trim().length > 0 ||
       (val.phone_mobile ?? "").trim().length > 0 ||
       (val.email ?? "").trim().length > 0;
@@ -35,8 +32,8 @@ const schema = z
     if (!filled) {
       ctx.addIssue({
         code: "custom",
-        message: "Bitte mindestens ein Kontaktfeld ausfüllen",
-        path: ["contact_name"],
+        message: "Bitte mindestens Festnetz, Mobil oder E-Mail ausfüllen",
+        path: ["phone_landline"],
       });
     }
   });
@@ -49,7 +46,6 @@ export function CustomerContactSection({ customerId, contact }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
-    contact_name: "",
     phone_landline: "",
     phone_mobile: "",
     email: "",
@@ -67,7 +63,6 @@ export function CustomerContactSection({ customerId, contact }: Props) {
     setEditMode(true);
     setOpen(true);
     setForm({
-      contact_name: contact.contact_name ?? "",
       phone_landline: contact.phone_landline ?? "",
       phone_mobile: contact.phone_mobile ?? "",
       email: contact.email ?? "",
@@ -79,7 +74,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
     setEditMode(false);
     setOpen((s) => !s);
     if (!open) {
-      setForm({ contact_name: "", phone_landline: "", phone_mobile: "", email: "" });
+      setForm({ phone_landline: "", phone_mobile: "", email: "" });
     }
   }
 
@@ -102,14 +97,12 @@ export function CustomerContactSection({ customerId, contact }: Props) {
           editMode
             ? {
                 id: contact?.id,
-                contact_name: parsed.data.contact_name?.trim() || null,
                 phone_landline: parsed.data.phone_landline?.trim() || null,
                 phone_mobile: parsed.data.phone_mobile?.trim() || null,
                 email: parsed.data.email?.trim() || null,
               }
             : {
                 customer_id: customerId,
-                contact_name: parsed.data.contact_name?.trim() || undefined,
                 phone_landline: parsed.data.phone_landline?.trim() || undefined,
                 phone_mobile: parsed.data.phone_mobile?.trim() || undefined,
                 email: parsed.data.email?.trim() || undefined,
@@ -160,10 +153,6 @@ export function CustomerContactSection({ customerId, contact }: Props) {
       {contact && !open ? (
         <div className="mt-3 space-y-3">
           <div className="text-sm">
-            <div className="text-zinc-500">Kontaktname</div>
-            <div className="font-medium">{contact.contact_name ?? ""}</div>
-          </div>
-          <div className="text-sm">
             <div className="text-zinc-500">Festnetz</div>
             <div className="font-medium">{contact.phone_landline ?? ""}</div>
           </div>
@@ -178,14 +167,6 @@ export function CustomerContactSection({ customerId, contact }: Props) {
         </div>
       ) : open ? (
         <form className="mt-3 space-y-3" onSubmit={onSubmit}>
-          <div className="text-sm">
-            <div className="text-zinc-500">Kontaktname</div>
-            <input
-              className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-              value={form.contact_name}
-              onChange={(e) => setForm((s) => ({ ...s, contact_name: e.target.value }))}
-            />
-          </div>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="text-sm">
               <div className="text-zinc-500">Festnetz</div>

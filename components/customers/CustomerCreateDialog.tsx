@@ -28,7 +28,6 @@ const baseSchema = z.object({
   billing_postal_code: z.string().trim().min(1, "PLZ ist Pflichtfeld"),
   billing_city: z.string().trim().min(1, "Ort ist Pflichtfeld"),
 
-  contact_name: z.string().optional(),
   phone_landline: z.string().optional(),
   phone_mobile: z.string().optional(),
   email: z.string().optional(),
@@ -92,7 +91,6 @@ export function CustomerCreateDialog({ onCreated }: Props) {
     billing_postal_code: "",
     billing_city: "",
 
-    contact_name: "",
     phone_landline: "",
     phone_mobile: "",
     email: "",
@@ -166,7 +164,6 @@ export function CustomerCreateDialog({ onCreated }: Props) {
       const customerId = json?.data?.id;
 
       const contactFilled =
-        (parsed.data.contact_name ?? "").trim().length > 0 ||
         (parsed.data.phone_landline ?? "").trim().length > 0 ||
         (parsed.data.phone_mobile ?? "").trim().length > 0 ||
         (parsed.data.email ?? "").trim().length > 0;
@@ -174,7 +171,6 @@ export function CustomerCreateDialog({ onCreated }: Props) {
       if (customerId && contactFilled) {
         const contactPayload = {
           customer_id: customerId,
-          contact_name: parsed.data.contact_name || undefined,
           phone_landline: parsed.data.phone_landline || undefined,
           phone_mobile: parsed.data.phone_mobile || undefined,
           email: parsed.data.email || undefined,
@@ -424,16 +420,6 @@ export function CustomerCreateDialog({ onCreated }: Props) {
 
                 {contactOpen ? (
                   <div className="mt-3 grid gap-3 md:grid-cols-2">
-                    <div className="md:col-span-2">
-                      <label className="text-sm text-zinc-700">Kontaktname</label>
-                      <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                        value={form.contact_name}
-                        onChange={(e) =>
-                          setForm((s) => ({ ...s, contact_name: e.target.value }))
-                        }
-                      />
-                    </div>
                     <div>
                       <label className="text-sm text-zinc-700">Telefon (Festnetz)</label>
                       <input
