@@ -35,7 +35,7 @@ export async function AddressMapEmbed({ address, title }: Props) {
   const zoom = 15;
   const width = 600;
   const height = 240;
-  const staticSrc = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lon}&zoom=${zoom}&size=${width}x${height}&markers=${lat},${lon},red-pushpin`;
+  const staticSrc = `/api/static-map?lat=${lat}&lon=${lon}&zoom=${zoom}&w=${width}&h=${height}`;
 
   return (
     <div className="mt-3 overflow-hidden rounded-lg border bg-white">
