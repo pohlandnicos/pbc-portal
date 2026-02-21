@@ -19,7 +19,16 @@ export async function getCurrentOrgId() {
     .maybeSingle();
 
   if (error || !data?.org_id) {
-    return { orgId: null as string | null, userId: user.id };
+    const { data: bootstrapOrgId, error: bootstrapError } = await supabase.rpc(
+      "bootstrap_current_user_org",
+      { p_org_name: "Default" }
+    );
+
+    if (bootstrapError || !bootstrapOrgId) {
+      return { orgId: null as string | null, userId: user.id };
+    }
+
+    return { orgId: bootstrapOrgId as string, userId: user.id };
   }
 
   return { orgId: data.org_id as string, userId: user.id };
