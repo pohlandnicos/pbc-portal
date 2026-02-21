@@ -44,6 +44,7 @@ const schema = z
 export function CustomerContactSection({ customerId, contact }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,6 +61,28 @@ export function CustomerContactSection({ customerId, contact }: Props) {
     return parsed.error.issues[0]?.message ?? null;
   }, [form]);
 
+  function startEdit() {
+    if (!contact) return;
+    setError(null);
+    setEditMode(true);
+    setOpen(true);
+    setForm({
+      contact_name: contact.contact_name ?? "",
+      phone_landline: contact.phone_landline ?? "",
+      phone_mobile: contact.phone_mobile ?? "",
+      email: contact.email ?? "",
+    });
+  }
+
+  function startCreate() {
+    setError(null);
+    setEditMode(false);
+    setOpen((s) => !s);
+    if (!open) {
+      setForm({ contact_name: "", phone_landline: "", phone_mobile: "", email: "" });
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -73,15 +96,25 @@ export function CustomerContactSection({ customerId, contact }: Props) {
     setLoading(true);
     try {
       const res = await fetch("/api/customer-contacts", {
-        method: "POST",
+        method: editMode ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customer_id: customerId,
-          contact_name: parsed.data.contact_name?.trim() || undefined,
-          phone_landline: parsed.data.phone_landline?.trim() || undefined,
-          phone_mobile: parsed.data.phone_mobile?.trim() || undefined,
-          email: parsed.data.email?.trim() || undefined,
-        }),
+        body: JSON.stringify(
+          editMode
+            ? {
+                id: contact?.id,
+                contact_name: parsed.data.contact_name?.trim() || null,
+                phone_landline: parsed.data.phone_landline?.trim() || null,
+                phone_mobile: parsed.data.phone_mobile?.trim() || null,
+                email: parsed.data.email?.trim() || null,
+              }
+            : {
+                customer_id: customerId,
+                contact_name: parsed.data.contact_name?.trim() || undefined,
+                phone_landline: parsed.data.phone_landline?.trim() || undefined,
+                phone_mobile: parsed.data.phone_mobile?.trim() || undefined,
+                email: parsed.data.email?.trim() || undefined,
+              }
+        ),
       });
 
       const json = (await res.json().catch(() => null)) as
@@ -94,6 +127,7 @@ export function CustomerContactSection({ customerId, contact }: Props) {
       }
 
       setOpen(false);
+      setEditMode(false);
       router.refresh();
     } finally {
       setLoading(false);
@@ -104,18 +138,26 @@ export function CustomerContactSection({ customerId, contact }: Props) {
     <div className="border-t pt-4">
       <div className="flex items-center justify-between gap-2">
         <div className="text-sm font-medium">Kontakt</div>
-        {!contact ? (
+        {contact ? (
           <button
             type="button"
             className="rounded-md border px-3 py-1 text-xs"
-            onClick={() => setOpen((s) => !s)}
+            onClick={() => (open && editMode ? (setOpen(false), setEditMode(false)) : startEdit())}
+          >
+            {open && editMode ? "Abbrechen" : "Bearbeiten"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="rounded-md border px-3 py-1 text-xs"
+            onClick={startCreate}
           >
             {open ? "Abbrechen" : "Kontakt hinzufügen"}
           </button>
-        ) : null}
+        )}
       </div>
 
-      {contact ? (
+      {contact && !open ? (
         <div className="mt-3 space-y-3">
           <div className="text-sm">
             <div className="text-zinc-500">Kontaktname</div>

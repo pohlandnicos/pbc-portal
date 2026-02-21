@@ -14,6 +14,16 @@ const schema = z
   })
   .strict();
 
+const patchSchema = z
+  .object({
+    id: z.string().uuid(),
+    contact_name: z.string().nullable().optional(),
+    phone_landline: z.string().nullable().optional(),
+    phone_mobile: z.string().nullable().optional(),
+    email: z.string().email().nullable().optional(),
+  })
+  .strict();
+
 export async function GET(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`customer-contacts:list:${ip}`, { limit: 120, windowSeconds: 60 });
@@ -107,4 +117,48 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
   return NextResponse.json({ data }, { status: 201 });
+}
+
+export async function PATCH(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const rl = rateLimit(`customer-contacts:update:${ip}`, { limit: 60, windowSeconds: 60 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
+    );
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const { orgId } = await getCurrentOrgId();
+  if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
+
+  const body = await request.json().catch(() => null);
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  }
+
+  const updatePayload: Record<string, unknown> = {};
+  if (parsed.data.contact_name !== undefined) updatePayload.contact_name = parsed.data.contact_name;
+  if (parsed.data.phone_landline !== undefined) updatePayload.phone_landline = parsed.data.phone_landline;
+  if (parsed.data.phone_mobile !== undefined) updatePayload.phone_mobile = parsed.data.phone_mobile;
+  if (parsed.data.email !== undefined) updatePayload.email = parsed.data.email;
+
+  const { data, error } = await supabase
+    .from("customer_contacts")
+    .update(updatePayload)
+    .eq("id", parsed.data.id)
+    .eq("org_id", orgId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "not_found" }, { status: 404 });
+  return NextResponse.json({ data }, { status: 200 });
 }
