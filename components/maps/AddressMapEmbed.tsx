@@ -33,18 +33,41 @@ export async function AddressMapEmbed({ address, title }: Props) {
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
 
   const zoom = 15;
-  const width = 600;
-  const height = 240;
-  const staticSrc = `/api/static-map?lat=${lat}&lon=${lon}&zoom=${zoom}&w=${width}&h=${height}`;
+  const n = 2 ** zoom;
+  const xtileF = ((lon + 180) / 360) * n;
+  const latRad = (lat * Math.PI) / 180;
+  const ytileF =
+    (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+
+  const xtile = Math.floor(xtileF);
+  const ytile = Math.floor(ytileF);
 
   return (
     <div className="mt-3 overflow-hidden rounded-lg border bg-white">
-      <img
-        alt={title ?? "Karte"}
-        src={staticSrc}
-        className="h-56 w-full object-cover"
-        loading="lazy"
-      />
+      <div className="relative h-56 w-full">
+        <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
+          {[-1, 0, 1].flatMap((dy) =>
+            [-1, 0, 1].map((dx) => {
+              const x = xtile + dx;
+              const y = ytile + dy;
+              const src = `/api/osm-tile?z=${zoom}&x=${x}&y=${y}`;
+              return (
+                <img
+                  key={`${dx}:${dy}`}
+                  alt={title ?? "Karte"}
+                  src={src}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              );
+            })
+          )}
+        </div>
+
+        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="h-4 w-4 rounded-full bg-red-600 ring-4 ring-white" />
+        </div>
+      </div>
     </div>
   );
 }
