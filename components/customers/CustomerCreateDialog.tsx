@@ -22,11 +22,11 @@ const baseSchema = z.object({
   vat_id: z.string().optional(),
   vendor_number: z.string().optional(),
 
-  billing_street: z.string().trim().min(1),
-  billing_house_number: z.string().trim().min(1),
+  billing_street: z.string().trim().min(1, "Straße ist Pflichtfeld"),
+  billing_house_number: z.string().trim().min(1, "Hausnummer ist Pflichtfeld"),
   billing_address_extra: z.string().optional(),
-  billing_postal_code: z.string().trim().min(1),
-  billing_city: z.string().trim().min(1),
+  billing_postal_code: z.string().trim().min(1, "PLZ ist Pflichtfeld"),
+  billing_city: z.string().trim().min(1, "Ort ist Pflichtfeld"),
 
   contact_name: z.string().optional(),
   phone_landline: z.string().optional(),
