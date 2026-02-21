@@ -42,10 +42,23 @@ export async function AddressMapEmbed({ address, title }: Props) {
   const xtile = Math.floor(xtileF);
   const ytile = Math.floor(ytileF);
 
+  const fracX = xtileF - xtile;
+  const fracY = ytileF - ytile;
+  const tileSize = 256;
+  const offsetX = (fracX - 0.5) * tileSize;
+  const offsetY = (fracY - 0.5) * tileSize;
+
   return (
-    <div className="mt-3 overflow-hidden rounded-lg border bg-white">
-      <div className="relative h-56 w-full">
-        <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
+    <div className="mt-3 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-zinc-200">
+      <div className="relative h-56 w-full bg-zinc-100">
+        <div
+          className="absolute left-1/2 top-1/2 grid grid-cols-3 grid-rows-3"
+          style={{
+            width: tileSize * 3,
+            height: tileSize * 3,
+            transform: `translate(-50%, -50%) translate(${-offsetX}px, ${-offsetY}px)`,
+          }}
+        >
           {[-1, 0, 1].flatMap((dy) =>
             [-1, 0, 1].map((dx) => {
               const x = xtile + dx;
@@ -56,7 +69,7 @@ export async function AddressMapEmbed({ address, title }: Props) {
                   key={`${dx}:${dy}`}
                   alt={title ?? "Karte"}
                   src={src}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full select-none"
                   loading="lazy"
                 />
               );
@@ -65,7 +78,10 @@ export async function AddressMapEmbed({ address, title }: Props) {
         </div>
 
         <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="h-4 w-4 rounded-full bg-red-600 ring-4 ring-white" />
+          <div className="relative">
+            <div className="h-3 w-3 rounded-full bg-red-600 shadow-md ring-4 ring-white" />
+            <div className="absolute left-1/2 top-full h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-red-600 shadow-sm" />
+          </div>
         </div>
       </div>
     </div>
