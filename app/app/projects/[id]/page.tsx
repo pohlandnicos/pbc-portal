@@ -86,8 +86,8 @@ export default async function ProjectDetailPage({ params }: Props) {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
           <div className="space-y-6">
-            <div className="rounded-xl border bg-white">
-              <div className="border-b px-4 py-3 font-medium">Projektinfos</div>
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Projektinfos</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Projektnummer</div>
@@ -104,8 +104,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="rounded-xl border bg-white">
-              <div className="border-b px-4 py-3 font-medium">Kunde</div>
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Kunde</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
                   <div className="text-zinc-900">Name</div>
@@ -132,8 +132,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="rounded-xl border bg-white">
-              <div className="border-b px-4 py-3 font-medium">Ausführungsort</div>
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-medium">Ausführungsort</div>
               <div className="p-4 space-y-4">
                 <div className="text-sm">
                   <div className="text-zinc-900">Adresse</div>
@@ -148,27 +148,27 @@ export default async function ProjectDetailPage({ params }: Props) {
 
         <div className="md:col-span-2 space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
               <div className="text-xs font-medium text-zinc-900">Umsatz (netto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
-            <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
               <div className="text-xs font-medium text-zinc-900">Ausgaben (netto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
-            <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
               <div className="text-xs font-medium text-zinc-900">Offener Betrag (brutto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white">
-            <div className="border-b px-4 py-3 font-medium">Angebote</div>
+          <div className="rounded-xl border border-zinc-200 bg-white">
+            <div className="border-b border-zinc-200 px-4 py-3 font-medium">Angebote</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
-          <div className="rounded-xl border bg-white">
-            <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
+          <div className="rounded-xl border border-zinc-200 bg-white">
+            <div className="border-b border-zinc-200 px-4 py-3 font-medium">Rechnungen</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>

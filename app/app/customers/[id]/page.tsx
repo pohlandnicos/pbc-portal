@@ -121,7 +121,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
-          <div className="rounded-xl border bg-white p-4 space-y-6">
+          <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-6">
             <div>
               <div className="text-sm font-medium">Kundendaten</div>
               <div className="mt-3 space-y-3">
@@ -150,7 +150,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="border-t pt-4">
+            <div className="border-t border-zinc-200 pt-4">
               <div className="text-sm font-medium">Rechnungsadresse</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
@@ -162,7 +162,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="border-t pt-4">
+            <div className="border-t border-zinc-200 pt-4">
               <div className="text-sm font-medium">IDs</div>
               <div className="mt-3 space-y-3">
                 {customer?.vat_id ? (
@@ -200,7 +200,7 @@ export default async function CustomerDetailPage({ params }: Props) {
         </div>
 
         <div className="md:col-span-2 space-y-6">
-          <div className="rounded-xl border bg-white">
+          <div className="rounded-xl border border-zinc-200 bg-white">
             <div className="border-b px-4 py-3 font-medium">Projekte</div>
             <div className="p-4 text-sm">
               {projects.length === 0 ? (
@@ -222,12 +222,12 @@ export default async function CustomerDetailPage({ params }: Props) {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white">
+          <div className="rounded-xl border border-zinc-200 bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
-          <div className="rounded-xl border bg-white">
+          <div className="rounded-xl border border-zinc-200 bg-white">
             <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
             <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
