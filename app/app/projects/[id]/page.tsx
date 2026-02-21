@@ -44,9 +44,32 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Projekt</h1>
-        <p className="text-sm text-zinc-700">ID: {id}</p>
+      <div className="space-y-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-semibold tracking-tight">{project?.title ?? "Projekt"}</h1>
+          <div className="text-sm text-zinc-700">ID: {id}</div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Projektnummer</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">
+              {project?.project_number ?? "—"}
+            </div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Projektingang</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">{project?.received_at ?? "—"}</div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Kunde</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">{customerName || "—"}</div>
+          </div>
+          <div className="rounded-xl border bg-white px-4 py-3">
+            <div className="text-xs font-medium text-zinc-700">Status</div>
+            <div className="mt-1 text-sm font-semibold text-zinc-900">{project?.status ?? "—"}</div>
+          </div>
+        </div>
       </div>
 
       {!project ? (
@@ -57,33 +80,35 @@ export default async function ProjectDetailPage({ params }: Props) {
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
-          <div className="rounded-xl border bg-white p-4 space-y-3">
-            <div className="text-sm">
-              <div className="text-zinc-700">Projekttitel</div>
-              <div className="font-medium">{project?.title ?? ""}</div>
-            </div>
-            <div className="text-sm">
-              <div className="text-zinc-700">Projektnummer</div>
-              <div className="font-medium">{project?.project_number ?? ""}</div>
-            </div>
-            <div className="text-sm">
-              <div className="text-zinc-700">Eingangsdatum</div>
-              <div className="font-medium">{project?.received_at ?? ""}</div>
-            </div>
-            <div className="text-sm">
-              <div className="text-zinc-700">Kunde</div>
-              <div className="font-medium">{customerName}</div>
-            </div>
-            <div className="text-sm">
-              <div className="text-zinc-700">Ausführungsort</div>
-              <div className="font-medium">{locationLabel}</div>
-            </div>
+          <div className="rounded-xl border bg-white">
+            <div className="border-b px-4 py-3 font-medium">Stammdaten</div>
+            <div className="p-4 space-y-4">
+              <div className="text-sm">
+                <div className="text-zinc-700">Ausführungsort</div>
+                <div className="font-medium">{locationLabel}</div>
+              </div>
 
-            {locationLabel ? <AddressMapEmbed address={locationLabel} title="Ausführungsort" /> : null}
+              {locationLabel ? <AddressMapEmbed address={locationLabel} title="Ausführungsort" /> : null}
+            </div>
           </div>
         </div>
 
         <div className="md:col-span-2 space-y-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border bg-white px-4 py-3">
+              <div className="text-xs font-medium text-zinc-700">Umsatz (netto)</div>
+              <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
+            </div>
+            <div className="rounded-xl border bg-white px-4 py-3">
+              <div className="text-xs font-medium text-zinc-700">Ausgaben (netto)</div>
+              <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
+            </div>
+            <div className="rounded-xl border bg-white px-4 py-3">
+              <div className="text-xs font-medium text-zinc-700">Offener Betrag (brutto)</div>
+              <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
+            </div>
+          </div>
+
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
             <div className="p-4 text-sm text-zinc-700">Noch keine Angebote vorhanden.</div>
