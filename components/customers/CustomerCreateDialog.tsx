@@ -159,7 +159,7 @@ export function CustomerCreateDialog({ onCreated }: Props) {
         | null;
 
       if (!res.ok) {
-        setError("Speichern fehlgeschlagen");
+        setError(json?.message ?? "Speichern fehlgeschlagen");
         return;
       }
 

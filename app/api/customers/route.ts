@@ -95,6 +95,12 @@ export async function POST(request: NextRequest) {
     .select("id")
     .single();
 
-  if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  if (error) {
+    const message =
+      typeof (error as any).message === "string" && (error as any).message.length > 0
+        ? (error as any).message
+        : "DB error";
+    return NextResponse.json({ error: "db_error", message }, { status: 500 });
+  }
   return NextResponse.json({ data }, { status: 201 });
 }
