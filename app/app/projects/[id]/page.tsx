@@ -91,19 +91,21 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Projektinfos</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-900">Projektnummer</div>
-                  <div className="font-medium">{project?.project_number ?? "—"}</div>
+                  <div className="text-xs font-medium text-zinc-700">Projektnummer</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">
+                    {project?.project_number ?? "—"}
+                  </div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-900">Projektingang</div>
-                  <div className="font-medium">{project?.received_at ?? "—"}</div>
+                  <div className="text-xs font-medium text-zinc-700">Projektingang</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{project?.received_at ?? "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-900">Projektstatus</div>
+                  <div className="text-xs font-medium text-zinc-700">Projektstatus</div>
                   {project?.status ? (
                     <ProjectStatusSelect projectId={id} value={project.status as ProjectStatus} />
                   ) : (
-                    <div className="font-medium">—</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-900">—</div>
                   )}
                 </div>
               </div>
@@ -113,25 +115,19 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Kunde</div>
               <div className="p-4 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-900">Name</div>
-                  <div className="font-medium">{customerName || "—"}</div>
+                  <div className="text-xs font-medium text-zinc-700">Name</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customerName || "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-900">Adresse</div>
-                  <div className="font-medium">{customerAddress || "—"}</div>
+                  <div className="text-xs font-medium text-zinc-700">Adresse</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customerAddress || "—"}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-900">Kontakt</div>
-                  <div className="space-y-1">
-                    <div className="text-zinc-900">
-                      {(customerContact?.phone_landline ?? "").toString() || "—"}
-                    </div>
-                    <div className="text-zinc-900">
-                      {(customerContact?.phone_mobile ?? "").toString() || "—"}
-                    </div>
-                    <div className="text-zinc-900">
-                      {(customerContact?.email ?? "").toString() || "—"}
-                    </div>
+                  <div className="text-xs font-medium text-zinc-700">Kontakt</div>
+                  <div className="mt-1 space-y-1 text-sm font-semibold text-zinc-900">
+                    <div>{(customerContact?.phone_landline ?? "").toString() || "—"}</div>
+                    <div>{(customerContact?.phone_mobile ?? "").toString() || "—"}</div>
+                    <div>{(customerContact?.email ?? "").toString() || "—"}</div>
                   </div>
                 </div>
               </div>
@@ -141,8 +137,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Ausführungsort</div>
               <div className="p-4 space-y-4">
                 <div className="text-sm">
-                  <div className="text-zinc-900">Adresse</div>
-                  <div className="font-medium">{locationLabel || "—"}</div>
+                  <div className="text-xs font-medium text-zinc-700">Adresse</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{locationLabel || "—"}</div>
                 </div>
 
                 {locationLabel ? <AddressMapEmbed address={locationLabel} title="Ausführungsort" /> : null}

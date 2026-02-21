@@ -126,25 +126,25 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-semibold">Kundendaten</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-900">Kundenname</div>
-                  <div className="font-medium">{name ?? ""}</div>
+                  <div className="text-xs font-medium text-zinc-700">Kundenname</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{name ?? ""}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-900">Typ</div>
-                  <div className="font-medium">{typeLabel ?? ""}</div>
+                  <div className="text-xs font-medium text-zinc-700">Typ</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{typeLabel ?? ""}</div>
                 </div>
 
                 {customer?.customer_number ? (
                   <div className="text-sm">
-                    <div className="text-zinc-900">Kundennummer</div>
-                    <div className="font-medium">{customer.customer_number}</div>
+                    <div className="text-xs font-medium text-zinc-700">Kundennummer</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-900">{customer.customer_number}</div>
                   </div>
                 ) : null}
 
                 {customer?.description ? (
                   <div className="text-sm">
-                    <div className="text-zinc-900">Beschreibung</div>
-                    <div className="font-medium whitespace-pre-wrap">{customer.description}</div>
+                    <div className="text-xs font-medium text-zinc-700">Beschreibung</div>
+                    <div className="mt-1 text-sm font-semibold text-zinc-900 whitespace-pre-wrap">{customer.description}</div>
                   </div>
                 ) : null}
               </div>
@@ -154,8 +154,8 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-semibold">Rechnungsadresse</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-900">Adresse</div>
-                  <div className="font-medium">{address ?? ""}</div>
+                  <div className="text-xs font-medium text-zinc-700">Adresse</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{address ?? ""}</div>
                 </div>
 
                 {address ? <AddressMapEmbed address={address} title="Rechnungsadresse" /> : null}
