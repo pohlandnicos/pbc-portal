@@ -47,7 +47,7 @@ export default function ProjectsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Projekte</h1>
-          <p className="text-sm text-zinc-600">Übersicht</p>
+          <p className="text-sm text-zinc-700">Übersicht</p>
         </div>
         <ProjectCreateDialog
           onCreated={() => {
@@ -65,7 +65,7 @@ export default function ProjectsPage() {
 
       <div className="rounded-xl border bg-white">
         <table className="w-full text-sm">
-          <thead className="border-b text-left text-zinc-600">
+          <thead className="border-b bg-zinc-50 text-left text-zinc-800">
             <tr>
               <th className="px-4 py-3 font-medium">Projektname</th>
               <th className="px-4 py-3 font-medium">Projektnummer</th>
@@ -88,7 +88,10 @@ export default function ProjectsPage() {
               </tr>
             ) : (
               rows.map((r) => (
-                <tr key={r.id} className="border-b last:border-b-0">
+                <tr
+                  key={r.id}
+                  className="border-b last:border-b-0 hover:bg-zinc-50 transition-colors"
+                >
                   <td className="px-4 py-3">
                     <Link className="text-zinc-900 underline" href={`/app/projects/${r.id}`}>
                       {r.title}

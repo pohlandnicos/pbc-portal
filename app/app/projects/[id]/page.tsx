@@ -45,7 +45,7 @@ export default async function ProjectDetailPage({ params }: Props) {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold">Projekt</h1>
-        <p className="text-sm text-zinc-600">ID: {id}</p>
+        <p className="text-sm text-zinc-700">ID: {id}</p>
       </div>
 
       {!project ? (
@@ -83,12 +83,12 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
-            <div className="p-4 text-sm text-zinc-600">Noch keine Angebote vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-700">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
-            <div className="p-4 text-sm text-zinc-600">Noch keine Rechnungen vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-700">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
       </div>
