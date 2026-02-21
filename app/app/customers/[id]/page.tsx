@@ -82,11 +82,11 @@ export default async function CustomerDetailPage({ params }: Props) {
     : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-zinc-900">
       <div className="space-y-2">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-semibold tracking-tight">{name ?? "Kunde"}</h1>
-          <div className="text-sm text-zinc-800">ID: {id}</div>
+          <div className="text-sm text-zinc-900">ID: {id}</div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -204,7 +204,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             <div className="border-b px-4 py-3 font-medium">Projekte</div>
             <div className="p-4 text-sm">
               {projects.length === 0 ? (
-                <div className="text-zinc-600">Noch keine Projekte verknüpft.</div>
+                <div className="text-zinc-900">Noch keine Projekte verknüpft.</div>
               ) : (
                 <div className="space-y-2">
                   {projects.map((p: any) => (
@@ -212,7 +212,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                       <a className="underline" href={`/app/projects/${p.id}`}>
                         {p.title}
                       </a>
-                      <div className="text-zinc-600">
+                      <div className="text-zinc-900">
                         {(p.project_number ?? "").toString()}
                       </div>
                     </div>
@@ -224,12 +224,12 @@ export default async function CustomerDetailPage({ params }: Props) {
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
-            <div className="p-4 text-sm text-zinc-600">Noch keine Angebote vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
-            <div className="p-4 text-sm text-zinc-600">Noch keine Rechnungen vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
       </div>

@@ -69,11 +69,11 @@ export default async function ProjectDetailPage({ params }: Props) {
     : null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-zinc-900">
       <div className="space-y-2">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-semibold tracking-tight">{project?.title ?? "Projekt"}</h1>
-          <div className="text-sm text-zinc-800">ID: {id}</div>
+          <div className="text-sm text-zinc-900">ID: {id}</div>
         </div>
       </div>
 
@@ -149,27 +149,27 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="md:col-span-2 space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border bg-white px-4 py-3">
-              <div className="text-xs font-medium text-zinc-700">Umsatz (netto)</div>
+              <div className="text-xs font-medium text-zinc-900">Umsatz (netto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
             <div className="rounded-xl border bg-white px-4 py-3">
-              <div className="text-xs font-medium text-zinc-700">Ausgaben (netto)</div>
+              <div className="text-xs font-medium text-zinc-900">Ausgaben (netto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
             <div className="rounded-xl border bg-white px-4 py-3">
-              <div className="text-xs font-medium text-zinc-700">Offener Betrag (brutto)</div>
+              <div className="text-xs font-medium text-zinc-900">Offener Betrag (brutto)</div>
               <div className="mt-1 text-sm font-semibold text-zinc-900">0,00 €</div>
             </div>
           </div>
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
-            <div className="p-4 text-sm text-zinc-700">Noch keine Angebote vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
-            <div className="p-4 text-sm text-zinc-700">Noch keine Rechnungen vorhanden.</div>
+            <div className="p-4 text-sm text-zinc-900">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
       </div>
