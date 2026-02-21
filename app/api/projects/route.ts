@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
   let q = supabase
     .from("projects")
     .select(
-      "id, title, project_number, received_at, created_at, customers(id, type, company_name, salutation, first_name, last_name), project_locations(city, street, house_number, postal_code, is_billing_address)"
+      "id, title, project_number, status, received_at, created_at, customers(id, type, company_name, salutation, first_name, last_name), project_locations(city, street, house_number, postal_code, is_billing_address)"
     )
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
