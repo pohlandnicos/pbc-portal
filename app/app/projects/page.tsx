@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ProjectCreateDialog } from "@/components/projects/ProjectCreateDialog";
+import { ProjectStatusBadge, type ProjectStatus } from "@/components/projects/ProjectStatusSelect";
 
 type ProjectRow = {
   id: string;
   title: string;
   project_number: string | null;
+  status: ProjectStatus;
   received_at: string;
   executionLocation: string;
   customerName: string;
@@ -69,6 +71,7 @@ export default function ProjectsPage() {
             <tr>
               <th className="px-4 py-3 font-medium">Projektname</th>
               <th className="px-4 py-3 font-medium">Projektnummer</th>
+              <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Ausführungsort</th>
               <th className="px-4 py-3 font-medium">Kunde</th>
             </tr>
@@ -76,13 +79,13 @@ export default function ProjectsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td className="px-4 py-3" colSpan={4}>
+                <td className="px-4 py-3" colSpan={5}>
                   Laden...
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td className="px-4 py-3" colSpan={4}>
+                <td className="px-4 py-3" colSpan={5}>
                   Noch keine Projekte vorhanden.
                 </td>
               </tr>
@@ -98,6 +101,9 @@ export default function ProjectsPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3">{r.project_number ?? ""}</td>
+                  <td className="px-4 py-3">
+                    <ProjectStatusBadge status={r.status} />
+                  </td>
                   <td className="px-4 py-3">{r.executionLocation ?? ""}</td>
                   <td className="px-4 py-3">{r.customerName ?? ""}</td>
                 </tr>

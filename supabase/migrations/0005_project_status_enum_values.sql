@@ -1,0 +1,9 @@
+alter type public.project_status add value if not exists 'new_project';
+alter type public.project_status add value if not exists 'appointment_planned';
+alter type public.project_status add value if not exists 'appointment_documented';
+alter type public.project_status add value if not exists 'offer_created';
+alter type public.project_status add value if not exists 'offer_accepted';
+alter type public.project_status add value if not exists 'invoice_created';
+alter type public.project_status add value if not exists 'invoice_overdue';
+alter type public.project_status add value if not exists 'invoice_reminded';
+alter type public.project_status add value if not exists 'invoice_paid';

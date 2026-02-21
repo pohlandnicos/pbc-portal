@@ -1,5 +1,6 @@
 import { cookies, headers } from "next/headers";
 import { AddressMapEmbed } from "@/components/maps/AddressMapEmbed";
+import { ProjectStatusSelect, type ProjectStatus } from "@/components/projects/ProjectStatusSelect";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -99,7 +100,11 @@ export default async function ProjectDetailPage({ params }: Props) {
                 </div>
                 <div className="text-sm">
                   <div className="text-zinc-900">Projektstatus</div>
-                  <div className="font-medium">{project?.status ?? "—"}</div>
+                  {project?.status ? (
+                    <ProjectStatusSelect projectId={id} value={project.status as ProjectStatus} />
+                  ) : (
+                    <div className="font-medium">—</div>
+                  )}
                 </div>
               </div>
             </div>

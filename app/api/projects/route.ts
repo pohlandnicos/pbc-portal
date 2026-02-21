@@ -84,6 +84,7 @@ export async function GET(request: NextRequest) {
       id: row.id,
       title: row.title,
       project_number: row.project_number,
+      status: row.status,
       received_at: row.received_at,
       executionLocation,
       customerName,
