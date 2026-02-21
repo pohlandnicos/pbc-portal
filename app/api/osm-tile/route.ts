@@ -55,7 +55,9 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const upstreamUrl = `https://tile.openstreetmap.org/${z}/${x}/${y}.png`;
+  const subdomains = ["a", "b", "c", "d"];
+  const sd = subdomains[(x + y) % subdomains.length];
+  const upstreamUrl = `https://${sd}.basemaps.cartocdn.com/light_all/${z}/${x}/${y}.png`;
   const upstream = await fetch(upstreamUrl, {
     headers: {
       "User-Agent": "pbc-portal/1.0",
