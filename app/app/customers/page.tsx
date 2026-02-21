@@ -76,9 +76,9 @@ export default function CustomersPage() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border bg-white">
+      <div className="rounded-xl border border-zinc-200 bg-white">
         <table className="w-full text-sm">
-          <thead className="border-b bg-zinc-50 text-left text-zinc-800">
+          <thead className="border-b border-zinc-200 bg-zinc-50 text-left text-zinc-800">
             <tr>
               <th className="px-4 py-3 font-medium">Kundenname</th>
               <th className="px-4 py-3 font-medium">Adresszusatz</th>
@@ -102,7 +102,7 @@ export default function CustomersPage() {
               displayRows.map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b last:border-b-0 hover:bg-zinc-50 transition-colors"
+                  className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <Link className="text-zinc-900 underline" href={`/app/customers/${r.id}`}>
