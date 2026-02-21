@@ -100,24 +100,24 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-medium">Kundendaten</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-500">Kundenname</div>
+                  <div className="text-zinc-700">Kundenname</div>
                   <div className="font-medium">{name ?? ""}</div>
                 </div>
                 <div className="text-sm">
-                  <div className="text-zinc-500">Typ</div>
+                  <div className="text-zinc-700">Typ</div>
                   <div className="font-medium">{typeLabel ?? ""}</div>
                 </div>
 
                 {customer?.customer_number ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">Kundennummer</div>
+                    <div className="text-zinc-700">Kundennummer</div>
                     <div className="font-medium">{customer.customer_number}</div>
                   </div>
                 ) : null}
 
                 {customer?.description ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">Beschreibung</div>
+                    <div className="text-zinc-700">Beschreibung</div>
                     <div className="font-medium whitespace-pre-wrap">{customer.description}</div>
                   </div>
                 ) : null}
@@ -128,7 +128,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="text-sm font-medium">Rechnungsadresse</div>
               <div className="mt-3 space-y-3">
                 <div className="text-sm">
-                  <div className="text-zinc-500">Adresse</div>
+                  <div className="text-zinc-700">Adresse</div>
                   <div className="font-medium">{address ?? ""}</div>
                 </div>
               </div>
@@ -139,28 +139,28 @@ export default async function CustomerDetailPage({ params }: Props) {
               <div className="mt-3 space-y-3">
                 {customer?.vat_id ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">USt-ID</div>
+                    <div className="text-zinc-700">USt-ID</div>
                     <div className="font-medium">{customer.vat_id}</div>
                   </div>
                 ) : null}
 
                 {customer?.leitweg_id ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">Leitweg-ID</div>
+                    <div className="text-zinc-700">Leitweg-ID</div>
                     <div className="font-medium">{customer.leitweg_id}</div>
                   </div>
                 ) : null}
 
                 {customer?.supplier_number ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">Lieferantennummer</div>
+                    <div className="text-zinc-700">Lieferantennummer</div>
                     <div className="font-medium">{customer.supplier_number}</div>
                   </div>
                 ) : null}
 
                 {customer?.vendor_number ? (
                   <div className="text-sm">
-                    <div className="text-zinc-500">Vendor Nummer</div>
+                    <div className="text-zinc-700">Vendor Nummer</div>
                     <div className="font-medium">{customer.vendor_number}</div>
                   </div>
                 ) : null}

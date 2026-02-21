@@ -58,23 +58,23 @@ export default async function ProjectDetailPage({ params }: Props) {
         <div className="md:col-span-1">
           <div className="rounded-xl border bg-white p-4 space-y-3">
             <div className="text-sm">
-              <div className="text-zinc-500">Projekttitel</div>
+              <div className="text-zinc-700">Projekttitel</div>
               <div className="font-medium">{project?.title ?? ""}</div>
             </div>
             <div className="text-sm">
-              <div className="text-zinc-500">Projektnummer</div>
+              <div className="text-zinc-700">Projektnummer</div>
               <div className="font-medium">{project?.project_number ?? ""}</div>
             </div>
             <div className="text-sm">
-              <div className="text-zinc-500">Eingangsdatum</div>
+              <div className="text-zinc-700">Eingangsdatum</div>
               <div className="font-medium">{project?.received_at ?? ""}</div>
             </div>
             <div className="text-sm">
-              <div className="text-zinc-500">Kunde</div>
+              <div className="text-zinc-700">Kunde</div>
               <div className="font-medium">{customerName}</div>
             </div>
             <div className="text-sm">
-              <div className="text-zinc-500">Ausführungsort</div>
+              <div className="text-zinc-700">Ausführungsort</div>
               <div className="font-medium">{locationLabel}</div>
             </div>
           </div>
