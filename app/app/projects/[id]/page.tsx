@@ -1,13 +1,45 @@
-type Props = { params: Promise<{ id: string }> };
+import { cookies, headers } from "next/headers";
 
-const rightTables = {
-  projects: [{ id: "p1", name: "Projekt A" }],
-  offers: [{ id: "o1", number: "A-001", status: "draft" }],
-  invoices: [{ id: "i1", number: "R-001", status: "draft" }],
-};
+type Props = { params: Promise<{ id: string }> };
 
 export default async function ProjectDetailPage({ params }: Props) {
   const { id } = await params;
+
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const origin = host ? `${proto}://${host}` : "";
+
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
+
+  const res = await fetch(`${origin}/api/projects/${id}`, {
+    cache: "no-store",
+    headers: {
+      cookie: cookieHeader,
+    },
+  }).catch(() => null);
+
+  const json = (await res?.json().catch(() => null)) as
+    | { data?: any; error?: string }
+    | null;
+
+  const project = res?.ok ? json?.data : null;
+
+  const customer = project?.customer ?? null;
+  const customerName = customer
+    ? customer.type === "company"
+      ? customer.company_name
+      : `${customer.salutation ?? ""} ${customer.first_name ?? ""} ${customer.last_name ?? ""}`.trim()
+    : "";
+
+  const loc = project?.execution_location ?? null;
+  const locationLabel = loc
+    ? `${loc.street} ${loc.house_number}${loc.address_extra ? `, ${loc.address_extra}` : ""}, ${loc.postal_code} ${loc.city}`
+    : "";
 
   return (
     <div className="space-y-4">
@@ -16,66 +48,47 @@ export default async function ProjectDetailPage({ params }: Props) {
         <p className="text-sm text-zinc-600">ID: {id}</p>
       </div>
 
+      {!project ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Projekt konnte nicht geladen werden.
+        </div>
+      ) : null}
+
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
           <div className="rounded-xl border bg-white p-4 space-y-3">
             <div className="text-sm">
               <div className="text-zinc-500">Projekttitel</div>
-              <div className="font-medium">Musterprojekt A</div>
+              <div className="font-medium">{project?.title ?? ""}</div>
             </div>
             <div className="text-sm">
               <div className="text-zinc-500">Projektnummer</div>
-              <div className="font-medium">P-001</div>
+              <div className="font-medium">{project?.project_number ?? ""}</div>
             </div>
             <div className="text-sm">
               <div className="text-zinc-500">Eingangsdatum</div>
-              <div className="font-medium">2026-02-21</div>
+              <div className="font-medium">{project?.received_at ?? ""}</div>
             </div>
             <div className="text-sm">
               <div className="text-zinc-500">Kunde</div>
-              <div className="font-medium">Musterkunde GmbH</div>
+              <div className="font-medium">{customerName}</div>
             </div>
             <div className="text-sm">
-              <div className="text-zinc-500">Adresse</div>
-              <div className="font-medium">Berlin</div>
-            </div>
-            <div className="text-sm">
-              <div className="text-zinc-500">Kontaktdaten</div>
-              <div className="font-medium">kontakt@example.com</div>
+              <div className="text-zinc-500">Ausführungsort</div>
+              <div className="font-medium">{locationLabel}</div>
             </div>
           </div>
         </div>
 
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border bg-white">
-            <div className="border-b px-4 py-3 font-medium">Projekte</div>
-            <div className="p-4 text-sm">
-              {rightTables.projects.map((r) => (
-                <div key={r.id}>{r.name}</div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Angebote</div>
-            <div className="p-4 text-sm space-y-1">
-              {rightTables.offers.map((r) => (
-                <div key={r.id}>
-                  {r.number} ({r.status})
-                </div>
-              ))}
-            </div>
+            <div className="p-4 text-sm text-zinc-600">Noch keine Angebote vorhanden.</div>
           </div>
 
           <div className="rounded-xl border bg-white">
             <div className="border-b px-4 py-3 font-medium">Rechnungen</div>
-            <div className="p-4 text-sm space-y-1">
-              {rightTables.invoices.map((r) => (
-                <div key={r.id}>
-                  {r.number} ({r.status})
-                </div>
-              ))}
-            </div>
+            <div className="p-4 text-sm text-zinc-600">Noch keine Rechnungen vorhanden.</div>
           </div>
         </div>
       </div>
