@@ -1,6 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { CustomerContactSection } from "@/components/customers/CustomerContactSection";
 import { AddressMapEmbed } from "@/components/maps/AddressMapEmbed";
+import { ProjectStatusBadge, type ProjectStatus } from "@/components/projects/ProjectStatusSelect";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -121,10 +122,10 @@ export default async function CustomerDetailPage({ params }: Props) {
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-1">
-          <div className="rounded-xl border border-zinc-200 bg-white p-4 space-y-6">
-            <div>
-              <div className="text-sm font-semibold">Kundendaten</div>
-              <div className="mt-3 space-y-3">
+          <div className="space-y-6">
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Kundendaten</div>
+              <div className="p-4 space-y-3">
                 <div className="text-sm">
                   <div className="text-xs font-medium text-zinc-700">Kundenname</div>
                   <div className="mt-1 text-sm font-semibold text-zinc-900">{name ?? ""}</div>
@@ -133,14 +134,10 @@ export default async function CustomerDetailPage({ params }: Props) {
                   <div className="text-xs font-medium text-zinc-700">Typ</div>
                   <div className="mt-1 text-sm font-semibold text-zinc-900">{typeLabel ?? ""}</div>
                 </div>
-
-                {customer?.customer_number ? (
-                  <div className="text-sm">
-                    <div className="text-xs font-medium text-zinc-700">Kundennummer</div>
-                    <div className="mt-1 text-sm font-semibold text-zinc-900">{customer.customer_number}</div>
-                  </div>
-                ) : null}
-
+                <div className="text-sm">
+                  <div className="text-xs font-medium text-zinc-700">Kundennummer</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customer?.customer_number ?? "—"}</div>
+                </div>
                 {customer?.description ? (
                   <div className="text-sm">
                     <div className="text-xs font-medium text-zinc-700">Beschreibung</div>
@@ -150,9 +147,9 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="border-t border-zinc-200 pt-4">
-              <div className="text-sm font-semibold">Rechnungsadresse</div>
-              <div className="mt-3 space-y-3">
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Rechnungsadresse</div>
+              <div className="p-4 space-y-4">
                 <div className="text-sm">
                   <div className="text-xs font-medium text-zinc-700">Adresse</div>
                   <div className="mt-1 text-sm font-semibold text-zinc-900">{address ?? ""}</div>
@@ -162,63 +159,79 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="border-t border-zinc-200 pt-4">
-              <div className="text-sm font-semibold">IDs</div>
-              <div className="mt-3 space-y-3">
-                {customer?.vat_id ? (
-                  <div className="text-sm">
-                    <div className="text-zinc-700">USt-ID</div>
-                    <div className="font-medium">{customer.vat_id}</div>
-                  </div>
-                ) : null}
-
-                {customer?.leitweg_id ? (
-                  <div className="text-sm">
-                    <div className="text-zinc-700">Leitweg-ID</div>
-                    <div className="font-medium">{customer.leitweg_id}</div>
-                  </div>
-                ) : null}
-
-                {customer?.supplier_number ? (
-                  <div className="text-sm">
-                    <div className="text-zinc-700">Lieferantennummer</div>
-                    <div className="font-medium">{customer.supplier_number}</div>
-                  </div>
-                ) : null}
-
-                {customer?.vendor_number ? (
-                  <div className="text-sm">
-                    <div className="text-zinc-700">Vendor Nummer</div>
-                    <div className="font-medium">{customer.vendor_number}</div>
-                  </div>
-                ) : null}
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">IDs</div>
+              <div className="p-4 space-y-3">
+                <div className="text-sm">
+                  <div className="text-xs font-medium text-zinc-700">USt-ID</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customer?.vat_id ?? "—"}</div>
+                </div>
+                <div className="text-sm">
+                  <div className="text-xs font-medium text-zinc-700">Leitweg-ID</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customer?.leitweg_id ?? "—"}</div>
+                </div>
+                <div className="text-sm">
+                  <div className="text-xs font-medium text-zinc-700">Lieferantennummer</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customer?.supplier_number ?? "—"}</div>
+                </div>
+                <div className="text-sm">
+                  <div className="text-xs font-medium text-zinc-700">Vendor Nummer</div>
+                  <div className="mt-1 text-sm font-semibold text-zinc-900">{customer?.vendor_number ?? "—"}</div>
+                </div>
               </div>
             </div>
 
-            <CustomerContactSection customerId={id} contact={contact} />
+            <div className="rounded-xl border border-zinc-200 bg-white">
+              <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Kontakt</div>
+              <div className="p-4">
+                <CustomerContactSection customerId={id} contact={contact} />
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="md:col-span-2 space-y-6">
           <div className="rounded-xl border border-zinc-200 bg-white">
             <div className="border-b px-4 py-3 font-semibold">Projekte</div>
-            <div className="p-4 text-sm">
-              {projects.length === 0 ? (
-                <div className="text-zinc-900">Noch keine Projekte verknüpft.</div>
-              ) : (
-                <div className="space-y-2">
-                  {projects.map((p: any) => (
-                    <div key={p.id} className="flex items-center justify-between gap-4">
-                      <a className="underline" href={`/app/projects/${p.id}`}>
-                        {p.title}
-                      </a>
-                      <div className="text-zinc-900">
-                        {(p.project_number ?? "").toString()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <thead className="border-b text-left text-zinc-800">
+                  <tr>
+                    <th className="py-2 pr-3 font-medium">Name</th>
+                    <th className="py-2 pr-3 font-medium">Nr</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
+                    <th className="py-2 font-medium">Ausführungsort</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {projects.length === 0 ? (
+                    <tr>
+                      <td className="py-3" colSpan={4}>
+                        Noch keine Projekte verknüpft.
+                      </td>
+                    </tr>
+                  ) : (
+                    projects.map((p: any) => (
+                      <tr key={p.id} className="border-b last:border-b-0">
+                        <td className="py-3 pr-3">
+                          <a className="underline" href={`/app/projects/${p.id}`}>
+                            {p.title}
+                          </a>
+                        </td>
+                        <td className="py-3 pr-3">{p.project_number ?? ""}</td>
+                        <td className="py-3 pr-3">
+                          {p.status ? (
+                            <ProjectStatusBadge status={p.status as ProjectStatus} />
+                          ) : (
+                            ""
+                          )}
+                        </td>
+                        <td className="py-3">{p.executionLocation ?? ""}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
