@@ -28,6 +28,10 @@ export default function SignupPage() {
 
       if (!res.ok) {
         const msg = json?.message;
+        if (res.status === 429) {
+          setError("Zu viele Signup-Versuche. Bitte kurz warten und erneut versuchen.");
+          return;
+        }
         if (msg?.toLowerCase().includes("already") || msg?.toLowerCase().includes("registered")) {
           setError("Account existiert bereits. Bitte einloggen.");
           return;

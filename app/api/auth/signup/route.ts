@@ -36,9 +36,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (error) {
+    const status = typeof (error as any).status === "number" ? (error as any).status : 400;
     return NextResponse.json(
       { error: error.name ?? "signup_failed", message: error.message },
-      { status: 400 }
+      { status }
     );
   }
 
