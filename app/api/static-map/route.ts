@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { rateLimit } from "@/lib/security/rateLimit";
 
+export const runtime = "nodejs";
+
 const schema = z
   .object({
     lat: z.coerce.number().finite(),
@@ -12,14 +14,22 @@ const schema = z
   })
   .strict();
 
+const TRANSPARENT_PNG_1X1_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7WnHkAAAAASUVORK5CYII=";
+
 export async function GET(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`static-map:${ip}`, { limit: 120, windowSeconds: 60 });
   if (!rl.ok) {
-    return NextResponse.json(
-      { error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(rl.retryAfterSeconds) } }
-    );
+    const bytes = Buffer.from(TRANSPARENT_PNG_1X1_BASE64, "base64");
+    return new NextResponse(bytes, {
+      status: 429,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "no-store",
+        "Retry-After": String(rl.retryAfterSeconds),
+      },
+    });
   }
 
   const url = new URL(request.url);
@@ -32,7 +42,14 @@ export async function GET(request: NextRequest) {
   });
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_params" }, { status: 400 });
+    const bytes = Buffer.from(TRANSPARENT_PNG_1X1_BASE64, "base64");
+    return new NextResponse(bytes, {
+      status: 400,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "no-store",
+      },
+    });
   }
 
   const { lat, lon, zoom, w, h } = parsed.data;
@@ -48,14 +65,21 @@ export async function GET(request: NextRequest) {
   }).catch(() => null);
 
   if (!upstream || !upstream.ok) {
-    return NextResponse.json({ error: "upstream_error" }, { status: 502 });
+    const bytes = Buffer.from(TRANSPARENT_PNG_1X1_BASE64, "base64");
+    return new NextResponse(bytes, {
+      status: 502,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "no-store",
+      },
+    });
   }
 
-  const bytes = await upstream.arrayBuffer();
+  const bytes = Buffer.from(await upstream.arrayBuffer());
   return new NextResponse(bytes, {
     status: 200,
     headers: {
-      "Content-Type": upstream.headers.get("content-type") ?? "image/png",
+      "Content-Type": "image/png",
       "Cache-Control": "public, max-age=86400, s-maxage=86400",
     },
   });
