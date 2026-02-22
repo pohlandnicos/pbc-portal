@@ -1,19 +1,46 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
+export default function NewOfferPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    async function createOffer() {
+      try {
+        const res = await fetch("/api/offers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "Angebot",
+            offer_date: new Date().toISOString().split("T")[0]
+          })
+        });
+
+        const json = await res.json();
+        console.log('Response:', json);
+
+        if (!res.ok) {
+          console.error('Error:', json.error);
+          router.push("/app/offers");
+          return;
+        }
+
+        router.replace(`/app/app/offers/${json.data.id}`);
+      } catch (err) {
+        console.error('Error:', err);
+        router.push("/app/offers");
+      }
+    }
+
+    void createOffer();
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-zinc-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="rounded-xl border border-zinc-200 bg-white p-4">
-          <h1 className="text-lg font-medium mb-4">Angebot wird erstellt...</h1>
-          <p className="text-sm text-zinc-600">
-            Einen Moment bitte, das neue Angebot wird vorbereitet.
-          </p>
-        </div>
+        <div className="text-sm">Angebot wird erstellt...</div>
       </div>
     </div>
   );
