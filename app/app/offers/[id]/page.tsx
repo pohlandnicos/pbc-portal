@@ -77,7 +77,7 @@ export default function OfferEditorPage({
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => router.push("/app/offers")}
+              onClick={() => router.push("/app/app/offers")}
               className="text-zinc-400 hover:text-zinc-600"
             >
               ←
