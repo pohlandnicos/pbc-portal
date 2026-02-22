@@ -24,15 +24,17 @@ export default function NewOfferPage() {
       }
 
       const json = await res.json();
-      router.push(`/app/offers/${json.data.id}`);
+      router.replace(`/app/offers/${json.data.id}`);
     }
 
     void createOffer();
   }, [router]);
 
   return (
-    <div className="p-4">
-      <div className="text-sm">Angebot wird erstellt...</div>
+    <div className="min-h-screen bg-zinc-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-sm">Angebot wird erstellt...</div>
+      </div>
     </div>
   );
 }
