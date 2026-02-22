@@ -17,8 +17,9 @@ const createSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; groupId: string } }
+  { params }: { params: Promise<{ id: string; groupId: string }> }
 ) {
+  const { id, groupId } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:items:create:${ip}`, { limit: 60, windowSeconds: 60 });
   if (!rl.ok) {
@@ -42,7 +43,7 @@ export async function POST(
   const { data: group } = await supabase
     .from("offer_groups")
     .select("index")
-    .eq("id", params.groupId)
+    .eq("id", groupId)
     .single();
 
   if (!group) return NextResponse.json({ error: "group_not_found" }, { status: 404 });
@@ -50,7 +51,7 @@ export async function POST(
   const { data: lastItem } = await supabase
     .from("offer_items")
     .select("position_index")
-    .eq("offer_group_id", params.groupId)
+    .eq("offer_group_id", groupId)
     .order("position_index", { ascending: false })
     .limit(1)
     .single();
@@ -72,7 +73,7 @@ export async function POST(
     .from("offer_items")
     .insert({
       org_id: orgId,
-      offer_group_id: params.groupId,
+      offer_group_id: groupId,
       position_index: positionIndex,
       ...parsed.data,
       unit_price,
@@ -88,7 +89,7 @@ export async function POST(
   const { data: items } = await supabase
     .from("offer_items")
     .select("type, purchase_price, margin_amount, line_total")
-    .eq("offer_group_id", params.groupId);
+    .eq("offer_group_id", groupId);
 
   if (!items) return NextResponse.json({ error: "db_error" }, { status: 500 });
 
@@ -129,7 +130,7 @@ export async function POST(
   const { error: updateError } = await supabase
     .from("offer_groups")
     .update(totals)
-    .eq("id", params.groupId);
+    .eq("id", groupId);
 
   if (updateError) return NextResponse.json({ error: "db_error" }, { status: 500 });
 
