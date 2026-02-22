@@ -84,17 +84,31 @@ export async function POST(request: NextRequest) {
   }
 
   // 1. Angebot erstellen
+  console.log('Creating offer with data:', {
+    org_id: orgId,
+    ...parsed.data,
+    status: "draft"
+  });
+
   const { data: offer, error: offerError } = await supabase
     .from("offers")
     .insert({
       org_id: orgId,
       ...parsed.data,
-      status: "draft"
+      status: "draft",
+      total_net: 0,
+      total_tax: 0,
+      total_gross: 0,
+      tax_rate: 19,
+      payment_due_days: 7
     })
     .select()
     .single();
 
-  if (offerError) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  if (offerError) {
+    console.error('Database error:', offerError);
+    return NextResponse.json({ error: "db_error", details: offerError }, { status: 500 });
+  }
 
   // 2. Standard Templates laden und anwenden
   const { data: templates } = await supabase
