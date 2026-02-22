@@ -47,36 +47,8 @@ export default function OffersPage() {
     void load();
   }, []);
 
-  async function createOffer() {
-    try {
-      const res = await fetch("/api/offers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: "Angebot",
-          offer_date: new Date().toISOString().split("T")[0]
-        })
-      });
-
-      const json = await res.json();
-      console.log('Response:', json);
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          // Nicht eingeloggt - zum Login weiterleiten
-          router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
-          return;
-        }
-
-        setError(json.error || 'Erstellen fehlgeschlagen');
-        return;
-      }
-
-      router.push(`/app/offers/${json.data.id}`);      
-    } catch (err) {
-      console.error('Error:', err);
-      setError('Erstellen fehlgeschlagen');
-    }
+  function createOffer() {
+    router.push('/app/offers/new');
   }
 
   return (
