@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { formatDate } from "@/lib/format";
 
 const statusStyles = {
   draft: "bg-zinc-100 text-zinc-800",
