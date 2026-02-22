@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 
 type Offer = {
@@ -65,7 +65,10 @@ type Template = {
 
 export default function OfferPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +112,7 @@ export default function OfferPage({ params }: { params: { id: string } }) {
           .select()
           .in(
             "offer_group_id",
-            groups.map((g) => g.id)
+            (groups as OfferGroup[]).map((g) => g.id)
           )
           .order("position_index");
 
