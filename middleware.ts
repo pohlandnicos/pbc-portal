@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/auth/callback");
 
-  const isProtected = pathname.startsWith("/app");
+  const isProtected = pathname.startsWith("/app") || pathname.startsWith("/api");
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
@@ -59,6 +59,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/app/:path*",
+    "/api/:path*",
     "/login",
     "/signup",
     "/forgot-password",
