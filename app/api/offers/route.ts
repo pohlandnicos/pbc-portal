@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 // POST /api/offers - Neues Angebot erstellen
 const createSchema = z.object({
   title: z.string().min(1),
-  customer_id: z.string().uuid(),
+  customer_id: z.string().uuid().optional(),
   project_id: z.string().uuid().optional(),
   offer_date: z.string().datetime(),
   intro_salutation: z.string().optional(),
