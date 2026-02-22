@@ -9,6 +9,12 @@ import { calculateOfferSummary } from "@/lib/calculations";
 type Customer = {
   id: string;
   name: string;
+  company_name: string | null;
+  billing_street: string;
+  billing_house_number: string;
+  billing_postal_code: string;
+  billing_city: string;
+  billing_address_extra: string | null;
 };
 
 type Project = {
@@ -22,12 +28,24 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [customerId, setCustomerId] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [title, setTitle] = useState("Angebot");
   const [offerDate, setOfferDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [introSalutation, setIntroSalutation] = useState(
+    "Sehr geehrte Damen und Herren,"
+  );
+  const [introBody, setIntroBody] = useState(
+    "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"
+  );
+  const [outroBody, setOutroBody] = useState(
+    "Bitte beachten Sie, dass eventuell zusätzliche Kosten für unvorhergesehene Schäden oder zusätzliche Arbeiten anfallen können. Sollten während der Arbeiten unvorhergesehene Probleme auftreten, werden wir Sie umgehend informieren und mögliche Lösungen sowie die damit verbundenen Kosten mit Ihnen abstimmen.\n\nWir würden uns sehr freuen, wenn unser Angebot Ihre Zustimmung findet. Sie haben Fragen oder wünschen weitere Informationen? Rufen Sie uns an - wir sind für Sie da."
+  );
+  const [paymentDueDays, setPaymentDueDays] = useState(7);
+  const [discountPercent, setDiscountPercent] = useState<number | null>(null);
+  const [discountDays, setDiscountDays] = useState<number | null>(null);
   const [groups, setGroups] = useState<OfferGroup[]>([
     {
       id: "1",
@@ -47,7 +65,6 @@ export default function Page() {
   });
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
-  const [discountPercent, setDiscountPercent] = useState<number | null>(null);
 
   // Lade Kunden
   useEffect(() => {
@@ -71,13 +88,13 @@ export default function Page() {
   // Lade Projekte wenn Kunde ausgewählt
   useEffect(() => {
     async function loadProjects() {
-      if (!customerId) {
+      if (!selectedCustomer) {
         setProjects([]);
         return;
       }
 
       try {
-        const res = await fetch(`/api/customers/${customerId}/projects`);
+        const res = await fetch(`/api/customers/${selectedCustomer.id}/projects`);
         if (!res.ok) throw new Error("Laden fehlgeschlagen");
         const json = await res.json();
         setProjects(json.data ?? []);
@@ -88,7 +105,20 @@ export default function Page() {
     }
 
     void loadProjects();
-  }, [customerId]);
+  }, [selectedCustomer]);
+
+  // Kunde auswählen
+  function handleCustomerChange(customerId: string) {
+    const customer = customers.find((c) => c.id === customerId);
+    setSelectedCustomer(customer ?? null);
+    setSelectedProject(null);
+  }
+
+  // Projekt auswählen
+  function handleProjectChange(projectId: string) {
+    const project = projects.find((p) => p.id === projectId);
+    setSelectedProject(project ?? null);
+  }
 
   // Berechne Summen
   const summary = calculateOfferSummary(
@@ -125,7 +155,7 @@ export default function Page() {
   // Angebot erstellen
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!customerId) {
+    if (!selectedCustomer) {
       setError("Bitte wählen Sie einen Kunden aus");
       return;
     }
@@ -138,11 +168,17 @@ export default function Page() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_id: customerId,
-          project_id: projectId || undefined,
+          customer_id: selectedCustomer.id,
+          project_id: selectedProject?.id,
           title,
           offer_date: offerDate,
           status: "draft",
+          intro_salutation: introSalutation,
+          intro_body_html: introBody,
+          outro_body_html: outroBody,
+          payment_due_days: paymentDueDays,
+          discount_percent: discountPercent,
+          discount_days: discountDays,
           tax_rate: taxRate,
           show_vat_for_labor: showVatForLabor,
           total_net: summary.totalNet,
@@ -211,21 +247,24 @@ export default function Page() {
 
           {/* Kunde & Projekt */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <h2 className="text-base font-medium mb-4">
+              Kunde oder Projekt auswählen
+            </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">
                   Kunde *
                 </label>
                 <select
-                  value={customerId}
-                  onChange={(e) => setCustomerId(e.target.value)}
+                  value={selectedCustomer?.id ?? ""}
+                  onChange={(e) => handleCustomerChange(e.target.value)}
                   className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
                   required
                 >
                   <option value="">Bitte wählen...</option>
                   {customers.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name}
+                      {c.company_name ?? c.name}
                     </option>
                   ))}
                 </select>
@@ -236,10 +275,10 @@ export default function Page() {
                   Projekt
                 </label>
                 <select
-                  value={projectId}
-                  onChange={(e) => setProjectId(e.target.value)}
+                  value={selectedProject?.id ?? ""}
+                  onChange={(e) => handleProjectChange(e.target.value)}
                   className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-                  disabled={!customerId}
+                  disabled={!selectedCustomer}
                 >
                   <option value="">Ohne Projekt</option>
                   {projects.map((p) => (
@@ -248,6 +287,90 @@ export default function Page() {
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Anschrift */}
+          {selectedCustomer && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-4">
+              <h2 className="text-base font-medium mb-4">Anschrift</h2>
+              <div className="text-sm">
+                <p>{selectedCustomer.company_name ?? selectedCustomer.name}</p>
+                <p>
+                  {selectedCustomer.billing_street}{" "}
+                  {selectedCustomer.billing_house_number}
+                </p>
+                {selectedCustomer.billing_address_extra && (
+                  <p>{selectedCustomer.billing_address_extra}</p>
+                )}
+                <p>
+                  {selectedCustomer.billing_postal_code}{" "}
+                  {selectedCustomer.billing_city}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Angebotsdetails */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <h2 className="text-base font-medium mb-4">Angebotsdetails</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Angebotstittel
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Angebotsdatum
+                </label>
+                <input
+                  type="date"
+                  value={offerDate}
+                  onChange={(e) => setOfferDate(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Einleitungstext */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-medium">Einleitungstext</h2>
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Vorlagen
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={introSalutation}
+                  onChange={(e) => setIntroSalutation(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <textarea
+                  value={introBody}
+                  onChange={(e) => setIntroBody(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
               </div>
             </div>
           </div>
@@ -430,6 +553,88 @@ export default function Page() {
                 <span>Gesamtbetrag</span>
                 <span>{summary.totalGross.toFixed(2)} €</span>
               </div>
+            </div>
+          </div>
+
+          {/* Zahlungsbedingungen */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <h2 className="text-base font-medium mb-4">Zahlungsbedingungen</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Zahlungsziel
+                </label>
+                <select
+                  value={paymentDueDays}
+                  onChange={(e) => setPaymentDueDays(parseInt(e.target.value))}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                >
+                  <option value="7">7 Tage</option>
+                  <option value="14">14 Tage</option>
+                  <option value="30">30 Tage</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Skonto
+                </label>
+                <input
+                  type="number"
+                  value={discountPercent ?? ""}
+                  onChange={(e) =>
+                    setDiscountPercent(
+                      e.target.value ? parseFloat(e.target.value) : null
+                    )
+                  }
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                  placeholder="0 %"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Zeitraum
+                </label>
+                <input
+                  type="number"
+                  value={discountDays ?? ""}
+                  onChange={(e) =>
+                    setDiscountDays(
+                      e.target.value ? parseInt(e.target.value) : null
+                    )
+                  }
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                  placeholder="0 Tage"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 text-sm">
+              Der fällige Betrag ist ohne Abzug zahlbar innerhalb von{" "}
+              {paymentDueDays} Tagen ab Rechnungsdatum.
+            </div>
+          </div>
+
+          {/* Schlusstext */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-medium">Schlusstext</h2>
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Vorlagen
+              </button>
+            </div>
+
+            <div>
+              <textarea
+                value={outroBody}
+                onChange={(e) => setOutroBody(e.target.value)}
+                rows={6}
+                className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+              />
             </div>
           </div>
         </div>
