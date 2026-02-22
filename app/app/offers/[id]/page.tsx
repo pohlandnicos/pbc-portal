@@ -91,7 +91,7 @@ export default function OfferEditorPage({
                 sent: "bg-sky-100 text-sky-800",
                 accepted: "bg-emerald-100 text-emerald-800",
                 rejected: "bg-rose-100 text-rose-800"
-              }[data.status]
+              }[data.status as "draft" | "sent" | "accepted" | "rejected"]
             }`}>
               {
                 {
@@ -99,7 +99,7 @@ export default function OfferEditorPage({
                   sent: "Versendet",
                   accepted: "Angenommen",
                   rejected: "Abgelehnt"
-                }[data.status]
+                }[data.status as "draft" | "sent" | "accepted" | "rejected"]
               }
             </span>
           </div>
