@@ -178,7 +178,7 @@ export function ProjectCreateDialog({ onCreated }: Props) {
       onCreated();
 
       const id = json?.data?.id;
-      if (id) router.push(`/app/projects/${id}`);
+      if (id) router.push(`/app/app/projects/${id}`);
     } finally {
       setLoading(false);
     }

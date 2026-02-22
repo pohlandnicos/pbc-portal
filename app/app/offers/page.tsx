@@ -8,7 +8,7 @@ export default function OffersPage() {
       <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
         <h1 className="text-lg font-medium">Angebote</h1>
         <Link
-          href="/app/offers/new"
+          href="/app/app/offers/new"
           className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Angebot erstellen

@@ -191,7 +191,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                     projects.map((p: any) => (
                       <tr key={p.id} className="border-b border-zinc-200 last:border-b-0">
                         <td className="py-3 pr-3">
-                          <a className="underline" href={`/app/projects/${p.id}`}>
+                          <a className="underline" href={`/app/app/projects/${p.id}`}>
                             {p.title}
                           </a>
                         </td>
