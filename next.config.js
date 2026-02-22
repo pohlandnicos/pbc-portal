@@ -4,12 +4,18 @@ const nextConfig = {
   experimental: {
     appDir: true
   },
-  async redirects() {
+  async rewrites() {
     return [
       {
         source: '/app/:path*',
         destination: '/app/app/:path*',
-        permanent: false
+        has: [
+          {
+            type: 'query',
+            key: '_next',
+            value: undefined
+          }
+        ]
       }
     ];
   }
