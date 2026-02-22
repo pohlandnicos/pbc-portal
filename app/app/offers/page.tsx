@@ -70,7 +70,7 @@ export default function OffersPage() {
         <button
           type="button"
           onClick={createOffer}
-          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
           Angebot erstellen
         </button>
