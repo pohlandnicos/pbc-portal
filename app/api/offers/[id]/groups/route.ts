@@ -11,8 +11,9 @@ const createSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:groups:create:${ip}`, { limit: 60, windowSeconds: 60 });
   if (!rl.ok) {
@@ -36,7 +37,7 @@ export async function POST(
   const { data: lastGroup } = await supabase
     .from("offer_groups")
     .select("index")
-    .eq("offer_id", params.id)
+    .eq("offer_id", id)
     .order("index", { ascending: false })
     .limit(1)
     .single();
@@ -48,7 +49,7 @@ export async function POST(
     .from("offer_groups")
     .insert({
       org_id: orgId,
-      offer_id: params.id,
+      offer_id: id,
       index: nextIndex,
       title: parsed.data.title
     })

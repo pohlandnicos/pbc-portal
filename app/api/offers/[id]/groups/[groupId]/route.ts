@@ -12,8 +12,9 @@ const patchSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; groupId: string } }
+  { params }: { params: Promise<{ id: string; groupId: string }> }
 ) {
+  const { id, groupId } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:groups:update:${ip}`, { limit: 120, windowSeconds: 60 });
   if (!rl.ok) {
@@ -36,8 +37,8 @@ export async function PATCH(
   const { data, error } = await supabase
     .from("offer_groups")
     .update(parsed.data)
-    .eq("id", params.groupId)
-    .eq("offer_id", params.id)
+    .eq("id", groupId)
+    .eq("offer_id", id)
     .eq("org_id", orgId)
     .select()
     .single();
@@ -49,8 +50,9 @@ export async function PATCH(
 // DELETE /api/offers/[id]/groups/[groupId] - Gruppe löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; groupId: string } }
+  { params }: { params: Promise<{ id: string; groupId: string }> }
 ) {
+  const { id, groupId } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:groups:delete:${ip}`, { limit: 60, windowSeconds: 60 });
   if (!rl.ok) {
@@ -67,8 +69,8 @@ export async function DELETE(
   const { error } = await supabase
     .from("offer_groups")
     .delete()
-    .eq("id", params.groupId)
-    .eq("offer_id", params.id)
+    .eq("id", groupId)
+    .eq("offer_id", id)
     .eq("org_id", orgId);
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });

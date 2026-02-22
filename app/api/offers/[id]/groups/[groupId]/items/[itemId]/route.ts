@@ -18,8 +18,9 @@ const patchSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; groupId: string; itemId: string } }
+  { params }: { params: Promise<{ id: string; groupId: string; itemId: string }> }
 ) {
+  const { id, groupId, itemId } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:items:update:${ip}`, { limit: 120, windowSeconds: 60 });
   if (!rl.ok) {
@@ -43,7 +44,7 @@ export async function PATCH(
   const { data: current } = await supabase
     .from("offer_items")
     .select()
-    .eq("id", params.itemId)
+    .eq("id", itemId)
     .single();
 
   if (!current) return NextResponse.json({ error: "not_found" }, { status: 404 });
@@ -80,8 +81,8 @@ export async function PATCH(
       unit_price,
       line_total
     })
-    .eq("id", params.itemId)
-    .eq("offer_group_id", params.groupId)
+    .eq("id", itemId)
+    .eq("offer_group_id", groupId)
     .eq("org_id", orgId)
     .select()
     .single();
@@ -92,7 +93,7 @@ export async function PATCH(
   const { data: items } = await supabase
     .from("offer_items")
     .select("type, purchase_price, margin_amount, line_total")
-    .eq("offer_group_id", params.groupId);
+    .eq("offer_group_id", groupId);
 
   if (!items) return NextResponse.json({ error: "db_error" }, { status: 500 });
 
@@ -133,7 +134,7 @@ export async function PATCH(
   const { error: updateError } = await supabase
     .from("offer_groups")
     .update(totals)
-    .eq("id", params.groupId);
+    .eq("id", groupId);
 
   if (updateError) return NextResponse.json({ error: "db_error" }, { status: 500 });
 
@@ -143,8 +144,9 @@ export async function PATCH(
 // DELETE /api/offers/[id]/groups/[groupId]/items/[itemId] - Position löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; groupId: string; itemId: string } }
+  { params }: { params: Promise<{ id: string; groupId: string; itemId: string }> }
 ) {
+  const { id, groupId, itemId } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:items:delete:${ip}`, { limit: 60, windowSeconds: 60 });
   if (!rl.ok) {
@@ -161,8 +163,8 @@ export async function DELETE(
   const { error } = await supabase
     .from("offer_items")
     .delete()
-    .eq("id", params.itemId)
-    .eq("offer_group_id", params.groupId)
+    .eq("id", itemId)
+    .eq("offer_group_id", groupId)
     .eq("org_id", orgId);
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
@@ -171,7 +173,7 @@ export async function DELETE(
   const { data: items } = await supabase
     .from("offer_items")
     .select("type, purchase_price, margin_amount, line_total")
-    .eq("offer_group_id", params.groupId);
+    .eq("offer_group_id", groupId);
 
   if (!items) return NextResponse.json({ error: "db_error" }, { status: 500 });
 
@@ -212,7 +214,7 @@ export async function DELETE(
   const { error: updateError } = await supabase
     .from("offer_groups")
     .update(totals)
-    .eq("id", params.groupId);
+    .eq("id", groupId);
 
   if (updateError) return NextResponse.json({ error: "db_error" }, { status: 500 });
 

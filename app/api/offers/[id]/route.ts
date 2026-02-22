@@ -7,8 +7,9 @@ import { z } from "zod";
 // GET /api/offers/[id] - Angebot mit allen Details laden
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:get:${ip}`, { limit: 120, windowSeconds: 60 });
   if (!rl.ok) {
@@ -42,7 +43,7 @@ export async function GET(
           )
         )
       `)
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("org_id", orgId)
       .single(),
 
@@ -53,7 +54,7 @@ export async function GET(
         *,
         offer_items (*)
       `)
-      .eq("offer_id", params.id)
+      .eq("offer_id", id)
       .order("index")
   ]);
 
@@ -88,8 +89,9 @@ const patchSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:update:${ip}`, { limit: 120, windowSeconds: 60 });
   if (!rl.ok) {
@@ -112,7 +114,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from("offers")
     .update(parsed.data)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("org_id", orgId)
     .select()
     .single();
@@ -124,8 +126,9 @@ export async function PATCH(
 // DELETE /api/offers/[id] - Angebot löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const rl = rateLimit(`offers:delete:${ip}`, { limit: 60, windowSeconds: 60 });
   if (!rl.ok) {
@@ -142,7 +145,7 @@ export async function DELETE(
   const { error } = await supabase
     .from("offers")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("org_id", orgId);
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
