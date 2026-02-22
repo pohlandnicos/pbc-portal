@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api")) {
       return NextResponse.json(
         { error: "not_authenticated" },
-        { status: 401 }
+        { status: 401, headers: response.headers }
       );
     }
 
