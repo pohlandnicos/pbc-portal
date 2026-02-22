@@ -75,9 +75,12 @@ export async function POST(request: NextRequest) {
   if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
 
   const body = await request.json().catch(() => null);
+  console.log('Request body:', body);
+
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+    console.log('Validation error:', parsed.error);
+    return NextResponse.json({ error: "invalid_input", details: parsed.error }, { status: 400 });
   }
 
   // 1. Angebot erstellen

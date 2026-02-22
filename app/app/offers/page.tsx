@@ -48,19 +48,29 @@ export default function OffersPage() {
   }, []);
 
   async function createOffer() {
-    const res = await fetch("/api/offers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: "Angebot",
-        offer_date: new Date().toISOString().split("T")[0]
-      })
-    });
+    try {
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Angebot",
+          offer_date: new Date().toISOString().split("T")[0]
+        })
+      });
 
-    if (!res.ok) return;
+      const json = await res.json();
+      console.log('Response:', json);
 
-    const json = await res.json();
-    router.push(`/app/offers/${json.data.id}`);
+      if (!res.ok) {
+        setError(json.error || 'Erstellen fehlgeschlagen');
+        return;
+      }
+
+      router.push(`/app/offers/${json.data.id}`);      
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Erstellen fehlgeschlagen');
+    }
   }
 
   return (
