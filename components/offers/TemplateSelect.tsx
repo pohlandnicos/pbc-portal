@@ -6,6 +6,7 @@ import { ChevronDownIcon } from "lucide-react";
 
 interface Template {
   id: string;
+  type: "intro" | "outro";
   name: string;
   salutation?: string;
   body_html: string;
