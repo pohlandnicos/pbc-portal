@@ -2,22 +2,6 @@
 
 import Link from "next/link";
 
-const statusStyles = {
-  draft: "bg-zinc-100 text-zinc-800",
-  sent: "bg-sky-100 text-sky-800",
-  accepted: "bg-emerald-100 text-emerald-800",
-  rejected: "bg-rose-100 text-rose-800"
-} as const;
-
-const statusLabels = {
-  draft: "Entwurf",
-  sent: "Versendet",
-  accepted: "Angenommen",
-  rejected: "Abgelehnt"
-} as const;
-
-type OfferStatus = keyof typeof statusLabels;
-
 export default function OffersPage() {
   return (
     <div className="space-y-4">
