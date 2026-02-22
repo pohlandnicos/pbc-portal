@@ -62,6 +62,12 @@ export default function OffersPage() {
       console.log('Response:', json);
 
       if (!res.ok) {
+        if (res.status === 401) {
+          // Nicht eingeloggt - zum Login weiterleiten
+          router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+          return;
+        }
+
         setError(json.error || 'Erstellen fehlgeschlagen');
         return;
       }

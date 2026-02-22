@@ -41,6 +41,15 @@ export async function middleware(request: NextRequest) {
   const isProtected = pathname.startsWith("/app") || pathname.startsWith("/api");
 
   if (isProtected && !user) {
+    // API Requests bekommen einen 401
+    if (pathname.startsWith("/api")) {
+      return NextResponse.json(
+        { error: "not_authenticated" },
+        { status: 401 }
+      );
+    }
+
+    // Browser Requests werden zum Login weitergeleitet
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
