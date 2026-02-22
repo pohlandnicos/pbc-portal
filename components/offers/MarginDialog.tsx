@@ -4,13 +4,15 @@ import { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { XIcon } from "lucide-react";
 
+type Margins = {
+  material: number;
+  labor: number;
+  other: number;
+};
+
 interface Props {
-  defaultMargins: {
-    material: number;
-    labor: number;
-    other: number;
-  };
-  onApply: (margins: typeof defaultMargins) => void;
+  defaultMargins: Margins;
+  onApply: (margins: Margins) => void;
   onClose: () => void;
 }
 
