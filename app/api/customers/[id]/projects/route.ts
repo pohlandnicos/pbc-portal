@@ -7,33 +7,25 @@ const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export async function GET() {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const { data, error } = await supabase
-      .from("customers")
+      .from("projects")
       .select(`
         id,
-        company_name,
-        salutation,
-        first_name,
-        last_name,
-        type
+        title,
+        project_number,
+        status
       `)
-      .order("company_name", { nullsFirst: true })
-      .order("last_name", { nullsFirst: true });
+      .eq("customer_id", params.id)
+      .order("title");
 
     if (error) throw error;
 
-    // Namen formatieren
-    const customers = data.map((c) => ({
-      id: c.id,
-      name:
-        c.type === "company"
-          ? c.company_name
-          : `${c.salutation} ${c.first_name} ${c.last_name}`.trim(),
-    }));
-
-    return NextResponse.json({ data: customers });
+    return NextResponse.json({ data });
   } catch (err) {
     console.error("Error:", err);
     return NextResponse.json(
