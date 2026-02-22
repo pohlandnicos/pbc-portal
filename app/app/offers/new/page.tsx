@@ -8,23 +8,30 @@ export default function NewOfferPage() {
 
   useEffect(() => {
     async function createOffer() {
-      const res = await fetch("/api/offers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: "Angebot",
-          offer_date: new Date().toISOString().split("T")[0]
-        })
-      });
+      try {
+        const res = await fetch("/api/offers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "Angebot",
+            offer_date: new Date().toISOString().split("T")[0]
+          })
+        });
 
-      if (!res.ok) {
-        // Bei Fehler zurück zur Übersicht
-        router.push("/app/offers");
-        return;
+        const json = await res.json();
+        console.log('Response:', json);
+
+        if (!res.ok) {
+          console.error('Error:', json.error);
+          router.push("/app/app/offers");
+          return;
+        }
+
+        router.replace(`/app/app/offers/${json.data.id}`);
+      } catch (err) {
+        console.error('Error:', err);
+        router.push("/app/app/offers");
       }
-
-      const json = await res.json();
-      router.replace(`/app/app/offers/${json.data.id}`);
     }
 
     void createOffer();
