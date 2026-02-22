@@ -60,7 +60,7 @@ export default function OffersPage() {
     if (!res.ok) return;
 
     const json = await res.json();
-    router.push(`/offers/${json.data.id}`);
+    router.push(`/app/offers/${json.data.id}`);
   }
 
   return (
@@ -70,7 +70,7 @@ export default function OffersPage() {
         <button
           type="button"
           onClick={createOffer}
-          className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
           Angebot erstellen
         </button>
