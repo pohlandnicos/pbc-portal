@@ -4,11 +4,12 @@ const nextConfig = {
   experimental: {
     appDir: true
   },
-  async rewrites() {
+  async redirects() {
     return [
       {
         source: '/app/:path*',
-        destination: '/app/app/:path*'
+        destination: '/app/app/:path*',
+        permanent: false
       }
     ];
   }
