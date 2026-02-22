@@ -2,13 +2,13 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 const nav = [
-  { href: "/app/app/projects", label: "Projekte" },
-  { href: "/app/app/customers", label: "Kunden" },
-  { href: "/app/app/offers", label: "Angebote" },
-  { href: "/app/app/invoices", label: "Rechnungen" },
-  { href: "/app/app/protocols", label: "Protokolle" },
-  { href: "/app/app/tasks", label: "Aufgaben" },
-  { href: "/app/app/settings", label: "Einstellungen" },
+  { href: "/app/projects", label: "Projekte" },
+  { href: "/app/customers", label: "Kunden" },
+  { href: "/app/offers", label: "Angebote" },
+  { href: "/app/invoices", label: "Rechnungen" },
+  { href: "/app/protocols", label: "Protokolle" },
+  { href: "/app/tasks", label: "Aufgaben" },
+  { href: "/app/settings", label: "Einstellungen" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
