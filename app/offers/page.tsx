@@ -5,6 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatDate } from "@/lib/format";
 
+const statusStyles = {
+  draft: "bg-zinc-100 text-zinc-800",
+  sent: "bg-sky-100 text-sky-800",
+  accepted: "bg-emerald-100 text-emerald-800",
+  rejected: "bg-rose-100 text-rose-800"
+} as const;
+
+const statusLabels = {
+  draft: "Entwurf",
+  sent: "Versendet",
+  accepted: "Angenommen",
+  rejected: "Abgelehnt"
+} as const;
+
+type OfferStatus = keyof typeof statusLabels;
+
 export default function OffersPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -112,22 +128,10 @@ export default function OffersPage() {
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                        {
-                          draft: "bg-zinc-100 text-zinc-800",
-                          sent: "bg-sky-100 text-sky-800",
-                          accepted: "bg-emerald-100 text-emerald-800",
-                          rejected: "bg-rose-100 text-rose-800"
-                        }[offer.status]
+                        statusStyles[offer.status as keyof typeof statusStyles]
                       }`}
                     >
-                      {
-                        {
-                          draft: "Entwurf",
-                          sent: "Versendet",
-                          accepted: "Angenommen",
-                          rejected: "Abgelehnt"
-                        }[offer.status]
-                      }
+                      {statusLabels[offer.status as keyof typeof statusLabels]}
                     </span>
                   </td>
                   <td className="px-4 py-3">
