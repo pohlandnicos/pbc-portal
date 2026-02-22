@@ -96,7 +96,7 @@ export default function ProjectsPage() {
                   className="border-b border-zinc-200 last:border-b-0 hover:bg-zinc-50 transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <Link className="text-zinc-900 underline" href={`/app/app/projects/${r.id}`}>
+                    <Link className="text-zinc-900 underline" href={`/app/projects/${r.id}`}>
                       {r.title}
                     </Link>
                   </td>

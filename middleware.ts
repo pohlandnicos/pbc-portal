@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/reset-password") ||
     pathname.startsWith("/auth/callback");
 
-  const isProtected = pathname.startsWith("/app") || pathname.startsWith("/app/app") || pathname.startsWith("/api");
+  const isProtected = pathname.startsWith("/app") || pathname.startsWith("/api");
 
   if (isProtected && !user) {
     // API Requests bekommen einen 401
