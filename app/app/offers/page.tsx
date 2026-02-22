@@ -117,7 +117,7 @@ export default function OffersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      href={`/offers/${offer.id}`}
+                      href={`/app/offers/${offer.id}`}
                       className="text-blue-600 hover:underline"
                     >
                       {offer.title}
