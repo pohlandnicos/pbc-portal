@@ -24,7 +24,7 @@ export default function NewOfferPage() {
       }
 
       const json = await res.json();
-      router.replace(`/app/app/offers/${json.data.id}`);
+      router.replace(`/app/offers/${json.data.id}`);
     }
 
     void createOffer();
