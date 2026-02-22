@@ -23,14 +23,14 @@ export default function NewOfferPage() {
 
         if (!res.ok) {
           console.error('Error:', json.error);
-          router.push("/app/app/offers");
+          router.push("/app/offers");
           return;
         }
 
         router.replace(`/app/app/offers/${json.data.id}`);
       } catch (err) {
         console.error('Error:', err);
-        router.push("/app/app/offers");
+        router.push("/app/offers");
       }
     }
 
