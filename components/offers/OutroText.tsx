@@ -1,3 +1,5 @@
+import RichTextEditor from "@/components/ui/RichTextEditor";
+
 type Props = {
   outroBody: string;
   onOutroBodyChange: (text: string) => void;
@@ -16,14 +18,11 @@ export default function OutroText({ outroBody, onOutroBodyChange }: Props) {
         </button>
       </div>
 
-      <div>
-        <textarea
-          value={outroBody}
-          onChange={(e) => onOutroBodyChange(e.target.value)}
-          rows={6}
-          className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-        />
-      </div>
+      <RichTextEditor
+        value={outroBody}
+        onChange={onOutroBodyChange}
+        rows={6}
+      />
     </div>
   );
 }

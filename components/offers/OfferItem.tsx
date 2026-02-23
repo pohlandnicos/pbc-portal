@@ -1,12 +1,12 @@
-import { Menu } from "@headlessui/react";
 import type { OfferItem } from "@/types/offer";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 
 type Props = {
   item: OfferItem;
   onUpdate: (item: OfferItem) => void;
   onDelete: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
+  onMove: (direction: "up" | "down") => void;
   onDuplicate: () => void;
 };
 
@@ -14,101 +14,125 @@ export default function OfferItemRow({
   item,
   onUpdate,
   onDelete,
-  onMoveUp,
-  onMoveDown,
+  onMove,
   onDuplicate,
 }: Props) {
-  // Berechne Werte
-  function updateValues(updates: Partial<OfferItem>) {
-    const newItem = { ...item, ...updates };
-
-    // Berechne Marge
-    newItem.margin_amount =
-      newItem.purchase_price * (newItem.markup_percent / 100);
-
-    // Berechne Einzelpreis
-    newItem.unit_price = newItem.purchase_price + newItem.margin_amount;
-
-    // Berechne Gesamtpreis
-    newItem.line_total = newItem.unit_price * newItem.qty;
-
-    onUpdate(newItem);
-  }
-
   return (
     <tr className="border-b border-zinc-200">
       <td className="py-2 pr-4">{item.position_index}</td>
       <td className="py-2 px-4">
-        <select
+        <Select
           value={item.type}
-          onChange={(e) => updateValues({ type: e.target.value as any })}
-          className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+          onChange={(e) =>
+            onUpdate({
+              ...item,
+              type: e.target.value as any,
+            })
+          }
+          compact
+          fullWidth
         >
           <option value="material">Material</option>
           <option value="labor">Arbeit</option>
           <option value="other">Sonstiges</option>
-        </select>
+        </Select>
       </td>
       <td className="py-2 px-4">
-        <input
+        <Input
           type="number"
           value={item.qty}
-          onChange={(e) => updateValues({ qty: parseFloat(e.target.value) })}
+          onChange={(e) =>
+            onUpdate({
+              ...item,
+              qty: parseFloat(e.target.value),
+            })
+          }
           min={0}
           step={0.01}
-          className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+          className="w-20 text-right"
+          compact
         />
       </td>
       <td className="py-2 px-4">
-        <input
-          type="text"
+        <Select
           value={item.unit}
-          onChange={(e) => updateValues({ unit: e.target.value })}
-          className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-        />
+          onChange={(e) =>
+            onUpdate({
+              ...item,
+              unit: e.target.value,
+            })
+          }
+          compact
+          fullWidth
+        >
+          <option value="Stück">Stück</option>
+          <option value="Stunde">Stunde</option>
+          <option value="Meter">Meter</option>
+          <option value="m²">m²</option>
+          <option value="m³">m³</option>
+          <option value="kg">kg</option>
+          <option value="Pauschal">Pauschal</option>
+        </Select>
       </td>
       <td className="py-2 px-4">
         <div className="space-y-2">
-          <input
+          <Input
             type="text"
             value={item.name}
-            onChange={(e) => updateValues({ name: e.target.value })}
-            placeholder="Bezeichnung"
-            className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+            onChange={(e) =>
+              onUpdate({
+                ...item,
+                name: e.target.value,
+              })
+            }
+            placeholder="Material hinzufügen"
+            fullWidth
+            compact
           />
           <textarea
             value={item.description ?? ""}
             onChange={(e) =>
-              updateValues({ description: e.target.value || null })
+              onUpdate({
+                ...item,
+                description: e.target.value || null,
+              })
             }
             placeholder="Beschreibung"
             rows={2}
-            className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+            className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </td>
       <td className="py-2 px-4">
-        <input
+        <Input
           type="number"
           value={item.purchase_price}
           onChange={(e) =>
-            updateValues({ purchase_price: parseFloat(e.target.value) })
+            onUpdate({
+              ...item,
+              purchase_price: parseFloat(e.target.value),
+            })
           }
           min={0}
           step={0.01}
-          className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+          className="w-20 text-right"
+          compact
         />
       </td>
       <td className="py-2 px-4">
-        <input
+        <Input
           type="number"
           value={item.markup_percent}
           onChange={(e) =>
-            updateValues({ markup_percent: parseFloat(e.target.value) })
+            onUpdate({
+              ...item,
+              markup_percent: parseFloat(e.target.value),
+            })
           }
           min={0}
           step={0.1}
-          className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+          className="w-20 text-right"
+          compact
         />
       </td>
       <td className="py-2 px-4 text-right">
@@ -121,65 +145,12 @@ export default function OfferItemRow({
         {item.line_total.toFixed(2)} €
       </td>
       <td className="py-2 pl-4">
-        <Menu as="div" className="relative">
-          <Menu.Button className="text-sm text-zinc-600 hover:text-zinc-900">
-            Normalposition ▾
-          </Menu.Button>
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  type="button"
-                  onClick={onMoveUp}
-                  className={`${
-                    active ? "bg-zinc-50" : ""
-                  } block w-full px-4 py-2 text-left text-sm`}
-                >
-                  Nach oben verschieben
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  type="button"
-                  onClick={onMoveDown}
-                  className={`${
-                    active ? "bg-zinc-50" : ""
-                  } block w-full px-4 py-2 text-left text-sm`}
-                >
-                  Nach unten verschieben
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  type="button"
-                  onClick={onDuplicate}
-                  className={`${
-                    active ? "bg-zinc-50" : ""
-                  } block w-full px-4 py-2 text-left text-sm`}
-                >
-                  Duplizieren
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  type="button"
-                  onClick={onDelete}
-                  className={`${
-                    active ? "bg-zinc-50" : ""
-                  } block w-full px-4 py-2 text-left text-sm text-red-600`}
-                >
-                  Löschen
-                </button>
-              )}
-            </Menu.Item>
-          </Menu.Items>
-        </Menu>
+        <button
+          type="button"
+          className="text-sm text-zinc-600 hover:text-zinc-900"
+        >
+          Normalposition ▾
+        </button>
       </td>
     </tr>
   );
