@@ -1,39 +1,35 @@
-import { Menu } from "@headlessui/react";
 import { useState } from "react";
 import type { OfferGroup, OfferItem } from "@/types/offer";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 
 type Props = {
   group: OfferGroup;
   items: OfferItem[];
   onUpdateGroup: (group: OfferGroup) => void;
+  onAddItem: () => void;
   onUpdateItem: (item: OfferItem) => void;
   onDeleteItem: (itemId: string) => void;
-  onMoveItemUp: (itemId: string) => void;
-  onMoveItemDown: (itemId: string) => void;
+  onMoveItem: (itemId: string, direction: "up" | "down") => void;
   onDuplicateItem: (itemId: string) => void;
-  onAddItem: () => void;
-  onImportItems: () => void;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onDelete: () => void;
 };
 
 export default function OfferGroupSection({
   group,
   items,
   onUpdateGroup,
+  onAddItem,
   onUpdateItem,
   onDeleteItem,
-  onMoveItemUp,
-  onMoveItemDown,
+  onMoveItem,
   onDuplicateItem,
-  onAddItem,
-  onImportItems,
-  onMoveUp,
-  onMoveDown,
-  onDelete,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(true);
+
+  // Stelle sicher, dass immer mindestens eine leere Position existiert
+  if (items.length === 0) {
+    onAddItem();
+  }
 
   return (
     <div>
@@ -41,18 +37,20 @@ export default function OfferGroupSection({
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => setExpanded(!expanded)}
             className="text-zinc-400 hover:text-zinc-600"
-            onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? "▼" : "▶"}
+            {expanded ? "▼" : "▶"}
           </button>
           <div className="flex items-center gap-1">
             <span className="text-sm text-zinc-600">{group.index}.</span>
             <input
               type="text"
               value={group.title}
-              onChange={(e) => onUpdateGroup({ ...group, title: e.target.value })}
-              className="text-base font-medium bg-transparent border-none p-0"
+              onChange={(e) =>
+                onUpdateGroup({ ...group, title: e.target.value })
+              }
+              className="text-base font-medium bg-transparent border-none p-0 focus:ring-0"
               placeholder="Titel der Leistungsgruppe"
             />
           </div>
@@ -61,80 +59,40 @@ export default function OfferGroupSection({
           <span className="text-sm text-zinc-600">
             {group.total_net.toFixed(2)} €
           </span>
-          <Menu as="div" className="relative">
-            <Menu.Button className="text-zinc-400 hover:text-zinc-600">
-              ⋮
-            </Menu.Button>
-            <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    type="button"
-                    onClick={onMoveUp}
-                    className={`${
-                      active ? "bg-zinc-50" : ""
-                    } block w-full px-4 py-2 text-left text-sm`}
-                  >
-                    Nach oben verschieben
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    type="button"
-                    onClick={onMoveDown}
-                    className={`${
-                      active ? "bg-zinc-50" : ""
-                    } block w-full px-4 py-2 text-left text-sm`}
-                  >
-                    Nach unten verschieben
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    type="button"
-                    onClick={onDelete}
-                    className={`${
-                      active ? "bg-zinc-50" : ""
-                    } block w-full px-4 py-2 text-left text-sm text-red-600`}
-                  >
-                    Löschen
-                  </button>
-                )}
-              </Menu.Item>
-            </Menu.Items>
-          </Menu>
+          <button
+            type="button"
+            className="text-zinc-400 hover:text-zinc-600"
+          >
+            ⋮
+          </button>
         </div>
       </div>
 
-      {isExpanded && (
+      {expanded && (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-200">
-                  <th className="py-2 pr-4 font-medium text-left">Nr</th>
-                  <th className="py-2 px-4 font-medium text-left">Art</th>
-                  <th className="py-2 px-4 font-medium text-right">Menge</th>
-                  <th className="py-2 px-4 font-medium text-left">Einheit</th>
-                  <th className="py-2 px-4 font-medium text-left">Bezeichnung</th>
-                  <th className="py-2 px-4 font-medium text-right">EK</th>
-                  <th className="py-2 px-4 font-medium text-right">Aufschlag</th>
-                  <th className="py-2 px-4 font-medium text-right">Marge</th>
-                  <th className="py-2 px-4 font-medium text-right">EP</th>
-                  <th className="py-2 pl-4 font-medium text-right">Gesamt</th>
-                  <th className="py-2 pl-4 font-medium"></th>
+                  <th className="py-2 pr-2 font-medium text-left w-12">Nr</th>
+                  <th className="py-2 px-2 font-medium text-left w-32">Art</th>
+                  <th className="py-2 px-2 font-medium text-right w-20">Menge</th>
+                  <th className="py-2 px-2 font-medium text-left w-28">Einheit</th>
+                  <th className="py-2 px-2 font-medium text-left">Bezeichnung</th>
+                  <th className="py-2 px-2 font-medium text-right w-24">EK</th>
+                  <th className="py-2 px-2 font-medium text-right w-24">Aufschlag</th>
+                  <th className="py-2 px-2 font-medium text-right w-24">Marge</th>
+                  <th className="py-2 px-2 font-medium text-right w-24">EP</th>
+                  <th className="py-2 pl-2 font-medium text-right w-24">Gesamt</th>
+                  <th className="py-2 pl-2 font-medium w-36"></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-200">
-                    <td className="py-2 pr-4">{item.position_index}</td>
-                    <td className="py-2 px-4">
-                      <select
+                  <tr key={item.id} className="border-b border-zinc-200 group">
+                    <td className="py-2 pr-2">{item.position_index}</td>
+                    <td className="py-2 px-2">
+                      <Select
                         value={item.type}
                         onChange={(e) =>
                           onUpdateItem({
@@ -142,15 +100,16 @@ export default function OfferGroupSection({
                             type: e.target.value as any,
                           })
                         }
-                        className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                        compact
+                        fullWidth
                       >
                         <option value="material">Material</option>
                         <option value="labor">Arbeit</option>
                         <option value="other">Sonstiges</option>
-                      </select>
+                      </Select>
                     </td>
-                    <td className="py-2 px-4">
-                      <input
+                    <td className="py-2 px-2">
+                      <Input
                         type="number"
                         value={item.qty}
                         onChange={(e) =>
@@ -161,11 +120,12 @@ export default function OfferGroupSection({
                         }
                         min={0}
                         step={0.01}
-                        className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+                        className="w-full text-right"
+                        compact
                       />
                     </td>
-                    <td className="py-2 px-4">
-                      <select
+                    <td className="py-2 px-2">
+                      <Select
                         value={item.unit}
                         onChange={(e) =>
                           onUpdateItem({
@@ -173,7 +133,8 @@ export default function OfferGroupSection({
                             unit: e.target.value,
                           })
                         }
-                        className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                        compact
+                        fullWidth
                       >
                         <option value="Stück">Stück</option>
                         <option value="Stunde">Stunde</option>
@@ -182,11 +143,11 @@ export default function OfferGroupSection({
                         <option value="m³">m³</option>
                         <option value="kg">kg</option>
                         <option value="Pauschal">Pauschal</option>
-                      </select>
+                      </Select>
                     </td>
-                    <td className="py-2 px-4">
-                      <div className="space-y-2">
-                        <input
+                    <td className="py-2 px-2">
+                      <div className="space-y-1">
+                        <Input
                           type="text"
                           value={item.name}
                           onChange={(e) =>
@@ -196,7 +157,8 @@ export default function OfferGroupSection({
                             })
                           }
                           placeholder="Material hinzufügen"
-                          className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                          fullWidth
+                          compact
                         />
                         <textarea
                           value={item.description ?? ""}
@@ -208,12 +170,12 @@ export default function OfferGroupSection({
                           }
                           placeholder="Beschreibung"
                           rows={2}
-                          className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                          className="w-full rounded-lg border border-zinc-200 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         />
                       </div>
                     </td>
-                    <td className="py-2 px-4">
-                      <input
+                    <td className="py-2 px-2">
+                      <Input
                         type="number"
                         value={item.purchase_price}
                         onChange={(e) =>
@@ -224,11 +186,12 @@ export default function OfferGroupSection({
                         }
                         min={0}
                         step={0.01}
-                        className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+                        className="w-full text-right"
+                        compact
                       />
                     </td>
-                    <td className="py-2 px-4">
-                      <input
+                    <td className="py-2 px-2">
+                      <Input
                         type="number"
                         value={item.markup_percent}
                         onChange={(e) =>
@@ -239,88 +202,38 @@ export default function OfferGroupSection({
                         }
                         min={0}
                         step={0.1}
-                        className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
+                        className="w-full text-right"
+                        compact
                       />
                     </td>
-                    <td className="py-2 px-4 text-right">
+                    <td className="py-2 px-2 text-right">
                       {item.margin_amount.toFixed(2)} €
                     </td>
-                    <td className="py-2 px-4 text-right">
+                    <td className="py-2 px-2 text-right">
                       {item.unit_price.toFixed(2)} €
                     </td>
-                    <td className="py-2 pl-4 text-right">
+                    <td className="py-2 pl-2 text-right">
                       {item.line_total.toFixed(2)} €
                     </td>
-                    <td className="py-2 pl-4">
-                      <Menu as="div" className="relative">
-                        <Menu.Button className="text-sm text-zinc-600 hover:text-zinc-900">
+                    <td className="py-2 pl-2">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          className="text-sm text-zinc-600 hover:text-zinc-900"
+                        >
                           Normalposition ▾
-                        </Menu.Button>
-                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                type="button"
-                                onClick={() => onMoveItemUp(item.id)}
-                                className={`${
-                                  active ? "bg-zinc-50" : ""
-                                } block w-full px-4 py-2 text-left text-sm`}
-                              >
-                                Nach oben verschieben
-                              </button>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                type="button"
-                                onClick={() => onMoveItemDown(item.id)}
-                                className={`${
-                                  active ? "bg-zinc-50" : ""
-                                } block w-full px-4 py-2 text-left text-sm`}
-                              >
-                                Nach unten verschieben
-                              </button>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                type="button"
-                                onClick={() => onDuplicateItem(item.id)}
-                                className={`${
-                                  active ? "bg-zinc-50" : ""
-                                } block w-full px-4 py-2 text-left text-sm`}
-                              >
-                                Duplizieren
-                              </button>
-                            )}
-                          </Menu.Item>
-                          <Menu.Item>
-                            {({ active }) => (
-                              <button
-                                type="button"
-                                onClick={() => onDeleteItem(item.id)}
-                                className={`${
-                                  active ? "bg-zinc-50" : ""
-                                } block w-full px-4 py-2 text-left text-sm text-red-600`}
-                              >
-                                Löschen
-                              </button>
-                            )}
-                          </Menu.Item>
-                        </Menu.Items>
-                      </Menu>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={9} className="py-2 px-4 text-right font-medium">
+                  <td colSpan={9} className="py-2 px-2 text-right font-medium">
                     Zwischensumme
                   </td>
-                  <td className="py-2 pl-4 text-right font-medium">
+                  <td className="py-2 pl-2 text-right font-medium">
                     {group.total_net.toFixed(2)} €
                   </td>
                   <td></td>
@@ -340,7 +253,6 @@ export default function OfferGroupSection({
 
             <button
               type="button"
-              onClick={onImportItems}
               className="text-sm text-blue-600 hover:text-blue-700"
             >
               Artikel importieren (DDS)
