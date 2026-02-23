@@ -34,7 +34,7 @@ export default function OfferGroupSection({
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
 
   const gridTemplateColumns = useMemo(
-    () => "56px 120px 60px 100px 1fr 80px 80px 80px 80px 80px 34px",
+    () => "56px 120px 60px 100px 1fr 80px 80px 80px 80px 80px",
     []
   );
 
@@ -124,150 +124,145 @@ export default function OfferGroupSection({
                 <div className="text-right">Marge</div>
                 <div className="text-right">Einzelpreis</div>
                 <div className="text-right">Gesamtpreis</div>
-                <div />
               </div>
 
-              <div
-                className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden"
-                style={{ gridTemplateColumns }}
-              >
-                <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
-                  <button
-                    type="button"
-                    className="cursor-grab text-zinc-400 hover:text-zinc-600"
-                    aria-label="Position greifen"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-                      <circle cx="9" cy="6" r="1.5" />
-                      <circle cx="15" cy="6" r="1.5" />
-                      <circle cx="9" cy="12" r="1.5" />
-                      <circle cx="15" cy="12" r="1.5" />
-                      <circle cx="9" cy="18" r="1.5" />
-                      <circle cx="15" cy="18" r="1.5" />
-                    </svg>
-                  </button>
-                  <span className="text-zinc-700">{item.position_index}</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <div
+                  className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden flex-1"
+                  style={{ gridTemplateColumns }}
+                >
+                  <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
+                    <button
+                      type="button"
+                      className="cursor-grab text-zinc-400 hover:text-zinc-600"
+                      aria-label="Position greifen"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                        <circle cx="9" cy="6" r="1.5" />
+                        <circle cx="15" cy="6" r="1.5" />
+                        <circle cx="9" cy="12" r="1.5" />
+                        <circle cx="15" cy="12" r="1.5" />
+                        <circle cx="9" cy="18" r="1.5" />
+                        <circle cx="15" cy="18" r="1.5" />
+                      </svg>
+                    </button>
+                    <span className="text-zinc-700">{item.position_index}</span>
+                  </div>
 
-                <div className="flex items-center px-2 py-1 border-r border-zinc-200">
-                  <select
-                    value={item.type}
-                    onChange={(e) =>
-                      onUpdateItem({
-                        ...item,
-                        type: e.target.value as OfferItem["type"],
-                      })
-                    }
-                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
-                  >
-                    <option value="material">Material</option>
-                    <option value="labor">Arbeit</option>
-                    <option value="other">Sonstiges</option>
-                  </select>
-                </div>
+                  <div className="flex items-center px-2 py-1 border-r border-zinc-200">
+                    <select
+                      value={item.type}
+                      onChange={(e) =>
+                        onUpdateItem({
+                          ...item,
+                          type: e.target.value as OfferItem["type"],
+                        })
+                      }
+                      className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
+                    >
+                      <option value="material">Material</option>
+                      <option value="labor">Arbeit</option>
+                      <option value="other">Sonstiges</option>
+                    </select>
+                  </div>
 
-                <div className="px-2 py-1 border-r border-zinc-200">
-                  <input
-                    type="number"
-                    value={item.qty}
-                    onChange={(e) => onUpdateItem({ ...item, qty: Number(e.target.value) })}
-                    min={0}
-                    step={0.01}
-                    className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
-                  />
-                </div>
-
-                <div className="px-2 py-1 border-r border-zinc-200">
-                  <select
-                    value={item.unit}
-                    onChange={(e) => onUpdateItem({ ...item, unit: e.target.value })}
-                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
-                  >
-                    <option value="Stück">Stück</option>
-                    <option value="Stunde">Stunde</option>
-                    <option value="Meter">Meter</option>
-                    <option value="m²">m²</option>
-                    <option value="m³">m³</option>
-                    <option value="kg">kg</option>
-                    <option value="Pauschal">Pauschal</option>
-                  </select>
-                </div>
-
-                <div className="px-2 py-1 border-r border-zinc-200">
-                  <input
-                    type="text"
-                    value={item.name}
-                    onChange={(e) => onUpdateItem({ ...item, name: e.target.value })}
-                    placeholder="Material hinzufügen"
-                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
-                  />
-                </div>
-
-                <div className="px-2 py-1 border-r border-zinc-200">
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="px-2 py-1 border-r border-zinc-200">
                     <input
                       type="number"
-                      value={item.purchase_price}
-                      onChange={(e) =>
-                        onUpdateItem({ ...item, purchase_price: Number(e.target.value) })
-                      }
+                      value={item.qty}
+                      onChange={(e) => onUpdateItem({ ...item, qty: Number(e.target.value) })}
                       min={0}
                       step={0.01}
                       className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                     />
-                    <span className="text-zinc-400 text-sm">€</span>
                   </div>
-                </div>
 
-                <div className="px-2 py-1 border-r border-zinc-200">
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="px-2 py-1 border-r border-zinc-200">
+                    <select
+                      value={item.unit}
+                      onChange={(e) => onUpdateItem({ ...item, unit: e.target.value })}
+                      className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
+                    >
+                      <option value="Stück">Stück</option>
+                      <option value="Stunde">Stunde</option>
+                      <option value="Meter">Meter</option>
+                      <option value="m²">m²</option>
+                      <option value="m³">m³</option>
+                      <option value="kg">kg</option>
+                      <option value="Pauschal">Pauschal</option>
+                    </select>
+                  </div>
+
+                  <div className="px-2 py-1 border-r border-zinc-200">
                     <input
-                      type="number"
-                      value={item.markup_percent}
-                      onChange={(e) =>
-                        onUpdateItem({ ...item, markup_percent: Number(e.target.value) })
-                      }
-                      min={0}
-                      step={0.1}
-                      className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => onUpdateItem({ ...item, name: e.target.value })}
+                      placeholder="Material hinzufügen"
+                      className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                     />
-                    <span className="text-zinc-400 text-sm">%</span>
+                  </div>
+
+                  <div className="px-2 py-1 border-r border-zinc-200">
+                    <div className="flex items-center justify-end gap-1">
+                      <input
+                        type="number"
+                        value={item.purchase_price}
+                        onChange={(e) =>
+                          onUpdateItem({ ...item, purchase_price: Number(e.target.value) })
+                        }
+                        min={0}
+                        step={0.01}
+                        className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
+                      />
+                      <span className="text-zinc-400 text-sm">€</span>
+                    </div>
+                  </div>
+
+                  <div className="px-2 py-1 border-r border-zinc-200">
+                    <div className="flex items-center justify-end gap-1">
+                      <input
+                        type="number"
+                        value={item.markup_percent}
+                        onChange={(e) =>
+                          onUpdateItem({ ...item, markup_percent: Number(e.target.value) })
+                        }
+                        min={0}
+                        step={0.1}
+                        className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
+                      />
+                      <span className="text-zinc-400 text-sm">%</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
+                    {item.margin_amount.toFixed(2)} €
+                  </div>
+                  <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
+                    {item.unit_price.toFixed(2)} €
+                  </div>
+                  <div className="flex items-center justify-end px-2 py-1 text-sm">
+                    {item.line_total.toFixed(2)} €
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
-                  {item.margin_amount.toFixed(2)} €
-                </div>
-                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
-                  {item.unit_price.toFixed(2)} €
-                </div>
-                <div className="flex items-center justify-end px-2 py-1 text-sm">
-                  {item.line_total.toFixed(2)} €
-                </div>
-
-                <div className="flex items-center justify-center px-1 py-1">
-                  <button
-                    type="button"
-                    onClick={() => onDeleteItem(item.id)}
-                    className="text-zinc-400 hover:text-zinc-700"
-                    aria-label="Position löschen"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 6h18" />
-                      <path d="M8 6V4h8v2" />
-                      <path d="M6 6l1 16h10l1-16" />
-                      <path d="M10 11v6" />
-                      <path d="M14 11v6" />
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => onDeleteItem(item.id)}
+                  className="text-zinc-400/70 hover:text-zinc-700"
+                  aria-label="Position löschen"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M6 6l1 16h10l1-16" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </button>
               </div>
 
-              <div
-                className="grid gap-3 mt-2"
-                style={{ gridTemplateColumns: "56px minmax(320px,640px) 96px 1fr" }}
-              >
-                <div />
+              <div className="grid gap-3 mt-2" style={{ gridTemplateColumns: "minmax(320px,640px) 96px 1fr" }}>
                 <textarea
                   value={item.description ?? ""}
                   onChange={(e) =>
@@ -295,62 +290,59 @@ export default function OfferGroupSection({
                     <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </button>
-                <div />
-              </div>
 
-              <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "56px 1fr auto" }}>
-                <div />
-                <div />
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
-                    }
-                    className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
-                  >
-                    {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
-                    {(positionTypeById[item.id] ?? "normal") === "alternative" && "Alternativposition"}
-                    {(positionTypeById[item.id] ?? "normal") === "demand" && "Bedarfsposition"}
-                    <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
-                      <path d="M5.5 7.5L10 12l4.5-4.5" />
-                    </svg>
-                  </button>
+                <div className="flex items-start justify-end">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
+                      }
+                      className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
+                    >
+                      {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
+                      {(positionTypeById[item.id] ?? "normal") === "alternative" && "Alternativposition"}
+                      {(positionTypeById[item.id] ?? "normal") === "demand" && "Bedarfsposition"}
+                      <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
+                        <path d="M5.5 7.5L10 12l4.5-4.5" />
+                      </svg>
+                    </button>
 
-                  {positionTypeMenuFor === item.id && (
-                    <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "normal" }));
-                          setPositionTypeMenuFor(null);
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                      >
-                        Normalposition
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "alternative" }));
-                          setPositionTypeMenuFor(null);
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                      >
-                        Alternativposition
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "demand" }));
-                          setPositionTypeMenuFor(null);
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                      >
-                        Bedarfsposition
-                      </button>
-                    </div>
-                  )}
+                    {positionTypeMenuFor === item.id && (
+                      <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "normal" }));
+                            setPositionTypeMenuFor(null);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                        >
+                          Normalposition
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "alternative" }));
+                            setPositionTypeMenuFor(null);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                        >
+                          Alternativposition
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "demand" }));
+                            setPositionTypeMenuFor(null);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                        >
+                          Bedarfsposition
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

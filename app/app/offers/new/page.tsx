@@ -275,7 +275,7 @@ export default function Page() {
 
           {/* Kunde & Projekt */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <h2 className="text-base font-medium mb-4">
+            <h2 className="text-base font-semibold text-zinc-800 mb-4">
               Kunde oder Projekt auswählen
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -322,7 +322,7 @@ export default function Page() {
           {/* Anschrift */}
           {selectedCustomer && (
             <div className="rounded-xl border border-zinc-200 bg-white p-4">
-              <h2 className="text-base font-medium mb-4">Anschrift</h2>
+              <h2 className="text-base font-semibold text-zinc-800 mb-4">Anschrift</h2>
               <div className="text-sm">
                 <p>{selectedCustomer.name}</p>
                 <p>{selectedCustomer.street}</p>
@@ -335,7 +335,7 @@ export default function Page() {
 
           {/* Angebotsdetails */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <h2 className="text-base font-medium mb-4">Angebotsdetails</h2>
+            <h2 className="text-base font-semibold text-zinc-800 mb-4">Angebotsdetails</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-1">
@@ -366,7 +366,7 @@ export default function Page() {
           {/* Einleitungstext */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-medium">Einleitungstext</h2>
+              <h2 className="text-base font-semibold text-zinc-800">Einleitungstext</h2>
               <button
                 type="button"
                 className="text-sm text-blue-600 hover:text-blue-700"
@@ -387,7 +387,12 @@ export default function Page() {
 
           {/* Leistungen */}
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <h2 className="text-base font-medium mb-4">Leistungen</h2>
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-base font-semibold text-zinc-800">Leistungen</h2>
+              <p className="text-xs text-zinc-500">
+                Info: Positionen können aktuell noch nicht verschoben werden
+              </p>
+            </div>
 
             <div className="space-y-8">
               {groups.map((group) => (
