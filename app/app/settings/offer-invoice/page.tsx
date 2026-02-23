@@ -1,14 +1,24 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function OfferInvoiceSettingsPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [offerPrefix, setOfferPrefix] = useState("A-");
   const [offerStart, setOfferStart] = useState("211");
   const [invoicePrefix, setInvoicePrefix] = useState("R-");
   const [invoiceStart, setInvoiceStart] = useState("263");
 
   const [autoCustomerNumber, setAutoCustomerNumber] = useState(false);
+
+  const [agbPath, setAgbPath] = useState<string | null>(null);
+  const [withdrawalPath, setWithdrawalPath] = useState<string | null>(null);
+
+  const agbInputRef = useRef<HTMLInputElement | null>(null);
+  const withdrawalInputRef = useRef<HTMLInputElement | null>(null);
 
   const [paymentDueDays, setPaymentDueDays] = useState("7");
   const [paymentScope, setPaymentScope] = useState<"invoice" | "both">("both");
@@ -33,8 +43,108 @@ export default function OfferInvoiceSettingsPage() {
     return `Der fällige Betrag ist ohne Abzug zahlbar innerhalb von ${paymentDueDays} Tagen ab Rechnungsdatum.`;
   }, [paymentDueDays]);
 
-  function onSave() {
-    // TODO: persist via API/Supabase
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/settings/offer-invoice", { cache: "no-store" });
+        const json = (await res.json().catch(() => null)) as
+          | { data?: any; error?: string }
+          | null;
+
+        if (!res.ok) {
+          setError(json?.error ?? "Laden fehlgeschlagen");
+          return;
+        }
+
+        const d = json?.data;
+        if (!d) return;
+
+        setOfferPrefix(d.offer_prefix ?? "A-");
+        setOfferStart(String(d.offer_next_number ?? 1));
+        setInvoicePrefix(d.invoice_prefix ?? "R-");
+        setInvoiceStart(String(d.invoice_next_number ?? 1));
+        setAutoCustomerNumber(Boolean(d.auto_customer_number));
+        setPaymentDueDays(String(d.payment_due_days ?? 7));
+        setPaymentScope((d.payment_scope ?? "both") as "invoice" | "both");
+        setLaborNoteOfferPrivate(Boolean(d.labor_note_offer_private));
+        setLaborNoteOfferBusiness(Boolean(d.labor_note_offer_business));
+        setLaborNoteInvoicePrivate(Boolean(d.labor_note_invoice_private));
+        setLaborNoteInvoiceBusiness(Boolean(d.labor_note_invoice_business));
+        setAgbPath(d.agb_pdf_path ?? null);
+        setWithdrawalPath(d.withdrawal_pdf_path ?? null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void load();
+  }, []);
+
+  async function onSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      const payload = {
+        offer_prefix: offerPrefix,
+        offer_next_number: Number(offerStart || 1),
+        invoice_prefix: invoicePrefix,
+        invoice_next_number: Number(invoiceStart || 1),
+        auto_customer_number: autoCustomerNumber,
+        payment_due_days: Number(paymentDueDays || 7),
+        payment_scope: paymentScope,
+        labor_note_offer_private: laborNoteOfferPrivate,
+        labor_note_offer_business: laborNoteOfferBusiness,
+        labor_note_invoice_private: laborNoteInvoicePrivate,
+        labor_note_invoice_business: laborNoteInvoiceBusiness,
+      };
+
+      const res = await fetch("/api/settings/offer-invoice", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = (await res.json().catch(() => null)) as
+        | { data?: any; error?: string }
+        | null;
+
+      if (!res.ok) {
+        setError(json?.error ?? "Speichern fehlgeschlagen");
+        return;
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function uploadPdf(kind: "agb" | "withdrawal", file: File) {
+    setError(null);
+    const form = new FormData();
+    form.set("kind", kind);
+    form.set("file", file);
+
+    const res = await fetch("/api/settings/org-docs/upload", {
+      method: "POST",
+      body: form,
+    });
+
+    const json = (await res.json().catch(() => null)) as
+      | { data?: { path?: string }; error?: string }
+      | null;
+
+    if (!res.ok) {
+      setError(json?.error ?? "Upload fehlgeschlagen");
+      return;
+    }
+
+    const path = json?.data?.path;
+    if (kind === "agb") setAgbPath(path ?? null);
+    if (kind === "withdrawal") setWithdrawalPath(path ?? null);
+  }
+
+  if (loading) {
+    return <div className="p-4">Lädt...</div>;
   }
 
   return (
@@ -51,12 +161,19 @@ export default function OfferInvoiceSettingsPage() {
           <button
             type="button"
             onClick={onSave}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            disabled={saving}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            Speichern
+            {saving ? "Speichern..." : "Speichern"}
           </button>
         </div>
       </div>
+
+      {error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
 
       <div className="rounded-xl border border-zinc-200 bg-white p-6">
         <div className="grid gap-6 md:grid-cols-2">
@@ -175,11 +292,27 @@ export default function OfferInvoiceSettingsPage() {
               <button
                 type="button"
                 className="mt-2 inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm hover:bg-zinc-50"
+                onClick={() => agbInputRef.current?.click()}
               >
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-zinc-100">+</span>
                 PDF hochladen
               </button>
               <div className="mt-2 text-xs text-zinc-500">Zulässig sind PDF-Dateien (max. 1 MB).</div>
+              {agbPath ? (
+                <div className="mt-2 text-xs text-zinc-600 truncate">{agbPath}</div>
+              ) : null}
+              <input
+                ref={agbInputRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  void uploadPdf("agb", f);
+                  e.currentTarget.value = "";
+                }}
+              />
             </div>
 
             <div>
@@ -189,11 +322,27 @@ export default function OfferInvoiceSettingsPage() {
               <button
                 type="button"
                 className="mt-2 inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm hover:bg-zinc-50"
+                onClick={() => withdrawalInputRef.current?.click()}
               >
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-zinc-100">+</span>
                 PDF hochladen
               </button>
               <div className="mt-2 text-xs text-zinc-500">Zulässig sind PDF-Dateien (max. 1 MB).</div>
+              {withdrawalPath ? (
+                <div className="mt-2 text-xs text-zinc-600 truncate">{withdrawalPath}</div>
+              ) : null}
+              <input
+                ref={withdrawalInputRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (!f) return;
+                  void uploadPdf("withdrawal", f);
+                  e.currentTarget.value = "";
+                }}
+              />
             </div>
           </div>
         </div>
