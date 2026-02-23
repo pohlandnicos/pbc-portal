@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { OfferGroup, OfferItem } from "@/types/offer";
 
 type Props = {
@@ -29,6 +29,7 @@ export default function OfferGroupSection({
   onMoveItem,
   onDuplicateItem,
 }: Props) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const [expanded, setExpanded] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [itemTypeMenuFor, setItemTypeMenuFor] = useState<string | null>(null);
@@ -38,7 +39,12 @@ export default function OfferGroupSection({
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
 
   useEffect(() => {
-    function onDocumentClick() {
+    function onDocumentClick(e: MouseEvent) {
+      const target = e.target;
+      if (target && rootRef.current && rootRef.current.contains(target as Node)) {
+        return;
+      }
+
       setMenuOpen(false);
       setItemTypeMenuFor(null);
       setPositionTypeMenuFor(null);
@@ -54,7 +60,7 @@ export default function OfferGroupSection({
   );
 
   return (
-    <div className="mb-8">
+    <div ref={rootRef} className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <button
@@ -130,8 +136,9 @@ export default function OfferGroupSection({
               key={item.id}
               className="mb-6"
               onDragOver={(e) => {
-                if (!draggingItemId) return;
-                e.preventDefault();
+                if (e.dataTransfer.types?.includes("text/plain")) {
+                  e.preventDefault();
+                }
               }}
               onDrop={(e) => {
                 const draggedId = e.dataTransfer.getData("text/plain") || draggingItemId;
@@ -182,7 +189,11 @@ export default function OfferGroupSection({
                       draggable
                       onDragStart={(e) => {
                         setDraggingItemId(item.id);
-                        e.dataTransfer.setData("text/plain", item.id);
+                        try {
+                          e.dataTransfer.setData("text/plain", item.id);
+                        } catch {
+                          // ignore
+                        }
                         e.dataTransfer.effectAllowed = "move";
                       }}
                       onDragEnd={() => setDraggingItemId(null)}
