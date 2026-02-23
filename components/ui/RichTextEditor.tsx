@@ -68,14 +68,77 @@ export default function RichTextEditor({
     document.execCommand(command);
   }
 
+  function syncFromDom() {
+    const el = editorRef.current;
+    if (!el) return;
+    const html = el.innerHTML;
+    lastHtmlRef.current = html;
+    onChange(html);
+  }
+
+  function insertListFallback(listType: "ul" | "ol") {
+    const el = editorRef.current;
+    if (!el) return;
+
+    const sel = window.getSelection();
+    if (!sel) return;
+
+    let range: Range | null = null;
+    if (sel.rangeCount > 0) range = sel.getRangeAt(0);
+    if (!range || !el.contains(range.startContainer) || !el.contains(range.endContainer)) {
+      // put caret at end if selection isn't inside editor
+      const endRange = document.createRange();
+      endRange.selectNodeContents(el);
+      endRange.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(endRange);
+      range = endRange;
+    }
+
+    const listEl = document.createElement(listType);
+    const li = document.createElement("li");
+    li.appendChild(document.createElement("br"));
+    listEl.appendChild(li);
+
+    try {
+      range.deleteContents();
+      range.insertNode(listEl);
+    } catch {
+      el.appendChild(listEl);
+    }
+
+    // Move caret into the new list item
+    const caretRange = document.createRange();
+    caretRange.selectNodeContents(li);
+    caretRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(caretRange);
+    selectionRef.current = caretRange.cloneRange();
+
+    syncFromDom();
+  }
+
   function execInEditor(command: string) {
     const el = editorRef.current;
     if (!el) return;
 
     el.focus();
     restoreSelection();
+
+    const before = el.innerHTML;
     exec(command);
+    const after = el.innerHTML;
+
+    if (
+      before === after &&
+      (command === "insertUnorderedList" || command === "insertOrderedList")
+    ) {
+      insertListFallback(command === "insertUnorderedList" ? "ul" : "ol");
+      return;
+    }
+
     saveSelection();
+    syncFromDom();
   }
 
   return (
