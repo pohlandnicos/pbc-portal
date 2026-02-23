@@ -35,6 +35,7 @@ export default function OfferGroupSection({
   const [positionTypeMenuFor, setPositionTypeMenuFor] = useState<string | null>(null);
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
   const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
+  const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
 
   useEffect(() => {
     function onPointerDown() {
@@ -125,7 +126,33 @@ export default function OfferGroupSection({
       {expanded && (
         <div>
           {items.map((item) => (
-            <div key={item.id} className="mb-6">
+            <div
+              key={item.id}
+              className="mb-6"
+              onDragOver={(e) => {
+                if (!draggingItemId) return;
+                e.preventDefault();
+              }}
+              onDrop={(e) => {
+                if (!draggingItemId) return;
+                e.preventDefault();
+
+                const fromIndex = items.findIndex((i) => i.id === draggingItemId);
+                const toIndex = items.findIndex((i) => i.id === item.id);
+                if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+                  setDraggingItemId(null);
+                  return;
+                }
+
+                const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
+                const steps = Math.abs(fromIndex - toIndex);
+                for (let step = 0; step < steps; step += 1) {
+                  onMoveItem(draggingItemId, direction);
+                }
+
+                setDraggingItemId(null);
+              }}
+            >
               <div
                 className="grid gap-0 mb-1 text-xs text-zinc-500"
                 style={{ gridTemplateColumns }}
@@ -150,6 +177,12 @@ export default function OfferGroupSection({
                   <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
                     <button
                       type="button"
+                      draggable
+                      onDragStart={(e) => {
+                        setDraggingItemId(item.id);
+                        e.dataTransfer.effectAllowed = "move";
+                      }}
+                      onDragEnd={() => setDraggingItemId(null)}
                       className="cursor-grab text-zinc-400 hover:text-zinc-600"
                       aria-label="Position greifen"
                     >
