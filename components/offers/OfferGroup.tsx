@@ -38,14 +38,14 @@ export default function OfferGroupSection({
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
 
   useEffect(() => {
-    function onPointerDown() {
+    function onDocumentClick() {
       setMenuOpen(false);
       setItemTypeMenuFor(null);
       setPositionTypeMenuFor(null);
     }
 
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("click", onDocumentClick);
+    return () => document.removeEventListener("click", onDocumentClick);
   }, []);
 
   const gridTemplateColumns = useMemo(
@@ -134,10 +134,11 @@ export default function OfferGroupSection({
                 e.preventDefault();
               }}
               onDrop={(e) => {
-                if (!draggingItemId) return;
+                const draggedId = e.dataTransfer.getData("text/plain") || draggingItemId;
+                if (!draggedId) return;
                 e.preventDefault();
 
-                const fromIndex = items.findIndex((i) => i.id === draggingItemId);
+                const fromIndex = items.findIndex((i) => i.id === draggedId);
                 const toIndex = items.findIndex((i) => i.id === item.id);
                 if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
                   setDraggingItemId(null);
@@ -147,7 +148,7 @@ export default function OfferGroupSection({
                 const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
                 const steps = Math.abs(fromIndex - toIndex);
                 for (let step = 0; step < steps; step += 1) {
-                  onMoveItem(draggingItemId, direction);
+                  onMoveItem(draggedId, direction);
                 }
 
                 setDraggingItemId(null);
@@ -175,11 +176,13 @@ export default function OfferGroupSection({
                   style={{ gridTemplateColumns }}
                 >
                   <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       draggable
                       onDragStart={(e) => {
                         setDraggingItemId(item.id);
+                        e.dataTransfer.setData("text/plain", item.id);
                         e.dataTransfer.effectAllowed = "move";
                       }}
                       onDragEnd={() => setDraggingItemId(null)}
@@ -194,7 +197,7 @@ export default function OfferGroupSection({
                         <circle cx="9" cy="18" r="1.5" />
                         <circle cx="15" cy="18" r="1.5" />
                       </svg>
-                    </button>
+                    </div>
                     <span className="text-zinc-700">{item.position_index}</span>
                   </div>
 
