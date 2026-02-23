@@ -1,12 +1,23 @@
+import { Menu } from "@headlessui/react";
 import type { OfferItem } from "@/types/offer";
 
 type Props = {
   item: OfferItem;
   onUpdate: (item: OfferItem) => void;
   onDelete: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onDuplicate: () => void;
 };
 
-export default function OfferItemRow({ item, onUpdate, onDelete }: Props) {
+export default function OfferItemRow({
+  item,
+  onUpdate,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  onDuplicate,
+}: Props) {
   // Berechne Werte
   function updateValues(updates: Partial<OfferItem>) {
     const newItem = { ...item, ...updates };
@@ -110,13 +121,65 @@ export default function OfferItemRow({ item, onUpdate, onDelete }: Props) {
         {item.line_total.toFixed(2)} €
       </td>
       <td className="py-2 pl-4">
-        <button
-          type="button"
-          onClick={onDelete}
-          className="text-zinc-400 hover:text-zinc-600"
-        >
-          ×
-        </button>
+        <Menu as="div" className="relative">
+          <Menu.Button className="text-sm text-zinc-600 hover:text-zinc-900">
+            Normalposition ▾
+          </Menu.Button>
+          <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  type="button"
+                  onClick={onMoveUp}
+                  className={`${
+                    active ? "bg-zinc-50" : ""
+                  } block w-full px-4 py-2 text-left text-sm`}
+                >
+                  Nach oben verschieben
+                </button>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  type="button"
+                  onClick={onMoveDown}
+                  className={`${
+                    active ? "bg-zinc-50" : ""
+                  } block w-full px-4 py-2 text-left text-sm`}
+                >
+                  Nach unten verschieben
+                </button>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  type="button"
+                  onClick={onDuplicate}
+                  className={`${
+                    active ? "bg-zinc-50" : ""
+                  } block w-full px-4 py-2 text-left text-sm`}
+                >
+                  Duplizieren
+                </button>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className={`${
+                    active ? "bg-zinc-50" : ""
+                  } block w-full px-4 py-2 text-left text-sm text-red-600`}
+                >
+                  Löschen
+                </button>
+              )}
+            </Menu.Item>
+          </Menu.Items>
+        </Menu>
       </td>
     </tr>
   );
