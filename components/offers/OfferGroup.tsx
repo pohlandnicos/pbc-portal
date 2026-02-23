@@ -125,14 +125,14 @@ export default function OfferGroupSection({
               </div>
 
               <div
-                className="grid gap-0 rounded-md border border-blue-200 bg-blue-50/60 overflow-hidden"
+                className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden"
                 style={{ gridTemplateColumns }}
               >
-                <div className="flex items-center px-2 py-1 text-sm border-r border-blue-200">
+                <div className="flex items-center px-2 py-1 text-sm border-r border-zinc-200">
                   {item.position_index}
                 </div>
 
-                <div className="flex items-center px-2 py-1 border-r border-blue-200">
+                <div className="flex items-center px-2 py-1 border-r border-zinc-200">
                   <select
                     value={item.type}
                     onChange={(e) =>
@@ -141,7 +141,7 @@ export default function OfferGroupSection({
                         type: e.target.value as OfferItem["type"],
                       })
                     }
-                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
+                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                   >
                     <option value="material">Material</option>
                     <option value="labor">Arbeit</option>
@@ -149,22 +149,22 @@ export default function OfferGroupSection({
                   </select>
                 </div>
 
-                <div className="px-2 py-1 border-r border-blue-200">
+                <div className="px-2 py-1 border-r border-zinc-200">
                   <input
                     type="number"
                     value={item.qty}
                     onChange={(e) => onUpdateItem({ ...item, qty: Number(e.target.value) })}
                     min={0}
                     step={0.01}
-                    className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
+                    className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                   />
                 </div>
 
-                <div className="px-2 py-1 border-r border-blue-200">
+                <div className="px-2 py-1 border-r border-zinc-200">
                   <select
                     value={item.unit}
                     onChange={(e) => onUpdateItem({ ...item, unit: e.target.value })}
-                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
+                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                   >
                     <option value="Stück">Stück</option>
                     <option value="Stunde">Stunde</option>
@@ -176,17 +176,17 @@ export default function OfferGroupSection({
                   </select>
                 </div>
 
-                <div className="px-2 py-1 border-r border-blue-200">
+                <div className="px-2 py-1 border-r border-zinc-200">
                   <input
                     type="text"
                     value={item.name}
                     onChange={(e) => onUpdateItem({ ...item, name: e.target.value })}
                     placeholder="Material hinzufügen"
-                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
+                    className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                   />
                 </div>
 
-                <div className="px-2 py-1 border-r border-blue-200">
+                <div className="px-2 py-1 border-r border-zinc-200">
                   <div className="flex items-center justify-end gap-1">
                     <input
                       type="number"
@@ -196,13 +196,13 @@ export default function OfferGroupSection({
                       }
                       min={0}
                       step={0.01}
-                      className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
+                      className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                     />
                     <span className="text-zinc-400 text-sm">€</span>
                   </div>
                 </div>
 
-                <div className="px-2 py-1 border-r border-blue-200">
+                <div className="px-2 py-1 border-r border-zinc-200">
                   <div className="flex items-center justify-end gap-1">
                     <input
                       type="number"
@@ -212,16 +212,16 @@ export default function OfferGroupSection({
                       }
                       min={0}
                       step={0.1}
-                      className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
+                      className="w-full bg-transparent text-right border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
                     />
                     <span className="text-zinc-400 text-sm">%</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-blue-200">
+                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
                   {item.margin_amount.toFixed(2)} €
                 </div>
-                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-blue-200">
+                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-zinc-200">
                   {item.unit_price.toFixed(2)} €
                 </div>
                 <div className="flex items-center justify-end px-2 py-1 text-sm">
@@ -273,24 +273,6 @@ export default function OfferGroupSection({
                   <option value="alternative">Alternativposition</option>
                   <option value="demand">Bedarfsposition</option>
                 </select>
-              </div>
-
-              <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "40px 1fr" }}>
-                <div />
-                <div className="flex items-center gap-3 text-xs text-zinc-500">
-                  <button type="button" onClick={() => onDuplicateItem(item.id)}>
-                    Duplizieren
-                  </button>
-                  <button type="button" onClick={() => onMoveItem(item.id, "up")}> 
-                    Hoch
-                  </button>
-                  <button type="button" onClick={() => onMoveItem(item.id, "down")}> 
-                    Runter
-                  </button>
-                  <button type="button" onClick={() => onDeleteItem(item.id)}>
-                    Löschen
-                  </button>
-                </div>
               </div>
             </div>
           ))}
