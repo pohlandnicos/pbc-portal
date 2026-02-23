@@ -1,4 +1,5 @@
 import { Menu } from "@headlessui/react";
+import { useState } from "react";
 import type { OfferGroup, OfferItem } from "@/types/offer";
 import OfferItemRow from "./OfferItem";
 
@@ -33,6 +34,8 @@ export default function OfferGroupSection({
   onMoveDown,
   onDelete,
 }: Props) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -40,9 +43,9 @@ export default function OfferGroupSection({
           <button
             type="button"
             className="text-zinc-400 hover:text-zinc-600"
-            onClick={() => group.expanded = !group.expanded}
+            onClick={() => setIsExpanded(!isExpanded)}
           >
-            {group.expanded ? "▼" : "▶"}
+            {isExpanded ? "▼" : "▶"}
           </button>
           <input
             type="text"
@@ -104,7 +107,7 @@ export default function OfferGroupSection({
         </div>
       </div>
 
-      {group.expanded && (
+      {isExpanded && (
         <>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

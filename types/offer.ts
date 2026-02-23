@@ -9,6 +9,7 @@ export type OfferGroup = {
   labor_margin: number;
   other_margin: number;
   total_net: number;
+  expanded?: boolean;
 };
 
 export type OfferItem = {
