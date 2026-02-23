@@ -12,19 +12,6 @@ import PaymentTerms from "@/components/offers/PaymentTerms";
 import OutroText from "@/components/offers/OutroText";
 import OfferGroupSection from "@/components/offers/OfferGroup";
 
-type Customer = {
-  id: string;
-  name: string;
-  street: string;
-  zip: string;
-  city: string;
-};
-
-type Project = {
-  id: string;
-  title: string;
-};
-
 const emptyItem: OfferItem = {
   id: "1",
   type: "material",
@@ -44,8 +31,17 @@ export default function Page() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [customers, setCustomers] = useState<Array<{
+    id: string;
+    name: string;
+    street: string;
+    zip: string;
+    city: string;
+  }>>([]);
+  const [projects, setProjects] = useState<Array<{
+    id: string;
+    title: string;
+  }>>([]);
   const [customerId, setCustomerId] = useState("");
   const [projectId, setProjectId] = useState("");
   const [title, setTitle] = useState("Angebot");
