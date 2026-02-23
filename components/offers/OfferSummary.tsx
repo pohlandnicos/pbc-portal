@@ -125,15 +125,26 @@ export default function OfferSummary({
       {/* Steuer */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <select
-            value={taxRate}
-            onChange={(e) => onTaxRateChange(parseFloat(e.target.value))}
-            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-          >
-            <option value="19">19% Umsatzsteuer</option>
-            <option value="7">7% Umsatzsteuer</option>
-            <option value="0">0% Umsatzsteuer</option>
-          </select>
+          <div className="relative">
+            <select
+              value={taxRate}
+              onChange={(e) => onTaxRateChange(parseFloat(e.target.value))}
+              className="appearance-none rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="19">19% Umsatzsteuer</option>
+              <option value="7">7% Umsatzsteuer</option>
+              <option value="0">0% Umsatzsteuer</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-zinc-400">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
           <span className="text-sm">
             {taxAmount.toFixed(2)} €
           </span>
