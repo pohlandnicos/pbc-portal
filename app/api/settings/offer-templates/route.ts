@@ -19,11 +19,15 @@ export async function GET(request: NextRequest) {
   const { orgId } = await getCurrentOrgId();
   if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
 
-  const { data, error } = await supabase
-    .from("offer_templates")
-    .select()
-    .eq("org_id", orgId)
-    .order("name");
+  const { searchParams } = new URL(request.url);
+  const docType = searchParams.get("doc_type");
+
+  let q = supabase.from("offer_templates").select().eq("org_id", orgId);
+  if (docType === "offer" || docType === "invoice") {
+    q = q.eq("doc_type", docType);
+  }
+
+  const { data, error } = await q.order("name");
 
   if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
   return NextResponse.json({ data });
@@ -31,6 +35,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/settings/offer-templates - Template erstellen
 const createSchema = z.object({
+  doc_type: z.enum(["offer", "invoice"]).optional(),
   type: z.enum(["intro", "outro"]),
   name: z.string().min(1),
   salutation: z.string().optional(),
@@ -64,6 +69,7 @@ export async function POST(request: NextRequest) {
       .from("offer_templates")
       .update({ is_default: false })
       .eq("org_id", orgId)
+      .eq("doc_type", parsed.data.doc_type ?? "offer")
       .eq("type", parsed.data.type)
       .eq("is_default", true);
   }
@@ -72,7 +78,8 @@ export async function POST(request: NextRequest) {
     .from("offer_templates")
     .insert({
       org_id: orgId,
-      ...parsed.data
+      doc_type: parsed.data.doc_type ?? "offer",
+      ...parsed.data,
     })
     .select()
     .single();

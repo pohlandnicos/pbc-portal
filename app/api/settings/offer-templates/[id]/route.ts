@@ -40,7 +40,7 @@ export async function PATCH(
   if (parsed.data.is_default) {
     const { data: current } = await supabase
       .from("offer_templates")
-      .select("type")
+      .select("type, doc_type")
       .eq("id", id)
       .single();
 
@@ -50,6 +50,7 @@ export async function PATCH(
         .update({ is_default: false })
         .eq("org_id", orgId)
         .eq("type", current.type)
+        .eq("doc_type", (current as any).doc_type ?? "offer")
         .eq("is_default", true);
     }
   }
