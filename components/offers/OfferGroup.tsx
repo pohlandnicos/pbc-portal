@@ -30,9 +30,11 @@ export default function OfferGroupSection({
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [positionTypeMenuFor, setPositionTypeMenuFor] = useState<string | null>(null);
+  const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
 
   const gridTemplateColumns = useMemo(
-    () => "40px 120px 60px 100px 1fr 80px 80px 80px 80px 80px",
+    () => "56px 120px 60px 100px 1fr 80px 80px 80px 80px 80px 34px",
     []
   );
 
@@ -48,12 +50,12 @@ export default function OfferGroupSection({
             {expanded ? "▼" : "▶"}
           </button>
           <div className="flex items-center gap-1">
-            <span className="text-sm text-zinc-600">{group.index}.</span>
+            <span className="text-base font-semibold text-zinc-800">{group.index}.</span>
             <input
               type="text"
               value={group.title}
               onChange={(e) => onUpdateGroup({ ...group, title: e.target.value })}
-              className="text-sm font-medium bg-transparent border-none p-0 focus:ring-0 text-zinc-600"
+              className="text-base font-semibold bg-transparent border-none p-0 focus:ring-0 text-zinc-800"
               placeholder="Titel der Leistungsgruppe"
             />
           </div>
@@ -122,14 +124,29 @@ export default function OfferGroupSection({
                 <div className="text-right">Marge</div>
                 <div className="text-right">Einzelpreis</div>
                 <div className="text-right">Gesamtpreis</div>
+                <div />
               </div>
 
               <div
                 className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden"
                 style={{ gridTemplateColumns }}
               >
-                <div className="flex items-center px-2 py-1 text-sm border-r border-zinc-200">
-                  {item.position_index}
+                <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
+                  <button
+                    type="button"
+                    className="cursor-grab text-zinc-400 hover:text-zinc-600"
+                    aria-label="Position greifen"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                      <circle cx="9" cy="6" r="1.5" />
+                      <circle cx="15" cy="6" r="1.5" />
+                      <circle cx="9" cy="12" r="1.5" />
+                      <circle cx="15" cy="12" r="1.5" />
+                      <circle cx="9" cy="18" r="1.5" />
+                      <circle cx="15" cy="18" r="1.5" />
+                    </svg>
+                  </button>
+                  <span className="text-zinc-700">{item.position_index}</span>
                 </div>
 
                 <div className="flex items-center px-2 py-1 border-r border-zinc-200">
@@ -227,9 +244,29 @@ export default function OfferGroupSection({
                 <div className="flex items-center justify-end px-2 py-1 text-sm">
                   {item.line_total.toFixed(2)} €
                 </div>
+
+                <div className="flex items-center justify-center px-1 py-1">
+                  <button
+                    type="button"
+                    onClick={() => onDeleteItem(item.id)}
+                    className="text-zinc-400 hover:text-zinc-700"
+                    aria-label="Position löschen"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 6h18" />
+                      <path d="M8 6V4h8v2" />
+                      <path d="M6 6l1 16h10l1-16" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
-              <div className="grid gap-3 mt-2" style={{ gridTemplateColumns: "40px minmax(280px,560px) 56px 1fr" }}>
+              <div
+                className="grid gap-3 mt-2"
+                style={{ gridTemplateColumns: "56px minmax(320px,640px) 96px 1fr" }}
+              >
                 <div />
                 <textarea
                   value={item.description ?? ""}
@@ -241,11 +278,11 @@ export default function OfferGroupSection({
                   }
                   placeholder="Beschreibung"
                   rows={3}
-                  className="w-full border border-zinc-200 rounded-md text-sm p-2 focus:outline-none focus:ring-0 resize-none"
+                  className="h-24 w-full border border-zinc-200 rounded-md text-sm p-2 focus:outline-none focus:ring-0 resize-none"
                 />
                 <button
                   type="button"
-                  className="h-10 w-14 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
+                  className="h-24 w-24 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
                   aria-label="Bild hinzufügen"
                 >
                   <svg
@@ -261,18 +298,60 @@ export default function OfferGroupSection({
                 <div />
               </div>
 
-              <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "40px 1fr auto" }}>
+              <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "56px 1fr auto" }}>
                 <div />
                 <div />
-                <select
-                  value="normal"
-                  onChange={() => {}}
-                  className="text-sm border border-zinc-200 rounded-md py-1 px-2 bg-white focus:outline-none focus:ring-0"
-                >
-                  <option value="normal">Normalposition</option>
-                  <option value="alternative">Alternativposition</option>
-                  <option value="demand">Bedarfsposition</option>
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
+                    }
+                    className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
+                  >
+                    {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
+                    {(positionTypeById[item.id] ?? "normal") === "alternative" && "Alternativposition"}
+                    {(positionTypeById[item.id] ?? "normal") === "demand" && "Bedarfsposition"}
+                    <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
+                      <path d="M5.5 7.5L10 12l4.5-4.5" />
+                    </svg>
+                  </button>
+
+                  {positionTypeMenuFor === item.id && (
+                    <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "normal" }));
+                          setPositionTypeMenuFor(null);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                      >
+                        Normalposition
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "alternative" }));
+                          setPositionTypeMenuFor(null);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                      >
+                        Alternativposition
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPositionTypeById((prev) => ({ ...prev, [item.id]: "demand" }));
+                          setPositionTypeMenuFor(null);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                      >
+                        Bedarfsposition
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -283,7 +362,7 @@ export default function OfferGroupSection({
         <button
           type="button"
           onClick={onAddItem}
-          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-zinc-200 px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-300"
         >
           <svg
             className="w-4 h-4"
