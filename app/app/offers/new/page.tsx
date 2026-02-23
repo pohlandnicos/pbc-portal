@@ -6,10 +6,16 @@ import Link from "next/link";
 import type { OfferGroup, OfferItem } from "@/types/offer";
 import { handleAddGroup, handleMoveGroup, handleDeleteGroup } from "@/lib/offer-handlers";
 import { handleAddItem, handleMoveItem, handleDuplicateItem, handleUpdateItem } from "@/lib/item-handlers";
+import OfferSummary from "@/components/offers/OfferSummary";
+import PaymentTerms from "@/components/offers/PaymentTerms";
+import OutroText from "@/components/offers/OutroText";
 
 type Customer = {
   id: string;
   name: string;
+  street: string;
+  zip: string;
+  city: string;
 };
 
 type Project = {
@@ -29,6 +35,12 @@ export default function Page() {
   const [offerDate, setOfferDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [introText, setIntroText] = useState(
+    "Sehr geehrte Damen und Herren,\n\nHerzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"
+  );
+  const [outroText, setOutroText] = useState(
+    "Bitte beachten Sie, dass eventuell zusätzliche Kosten für unvorhergesehene Schäden oder zusätzliche Arbeiten anfallen können. Sollten während der Arbeiten unvorhergesehene Probleme auftreten, werden wir Sie umgehend informieren und mögliche Lösungen sowie die damit verbundenen Kosten mit Ihnen abstimmen.\n\nWir würden uns sehr freuen, wenn unser Angebot Ihre Zustimmung findet. Sie haben Fragen oder wünschen weitere Informationen? Rufen Sie uns an - wir sind für Sie da."
+  );
   const [groups, setGroups] = useState<OfferGroup[]>([
     {
       id: "1",
@@ -46,6 +58,11 @@ export default function Page() {
   const [items, setItems] = useState<Record<string, OfferItem[]>>({
     "1": [],
   });
+  const [paymentDueDays, setPaymentDueDays] = useState(7);
+  const [discountPercent, setDiscountPercent] = useState<number | null>(null);
+  const [discountDays, setDiscountDays] = useState<number | null>(null);
+  const [taxRate, setTaxRate] = useState(19);
+  const [showVatForLabor, setShowVatForLabor] = useState(false);
 
   // Lade Kunden
   useEffect(() => {
@@ -87,6 +104,27 @@ export default function Page() {
 
     void loadProjects();
   }, [customerId]);
+
+  // Berechne Summen
+  const totals = groups.reduce(
+    (acc, group) => {
+      acc.materialCost += group.material_cost;
+      acc.laborCost += group.labor_cost;
+      acc.otherCost += group.other_cost;
+      acc.materialMargin += group.material_margin;
+      acc.laborMargin += group.labor_margin;
+      acc.otherMargin += group.other_margin;
+      return acc;
+    },
+    {
+      materialCost: 0,
+      laborCost: 0,
+      otherCost: 0,
+      materialMargin: 0,
+      laborMargin: 0,
+      otherMargin: 0,
+    }
+  );
 
   // Gruppe hinzufügen
   function onAddGroup() {
@@ -155,6 +193,8 @@ export default function Page() {
   if (loading) {
     return <div className="p-4">Lädt...</div>;
   }
+
+  const selectedCustomer = customers.find((c) => c.id === customerId);
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -238,6 +278,72 @@ export default function Page() {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Anschrift */}
+          {selectedCustomer && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-4">
+              <h2 className="text-base font-medium mb-4">Anschrift</h2>
+              <div className="text-sm">
+                <p>{selectedCustomer.name}</p>
+                <p>{selectedCustomer.street}</p>
+                <p>
+                  {selectedCustomer.zip} {selectedCustomer.city}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Angebotsdetails */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <h2 className="text-base font-medium mb-4">Angebotsdetails</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Angebotstitel
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-1">
+                  Angebotsdatum
+                </label>
+                <input
+                  type="date"
+                  value={offerDate}
+                  onChange={(e) => setOfferDate(e.target.value)}
+                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Einleitungstext */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-medium">Einleitungstext</h2>
+              <button
+                type="button"
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Vorlagen
+              </button>
+            </div>
+
+            <div>
+              <textarea
+                value={introText}
+                onChange={(e) => setIntroText(e.target.value)}
+                rows={6}
+                className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
+              />
             </div>
           </div>
 
@@ -498,6 +604,42 @@ export default function Page() {
                 Leistungsgruppe hinzufügen
               </button>
             </div>
+          </div>
+
+          {/* Zusammenfassung */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <OfferSummary
+              materialCost={totals.materialCost}
+              laborCost={totals.laborCost}
+              otherCost={totals.otherCost}
+              materialMargin={totals.materialMargin}
+              laborMargin={totals.laborMargin}
+              otherMargin={totals.otherMargin}
+              taxRate={taxRate}
+              showVatForLabor={showVatForLabor}
+              onShowVatForLaborChange={setShowVatForLabor}
+              onTaxRateChange={setTaxRate}
+            />
+          </div>
+
+          {/* Zahlungsbedingungen */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <PaymentTerms
+              paymentDueDays={paymentDueDays}
+              discountPercent={discountPercent}
+              discountDays={discountDays}
+              onPaymentDueDaysChange={setPaymentDueDays}
+              onDiscountPercentChange={setDiscountPercent}
+              onDiscountDaysChange={setDiscountDays}
+            />
+          </div>
+
+          {/* Schlusstext */}
+          <div className="rounded-xl border border-zinc-200 bg-white p-4">
+            <OutroText
+              outroBody={outroText}
+              onOutroBodyChange={setOutroText}
+            />
           </div>
         </div>
       </div>
