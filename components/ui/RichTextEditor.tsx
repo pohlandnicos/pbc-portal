@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 type Props = {
   value: string;
   onChange: (value: string) => void;
@@ -12,6 +14,21 @@ export default function RichTextEditor({
   rows = 6,
 }: Props) {
   const minHeight = rows * 24;
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const lastHtmlRef = useRef<string>(value || "");
+
+  useEffect(() => {
+    const el = editorRef.current;
+    if (!el) return;
+
+    const next = value || "";
+    if (next === lastHtmlRef.current) return;
+
+    // Only sync DOM when the value changes from the outside.
+    // This prevents selection/caret jumps while typing (esp. on Enter).
+    el.innerHTML = next;
+    lastHtmlRef.current = next;
+  }, [value]);
 
   function exec(command: string) {
     // execCommand is deprecated but still the most compatible way to implement
@@ -100,11 +117,15 @@ export default function RichTextEditor({
       <div
         contentEditable
         suppressContentEditableWarning
-        onInput={(e) => onChange((e.currentTarget as HTMLDivElement).innerHTML)}
+        ref={editorRef}
+        onInput={(e) => {
+          const html = (e.currentTarget as HTMLDivElement).innerHTML;
+          lastHtmlRef.current = html;
+          onChange(html);
+        }}
         className="w-full px-3 py-2 text-sm outline-none"
         style={{ minHeight }}
         data-placeholder={placeholder}
-        dangerouslySetInnerHTML={{ __html: value || "" }}
       />
     </div>
   );
