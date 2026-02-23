@@ -27,6 +27,7 @@ export function calculateOfferTotals(
   material_margin: number;
   labor_margin: number;
   other_margin: number;
+  total_net: number;
 } {
   let total_material_cost = 0;
   let total_labor_cost = 0;
@@ -44,7 +45,10 @@ export function calculateOfferTotals(
     let labor_margin = 0;
     let other_margin = 0;
 
-    groupItems.forEach((item) => {
+    // Erst alle Items berechnen
+    const calculatedItems = groupItems.map(item => calculateItemTotals(item));
+
+    calculatedItems.forEach((item) => {
       const { type, qty, purchase_price, margin_amount } = item;
 
       switch (type) {
@@ -70,6 +74,14 @@ export function calculateOfferTotals(
     total_labor_margin += labor_margin;
     total_other_margin += other_margin;
 
+    const group_total_net = 
+      material_cost +
+      labor_cost +
+      other_cost +
+      material_margin +
+      labor_margin +
+      other_margin;
+
     return {
       ...group,
       material_cost,
@@ -78,15 +90,17 @@ export function calculateOfferTotals(
       material_margin,
       labor_margin,
       other_margin,
-      total_net:
-        material_cost +
-        labor_cost +
-        other_cost +
-        material_margin +
-        labor_margin +
-        other_margin,
+      total_net: group_total_net,
     };
   });
+
+  const total_net = 
+    total_material_cost +
+    total_labor_cost +
+    total_other_cost +
+    total_material_margin +
+    total_labor_margin +
+    total_other_margin;
 
   return {
     groups: updatedGroups,
@@ -96,5 +110,6 @@ export function calculateOfferTotals(
     material_margin: total_material_margin,
     labor_margin: total_labor_margin,
     other_margin: total_other_margin,
+    total_net,
   };
 }
