@@ -9,6 +9,7 @@ import { handleAddItem, handleMoveItem, handleDuplicateItem, handleUpdateItem } 
 import OfferSummary from "@/components/offers/OfferSummary";
 import PaymentTerms from "@/components/offers/PaymentTerms";
 import OutroText from "@/components/offers/OutroText";
+import OfferGroupSection from "@/components/offers/OfferGroup";
 
 type Customer = {
   id: string;
@@ -21,6 +22,21 @@ type Customer = {
 type Project = {
   id: string;
   title: string;
+};
+
+const emptyItem: OfferItem = {
+  id: "1",
+  type: "material",
+  position_index: "1",
+  name: "",
+  description: null,
+  qty: 1,
+  unit: "Stück",
+  purchase_price: 0,
+  markup_percent: 0,
+  margin_amount: 0,
+  unit_price: 0,
+  line_total: 0,
 };
 
 export default function Page() {
@@ -56,7 +72,7 @@ export default function Page() {
     },
   ]);
   const [items, setItems] = useState<Record<string, OfferItem[]>>({
-    "1": [],
+    "1": [{ ...emptyItem }],
   });
   const [paymentDueDays, setPaymentDueDays] = useState(7);
   const [discountPercent, setDiscountPercent] = useState<number | null>(null);
@@ -128,7 +144,15 @@ export default function Page() {
 
   // Gruppe hinzufügen
   function onAddGroup() {
-    setGroups((prev) => handleAddGroup(prev));
+    const newGroups = handleAddGroup(groups);
+    setGroups(newGroups);
+    
+    // Füge automatisch eine leere Position zur neuen Gruppe hinzu
+    const newGroupId = newGroups[newGroups.length - 1].id;
+    setItems((prev) => ({
+      ...prev,
+      [newGroupId]: [{ ...emptyItem, id: Math.random().toString() }],
+    }));
   }
 
   // Gruppe nach oben/unten verschieben
@@ -353,247 +377,27 @@ export default function Page() {
 
             <div className="space-y-8">
               {groups.map((group) => (
-                <div key={group.id}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="text-zinc-400 hover:text-zinc-600"
-                      >
-                        ▼
-                      </button>
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm text-zinc-600">
-                          {group.index}.
-                        </span>
-                        <input
-                          type="text"
-                          value={group.title}
-                          onChange={(e) =>
-                            setGroups((prev) =>
-                              prev.map((g) =>
-                                g.id === group.id
-                                  ? { ...g, title: e.target.value }
-                                  : g
-                              )
-                            )
-                          }
-                          className="text-base font-medium bg-transparent border-none p-0"
-                          placeholder="Titel der Leistungsgruppe"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-sm text-zinc-600">
-                        {group.total_net.toFixed(2)} €
-                      </span>
-                      <button
-                        type="button"
-                        className="text-zinc-400 hover:text-zinc-600"
-                        onClick={() => onDeleteGroup(group.id)}
-                      >
-                        ⋮
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-zinc-200">
-                          <th className="py-2 pr-4 font-medium text-left">Nr</th>
-                          <th className="py-2 px-4 font-medium text-left">Art</th>
-                          <th className="py-2 px-4 font-medium text-right">
-                            Menge
-                          </th>
-                          <th className="py-2 px-4 font-medium text-left">
-                            Einheit
-                          </th>
-                          <th className="py-2 px-4 font-medium text-left">
-                            Bezeichnung
-                          </th>
-                          <th className="py-2 px-4 font-medium text-right">
-                            EK
-                          </th>
-                          <th className="py-2 px-4 font-medium text-right">
-                            Aufschlag
-                          </th>
-                          <th className="py-2 px-4 font-medium text-right">
-                            Marge
-                          </th>
-                          <th className="py-2 px-4 font-medium text-right">
-                            EP
-                          </th>
-                          <th className="py-2 pl-4 font-medium text-right">
-                            Gesamt
-                          </th>
-                          <th className="py-2 pl-4 font-medium"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(items[group.id] ?? []).map((item) => (
-                          <tr key={item.id} className="border-b border-zinc-200">
-                            <td className="py-2 pr-4">{item.position_index}</td>
-                            <td className="py-2 px-4">
-                              <select
-                                value={item.type}
-                                onChange={(e) =>
-                                  onUpdateItem(group.id, {
-                                    ...item,
-                                    type: e.target.value as any,
-                                  })
-                                }
-                                className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-                              >
-                                <option value="material">Material</option>
-                                <option value="labor">Arbeit</option>
-                                <option value="other">Sonstiges</option>
-                              </select>
-                            </td>
-                            <td className="py-2 px-4">
-                              <input
-                                type="number"
-                                value={item.qty}
-                                onChange={(e) =>
-                                  onUpdateItem(group.id, {
-                                    ...item,
-                                    qty: parseFloat(e.target.value),
-                                  })
-                                }
-                                min={0}
-                                step={0.01}
-                                className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
-                              />
-                            </td>
-                            <td className="py-2 px-4">
-                              <select
-                                value={item.unit}
-                                onChange={(e) =>
-                                  onUpdateItem(group.id, {
-                                    ...item,
-                                    unit: e.target.value,
-                                  })
-                                }
-                                className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-                              >
-                                <option value="Stück">Stück</option>
-                                <option value="Stunde">Stunde</option>
-                                <option value="Meter">Meter</option>
-                                <option value="m²">m²</option>
-                                <option value="m³">m³</option>
-                                <option value="kg">kg</option>
-                                <option value="Pauschal">Pauschal</option>
-                              </select>
-                            </td>
-                            <td className="py-2 px-4">
-                              <div className="space-y-2">
-                                <input
-                                  type="text"
-                                  value={item.name}
-                                  onChange={(e) =>
-                                    onUpdateItem(group.id, {
-                                      ...item,
-                                      name: e.target.value,
-                                    })
-                                  }
-                                  placeholder="Material hinzufügen"
-                                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-                                />
-                                <textarea
-                                  value={item.description ?? ""}
-                                  onChange={(e) =>
-                                    onUpdateItem(group.id, {
-                                      ...item,
-                                      description: e.target.value || null,
-                                    })
-                                  }
-                                  placeholder="Beschreibung"
-                                  rows={2}
-                                  className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm"
-                                />
-                              </div>
-                            </td>
-                            <td className="py-2 px-4">
-                              <input
-                                type="number"
-                                value={item.purchase_price}
-                                onChange={(e) =>
-                                  onUpdateItem(group.id, {
-                                    ...item,
-                                    purchase_price: parseFloat(e.target.value),
-                                  })
-                                }
-                                min={0}
-                                step={0.01}
-                                className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
-                              />
-                            </td>
-                            <td className="py-2 px-4">
-                              <input
-                                type="number"
-                                value={item.markup_percent}
-                                onChange={(e) =>
-                                  onUpdateItem(group.id, {
-                                    ...item,
-                                    markup_percent: parseFloat(e.target.value),
-                                  })
-                                }
-                                min={0}
-                                step={0.1}
-                                className="w-24 rounded-lg border border-zinc-200 px-4 py-2 text-sm text-right"
-                              />
-                            </td>
-                            <td className="py-2 px-4 text-right">
-                              {item.margin_amount.toFixed(2)} €
-                            </td>
-                            <td className="py-2 px-4 text-right">
-                              {item.unit_price.toFixed(2)} €
-                            </td>
-                            <td className="py-2 pl-4 text-right">
-                              {item.line_total.toFixed(2)} €
-                            </td>
-                            <td className="py-2 pl-4">
-                              <button
-                                type="button"
-                                className="text-sm text-zinc-600 hover:text-zinc-900"
-                              >
-                                Normalposition ▾
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td colSpan={9} className="py-2 px-4 text-right font-medium">
-                            Zwischensumme
-                          </td>
-                          <td className="py-2 pl-4 text-right font-medium">
-                            {group.total_net.toFixed(2)} €
-                          </td>
-                          <td></td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-
-                  <div className="mt-4 space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => onAddItem(group.id)}
-                      className="text-sm text-blue-600 hover:text-blue-700"
-                    >
-                      Position hinzufügen
-                    </button>
-
-                    <button
-                      type="button"
-                      className="text-sm text-blue-600 hover:text-blue-700"
-                    >
-                      Artikel importieren (DDS)
-                    </button>
-                  </div>
-                </div>
+                <OfferGroupSection
+                  key={group.id}
+                  group={group}
+                  items={items[group.id] ?? []}
+                  onUpdateGroup={(updatedGroup) =>
+                    setGroups((prev) =>
+                      prev.map((g) =>
+                        g.id === updatedGroup.id ? updatedGroup : g
+                      )
+                    )
+                  }
+                  onAddItem={() => onAddItem(group.id)}
+                  onUpdateItem={(item) => onUpdateItem(group.id, item)}
+                  onDeleteItem={(itemId) => onDeleteItem(group.id, itemId)}
+                  onMoveItem={(itemId, direction) =>
+                    onMoveItem(group.id, itemId, direction)
+                  }
+                  onDuplicateItem={(itemId) =>
+                    onDuplicateItem(group.id, itemId)
+                  }
+                />
               ))}
 
               <button
