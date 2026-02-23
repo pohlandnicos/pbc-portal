@@ -38,6 +38,7 @@ export default function OfferGroupSection({
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
   const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
+  const draggingItemIdRef = useRef<string | null>(null);
   const dragStartIndexRef = useRef<number | null>(null);
 
   function computeDropIndex(clientY: number) {
@@ -65,6 +66,7 @@ export default function OfferGroupSection({
   function moveItemStepwise(itemId: string, direction: "up" | "down", steps: number) {
     if (steps <= 0) {
       setDraggingItemId(null);
+      draggingItemIdRef.current = null;
       return;
     }
 
@@ -202,6 +204,7 @@ export default function OfferGroupSection({
                         if (e.button !== 0) return;
                         e.preventDefault();
                         setDraggingItemId(item.id);
+                        draggingItemIdRef.current = item.id;
                         dragStartIndexRef.current = items.findIndex((i) => i.id === item.id);
 
                         const target = e.currentTarget as HTMLElement;
@@ -211,31 +214,35 @@ export default function OfferGroupSection({
                           // ignore
                         }
 
-                        const onMove = (ev: PointerEvent) => {
-                          if (!draggingItemId) return;
-                          const overIndex = computeDropIndex(ev.clientY);
-                          if (overIndex === null) return;
-
-                          const fromIndex = dragStartIndexRef.current;
-                          if (fromIndex === null || fromIndex === overIndex) return;
-
-                          const direction: "up" | "down" = fromIndex > overIndex ? "up" : "down";
-                          const steps = Math.abs(fromIndex - overIndex);
-                          dragStartIndexRef.current = overIndex;
-                          moveItemStepwise(item.id, direction, steps);
+                        const onMove = (_ev: PointerEvent) => {
+                          if (!draggingItemIdRef.current) return;
                         };
 
-                        const onUp = () => {
+                        const onUp = (ev: PointerEvent) => {
                           window.removeEventListener("pointermove", onMove);
                           window.removeEventListener("pointerup", onUp);
+
+                          const draggedId = draggingItemIdRef.current;
+                          const fromIndex = dragStartIndexRef.current;
+                          const toIndex = computeDropIndex(ev.clientY);
+
                           setDraggingItemId(null);
+                          draggingItemIdRef.current = null;
                           dragStartIndexRef.current = null;
+
+                          if (!draggedId || fromIndex === null || toIndex === null || fromIndex === toIndex) {
+                            return;
+                          }
+
+                          const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
+                          const steps = Math.abs(fromIndex - toIndex);
+                          moveItemStepwise(draggedId, direction, steps);
                         };
 
                         window.addEventListener("pointermove", onMove);
                         window.addEventListener("pointerup", onUp);
                       }}
-                      className="cursor-grab select-none text-zinc-400 hover:text-zinc-600"
+                      className="cursor-grab select-none text-zinc-400 hover:text-zinc-600 px-1 -mx-1"
                       aria-label="Position greifen"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
