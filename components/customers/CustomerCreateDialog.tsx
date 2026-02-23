@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 
 type Props = {
-  onCreated: () => void;
+  onCreated: (customerId?: string) => void;
+  renderTrigger?: (open: () => void) => React.ReactNode;
 };
 
 const baseSchema = z.object({
@@ -63,7 +64,7 @@ const schema = baseSchema.superRefine((val, ctx) => {
   }
 });
 
-export function CustomerCreateDialog({ onCreated }: Props) {
+export function CustomerCreateDialog({ onCreated, renderTrigger }: Props) {
   const [open, setOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
@@ -184,7 +185,7 @@ export function CustomerCreateDialog({ onCreated }: Props) {
       }
 
       close();
-      onCreated();
+      onCreated(customerId);
     } finally {
       setLoading(false);
     }
@@ -192,15 +193,19 @@ export function CustomerCreateDialog({ onCreated }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-end">
-        <button
-          type="button"
-          className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
-          onClick={() => setOpen(true)}
-        >
-          Kunde hinzufügen
-        </button>
-      </div>
+      {renderTrigger ? (
+        renderTrigger(() => setOpen(true))
+      ) : (
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white"
+            onClick={() => setOpen(true)}
+          >
+            Kunde hinzufügen
+          </button>
+        </div>
+      )}
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">

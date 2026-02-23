@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { OfferGroup, OfferItem } from "@/types/offer";
@@ -12,6 +12,7 @@ import PaymentTerms from "@/components/offers/PaymentTerms";
 import OutroText from "@/components/offers/OutroText";
 import OfferGroupSection from "@/components/offers/OfferGroup";
 import RichTextEditor from "@/components/ui/RichTextEditor";
+import { CustomerCreateDialog } from "@/components/customers/CustomerCreateDialog";
 
 const emptyItem: OfferItem = {
   id: "1",
@@ -78,22 +79,30 @@ export default function Page() {
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
 
+  const [customerOpen, setCustomerOpen] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const customerBoxRef = useRef<HTMLDivElement | null>(null);
+
+  const [projectOpen, setProjectOpen] = useState(false);
+  const [projectSearch, setProjectSearch] = useState("");
+  const projectBoxRef = useRef<HTMLDivElement | null>(null);
+
+  async function loadCustomers() {
+    try {
+      const res = await fetch("/api/customers");
+      if (!res.ok) throw new Error("Laden fehlgeschlagen");
+      const json = await res.json();
+      setCustomers(json.data ?? []);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Fehler beim Laden der Kunden");
+      setLoading(false);
+    }
+  }
+
   // Lade Kunden
   useEffect(() => {
-    async function loadCustomers() {
-      try {
-        const res = await fetch("/api/customers");
-        if (!res.ok) throw new Error("Laden fehlgeschlagen");
-        const json = await res.json();
-        setCustomers(json.data ?? []);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setError("Fehler beim Laden der Kunden");
-        setLoading(false);
-      }
-    }
-
     void loadCustomers();
   }, []);
 
@@ -102,6 +111,7 @@ export default function Page() {
     async function loadProjects() {
       if (!customerId) {
         setProjects([]);
+        setProjectId("");
         return;
       }
 
@@ -118,6 +128,51 @@ export default function Page() {
 
     void loadProjects();
   }, [customerId]);
+
+  useEffect(() => {
+    function onDown(ev: MouseEvent) {
+      const t = ev.target as Node | null;
+      if (t && customerBoxRef.current && !customerBoxRef.current.contains(t)) {
+        setCustomerOpen(false);
+      }
+      if (t && projectBoxRef.current && !projectBoxRef.current.contains(t)) {
+        setProjectOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const selectedCustomer = customers.find((c) => c.id === customerId);
+  const selectedProject = projects.find((p) => p.id === projectId);
+
+  useEffect(() => {
+    if (!customerOpen) {
+      setCustomerSearch(selectedCustomer?.name ?? "");
+    }
+  }, [customerOpen, selectedCustomer?.name]);
+
+  useEffect(() => {
+    if (!projectOpen) {
+      setProjectSearch(selectedProject?.title ?? "");
+    }
+  }, [projectOpen, selectedProject?.title]);
+
+  const customerOptions = useMemo(() => {
+    const q = customerSearch.trim().toLowerCase();
+    if (!q) return customers;
+    return customers.filter((c) => {
+      const hay = `${c.name} ${c.street} ${c.zip} ${c.city}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [customers, customerSearch]);
+
+  const projectOptions = useMemo(() => {
+    const q = projectSearch.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter((p) => p.title.toLowerCase().includes(q));
+  }, [projects, projectSearch]);
 
   // Aktualisiere Berechnungen wenn sich Items ändern
   useEffect(() => {
@@ -230,8 +285,6 @@ export default function Page() {
     return <div className="p-4">Lädt...</div>;
   }
 
-  const selectedCustomer = customers.find((c) => c.id === customerId);
-
   // Berechne aktuelle Summen
   const { material_cost, labor_cost, other_cost, material_margin, labor_margin, other_margin } = calculateOfferTotals(groups, items);
 
@@ -284,29 +337,81 @@ export default function Page() {
                 <label className="block text-sm font-medium text-zinc-700 mb-1">
                   Kunde *
                 </label>
-                <div className="relative">
-                  <select
-                    value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Bitte wählen...</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-zinc-400">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                <div ref={customerBoxRef} className="relative">
+                  <div className="relative">
+                    <input
+                      value={customerSearch}
+                      onChange={(e) => {
+                        setCustomerSearch(e.target.value);
+                        setCustomerOpen(true);
+                      }}
+                      onFocus={() => setCustomerOpen(true)}
+                      className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      placeholder="Kunden auswählen"
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-zinc-400">
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   </div>
+
+                  {customerOpen ? (
+                    <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg">
+                      <div className="max-h-64 overflow-auto py-1">
+                        {customerOptions.length === 0 ? (
+                          <div className="px-3 py-2 text-sm text-zinc-600">Keine Treffer</div>
+                        ) : (
+                          customerOptions.map((c) => (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className="w-full px-3 py-2 text-left hover:bg-zinc-50"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setCustomerId(c.id);
+                                setCustomerSearch(c.name);
+                                setCustomerOpen(false);
+                              }}
+                            >
+                              <div className="text-sm text-zinc-900">{c.name}</div>
+                              <div className="text-xs text-zinc-600">
+                                {c.street}, {c.zip} {c.city}
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      <div className="border-t border-zinc-200 bg-white px-3 py-2">
+                        <CustomerCreateDialog
+                          onCreated={async (newId) => {
+                            await loadCustomers();
+                            if (newId) {
+                              setCustomerId(newId);
+                              setCustomerOpen(false);
+                            }
+                          }}
+                          renderTrigger={(open) => (
+                            <button
+                              type="button"
+                              className="w-full text-left text-sm text-blue-600 hover:text-blue-700"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setCustomerOpen(false);
+                                open();
+                              }}
+                            >
+                              + Kunden anlegen
+                            </button>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -314,29 +419,69 @@ export default function Page() {
                 <label className="block text-sm font-medium text-zinc-700 mb-1">
                   Projekt
                 </label>
-                <div className="relative">
-                  <select
-                    value={projectId}
-                    onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-zinc-50"
-                    disabled={!customerId}
-                  >
-                    <option value="">Ohne Projekt</option>
-                    {projects.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-zinc-400">
-                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                <div ref={projectBoxRef} className="relative">
+                  <div className="relative">
+                    <input
+                      value={projectSearch}
+                      onChange={(e) => {
+                        setProjectSearch(e.target.value);
+                        setProjectOpen(true);
+                      }}
+                      onFocus={() => {
+                        if (customerId) setProjectOpen(true);
+                      }}
+                      className="w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 pr-10 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-zinc-50"
+                      placeholder="Projekt auswählen (optional)"
+                      disabled={!customerId}
+                    />
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-zinc-400">
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
                   </div>
+
+                  {projectOpen && customerId ? (
+                    <div className="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg">
+                      <div className="max-h-64 overflow-auto py-1">
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 text-left hover:bg-zinc-50"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setProjectId("");
+                            setProjectSearch("");
+                            setProjectOpen(false);
+                          }}
+                        >
+                          <div className="text-sm text-zinc-900">Ohne Projekt</div>
+                        </button>
+                        {projectOptions.length === 0 ? (
+                          <div className="px-3 py-2 text-sm text-zinc-600">Keine Treffer</div>
+                        ) : (
+                          projectOptions.map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              className="w-full px-3 py-2 text-left hover:bg-zinc-50"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setProjectId(p.id);
+                                setProjectSearch(p.title);
+                                setProjectOpen(false);
+                              }}
+                            >
+                              <div className="text-sm text-zinc-900">{p.title}</div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
