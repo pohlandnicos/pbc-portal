@@ -17,6 +17,16 @@ type Props = {
   onDuplicateItem: (itemId: string) => void;
 };
 
+type DragGhost = {
+  itemId: string;
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  offsetX: number;
+  offsetY: number;
+};
+
 export default function OfferGroupSection({
   group,
   items,
@@ -40,6 +50,9 @@ export default function OfferGroupSection({
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
   const draggingItemIdRef = useRef<string | null>(null);
   const dragStartIndexRef = useRef<number | null>(null);
+  const [dragGhost, setDragGhost] = useState<DragGhost | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+  const dropIndexRef = useRef<number | null>(null);
 
   function computeDropIndex(clientY: number) {
     const positioned = items
@@ -73,6 +86,84 @@ export default function OfferGroupSection({
     onMoveItem(itemId, direction);
     window.setTimeout(() => moveItemStepwise(itemId, direction, steps - 1), 0);
   }
+
+  function beginRowDrag(itemId: string, clientX: number, clientY: number, pointerId: number, targetEl: HTMLElement) {
+    const rowEl = itemRefs.current[itemId];
+    if (!rowEl) return;
+
+    const rect = rowEl.getBoundingClientRect();
+    const ghost: DragGhost = {
+      itemId,
+      width: rect.width,
+      height: rect.height,
+      left: rect.left,
+      top: rect.top,
+      offsetX: clientX - rect.left,
+      offsetY: clientY - rect.top,
+    };
+
+    setDraggingItemId(itemId);
+    draggingItemIdRef.current = itemId;
+    dragStartIndexRef.current = items.findIndex((i) => i.id === itemId);
+    setDragGhost(ghost);
+    const startIdx = items.findIndex((i) => i.id === itemId);
+    setDropIndex(startIdx);
+    dropIndexRef.current = startIdx;
+
+    try {
+      targetEl.setPointerCapture(pointerId);
+    } catch {
+      // ignore
+    }
+
+    const onMove = (ev: PointerEvent) => {
+      if (!draggingItemIdRef.current) return;
+      setDragGhost((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          top: ev.clientY - prev.offsetY,
+          left: ev.clientX - prev.offsetX,
+        };
+      });
+
+      const idx = computeDropIndex(ev.clientY);
+      dropIndexRef.current = idx;
+      setDropIndex(idx);
+    };
+
+    const onUp = (ev: PointerEvent) => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+
+      const draggedId = draggingItemIdRef.current;
+      const fromIndex = dragStartIndexRef.current;
+      const toIndex = dropIndexRef.current ?? computeDropIndex(ev.clientY);
+
+      setDraggingItemId(null);
+      draggingItemIdRef.current = null;
+      dragStartIndexRef.current = null;
+      setDragGhost(null);
+      setDropIndex(null);
+      dropIndexRef.current = null;
+
+      if (!draggedId || fromIndex === null || toIndex === null || fromIndex === toIndex) {
+        return;
+      }
+
+      const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
+      const steps = Math.abs(fromIndex - toIndex);
+      moveItemStepwise(draggedId, direction, steps);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }
+
+  const draggingItem = useMemo(
+    () => (dragGhost ? items.find((i) => i.id === dragGhost.itemId) ?? null : null),
+    [dragGhost, items]
+  );
 
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
@@ -175,8 +266,16 @@ export default function OfferGroupSection({
                 itemRefs.current[item.id] = el;
               }}
             >
+              {dragGhost?.itemId === item.id ? (
+                <div style={{ height: dragGhost.height }} />
+              ) : null}
+
               <div
-                className="grid gap-0 mb-1 text-xs text-zinc-500"
+                className={
+                  dragGhost?.itemId === item.id
+                    ? "hidden"
+                    : "grid gap-0 mb-1 text-xs text-zinc-500"
+                }
                 style={{ gridTemplateColumns }}
               >
                 <div className="px-2 text-left">Nr</div>
@@ -191,58 +290,24 @@ export default function OfferGroupSection({
                 <div className="px-2 text-left">Gesamtpreis</div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className={dragGhost?.itemId === item.id ? "hidden" : "flex items-center gap-2"}>
                 <div
                   className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-visible flex-1"
                   style={{ gridTemplateColumns }}
                 >
-                  <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
+                  <div
+                    className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200"
+                    onPointerDown={(e) => {
+                      if (e.button !== 0) return;
+                      // only left click starts drag
+                      e.preventDefault();
+                      beginRowDrag(item.id, e.clientX, e.clientY, e.pointerId, e.currentTarget);
+                    }}
+                  >
                     <div
                       role="button"
                       tabIndex={0}
-                      onPointerDown={(e) => {
-                        if (e.button !== 0) return;
-                        e.preventDefault();
-                        setDraggingItemId(item.id);
-                        draggingItemIdRef.current = item.id;
-                        dragStartIndexRef.current = items.findIndex((i) => i.id === item.id);
-
-                        const target = e.currentTarget as HTMLElement;
-                        try {
-                          target.setPointerCapture(e.pointerId);
-                        } catch {
-                          // ignore
-                        }
-
-                        const onMove = (_ev: PointerEvent) => {
-                          if (!draggingItemIdRef.current) return;
-                        };
-
-                        const onUp = (ev: PointerEvent) => {
-                          window.removeEventListener("pointermove", onMove);
-                          window.removeEventListener("pointerup", onUp);
-
-                          const draggedId = draggingItemIdRef.current;
-                          const fromIndex = dragStartIndexRef.current;
-                          const toIndex = computeDropIndex(ev.clientY);
-
-                          setDraggingItemId(null);
-                          draggingItemIdRef.current = null;
-                          dragStartIndexRef.current = null;
-
-                          if (!draggedId || fromIndex === null || toIndex === null || fromIndex === toIndex) {
-                            return;
-                          }
-
-                          const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
-                          const steps = Math.abs(fromIndex - toIndex);
-                          moveItemStepwise(draggedId, direction, steps);
-                        };
-
-                        window.addEventListener("pointermove", onMove);
-                        window.addEventListener("pointerup", onUp);
-                      }}
-                      className="cursor-grab select-none text-zinc-400 hover:text-zinc-600 px-1 -mx-1"
+                      className="cursor-grab select-none text-zinc-400 hover:text-zinc-600 px-3 py-2 -mx-2 -my-1 touch-none"
                       aria-label="Position greifen"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
@@ -550,6 +615,68 @@ export default function OfferGroupSection({
               </div>
             </div>
           ))}
+
+          {dragGhost && draggingItem && (
+            <div
+              className="fixed z-[60] pointer-events-none"
+              style={{
+                left: dragGhost.left,
+                top: dragGhost.top,
+                width: dragGhost.width,
+              }}
+            >
+              <div className="rounded-md border border-zinc-200 bg-white shadow-lg">
+                <div
+                  className="grid gap-0 rounded-md bg-zinc-50 overflow-hidden"
+                  style={{ gridTemplateColumns }}
+                >
+                  <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
+                    <span className="text-zinc-400">
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                        <circle cx="9" cy="6" r="1.5" />
+                        <circle cx="15" cy="6" r="1.5" />
+                        <circle cx="9" cy="12" r="1.5" />
+                        <circle cx="15" cy="12" r="1.5" />
+                        <circle cx="9" cy="18" r="1.5" />
+                        <circle cx="15" cy="18" r="1.5" />
+                      </svg>
+                    </span>
+                    <span className="text-zinc-700">{draggingItem.position_index}</span>
+                  </div>
+                  <div className="flex items-center px-2 py-1 border-r border-zinc-200 text-sm text-zinc-700">
+                    {draggingItem.type === "material" && "Material"}
+                    {draggingItem.type === "labor" && "Lohn"}
+                    {draggingItem.type === "mixed" && "Mischposition"}
+                    {draggingItem.type === "other" && "Sonstiges"}
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-right text-zinc-700">
+                    {draggingItem.qty}
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-zinc-700">
+                    {draggingItem.unit}
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-zinc-700 truncate">
+                    {draggingItem.name || "-"}
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-right text-zinc-700">
+                    {draggingItem.purchase_price.toFixed(2)} €
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-right text-zinc-700">
+                    {draggingItem.markup_percent.toFixed(1)} %
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-right text-zinc-700">
+                    {draggingItem.margin_amount.toFixed(2)} €
+                  </div>
+                  <div className="px-2 py-1 border-r border-zinc-200 text-sm text-right text-zinc-700">
+                    {draggingItem.unit_price.toFixed(2)} €
+                  </div>
+                  <div className="px-2 py-1 text-sm text-right text-zinc-700">
+                    {draggingItem.line_total.toFixed(2)} €
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
