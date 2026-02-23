@@ -1,7 +1,5 @@
 import { useState } from "react";
 import type { OfferGroup, OfferItem } from "@/types/offer";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
 
 type Props = {
   group: OfferGroup;
@@ -73,7 +71,7 @@ export default function OfferGroupSection({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-200">
+                <tr className="border-b border-zinc-100">
                   <th className="py-2 pr-2 font-medium text-left w-12">Nr</th>
                   <th className="py-2 px-2 font-medium text-left w-32">Art</th>
                   <th className="py-2 px-2 font-medium text-right w-20">Menge</th>
@@ -92,7 +90,7 @@ export default function OfferGroupSection({
                   <tr key={item.id} className="group">
                     <td className="py-2 pr-2 align-top">{item.position_index}</td>
                     <td className="py-2 px-2 align-top">
-                      <Select
+                      <select
                         value={item.type}
                         onChange={(e) =>
                           onUpdateItem({
@@ -100,15 +98,15 @@ export default function OfferGroupSection({
                             type: e.target.value as any,
                           })
                         }
-                        className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="material">Material</option>
                         <option value="labor">Arbeit</option>
                         <option value="other">Sonstiges</option>
-                      </Select>
+                      </select>
                     </td>
                     <td className="py-2 px-2 align-top">
-                      <Input
+                      <input
                         type="number"
                         value={item.qty}
                         onChange={(e) =>
@@ -119,11 +117,11 @@ export default function OfferGroupSection({
                         }
                         min={0}
                         step={0.01}
-                        className="w-full text-right rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full text-right rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                     </td>
                     <td className="py-2 px-2 align-top">
-                      <Select
+                      <select
                         value={item.unit}
                         onChange={(e) =>
                           onUpdateItem({
@@ -131,7 +129,7 @@ export default function OfferGroupSection({
                             unit: e.target.value,
                           })
                         }
-                        className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       >
                         <option value="Stück">Stück</option>
                         <option value="Stunde">Stunde</option>
@@ -140,11 +138,11 @@ export default function OfferGroupSection({
                         <option value="m³">m³</option>
                         <option value="kg">kg</option>
                         <option value="Pauschal">Pauschal</option>
-                      </Select>
+                      </select>
                     </td>
                     <td className="py-2 px-2">
                       <div className="space-y-2">
-                        <Input
+                        <input
                           type="text"
                           value={item.name}
                           onChange={(e) =>
@@ -154,7 +152,7 @@ export default function OfferGroupSection({
                             })
                           }
                           placeholder="Material hinzufügen"
-                          className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className="w-full rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         />
                         <textarea
                           value={item.description ?? ""}
@@ -165,13 +163,13 @@ export default function OfferGroupSection({
                             })
                           }
                           placeholder="Beschreibung"
-                          rows={3}
-                          className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          rows={4}
+                          className="w-full rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
                         />
                       </div>
                     </td>
                     <td className="py-2 px-2 align-top">
-                      <Input
+                      <input
                         type="number"
                         value={item.purchase_price}
                         onChange={(e) =>
@@ -182,12 +180,12 @@ export default function OfferGroupSection({
                         }
                         min={0}
                         step={0.01}
-                        className="w-full text-right rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="w-full text-right rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       />
                     </td>
                     <td className="py-2 px-2 align-top">
                       <div className="flex items-center">
-                        <Input
+                        <input
                           type="number"
                           value={item.markup_percent}
                           onChange={(e) =>
@@ -198,9 +196,9 @@ export default function OfferGroupSection({
                           }
                           min={0}
                           step={0.1}
-                          className="w-full text-right rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className="w-full text-right rounded-md border-zinc-300 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         />
-                        <span className="ml-1">%</span>
+                        <span className="ml-1 text-zinc-500">%</span>
                       </div>
                     </td>
                     <td className="py-2 px-2 align-top text-right">
@@ -227,25 +225,25 @@ export default function OfferGroupSection({
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={9} className="py-2 px-2 text-right font-medium border-t border-zinc-200">
+                  <td colSpan={9} className="py-2 px-2 text-right font-medium border-t border-zinc-100">
                     Zwischensumme
                   </td>
-                  <td className="py-2 pl-2 text-right font-medium border-t border-zinc-200">
+                  <td className="py-2 pl-2 text-right font-medium border-t border-zinc-100">
                     {group.total_net.toFixed(2)} €
                   </td>
-                  <td className="border-t border-zinc-200"></td>
+                  <td className="border-t border-zinc-100"></td>
                 </tr>
               </tfoot>
             </table>
           </div>
 
-          <div className="mt-4 space-x-4">
+          <div className="mt-4 flex items-center gap-4">
             <button
               type="button"
               onClick={onAddItem}
               className="text-sm text-blue-600 hover:text-blue-700"
             >
-              Position hinzufügen
+              + Position hinzufügen
             </button>
 
             <button
