@@ -40,7 +40,7 @@ const emptyItem: OfferItem = {
   line_total: 0,
 };
 
-export default function NewOfferPage() {
+export default function NewOfferForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
