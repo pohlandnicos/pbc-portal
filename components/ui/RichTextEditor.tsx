@@ -20,15 +20,17 @@ export default function RichTextEditor({
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 border-b border-zinc-200 pb-2">
+    <div
+      className="w-full rounded-lg border border-zinc-200 overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500"
+    >
+      <div className="flex items-center gap-1 bg-zinc-50 px-2 py-1.5 border-b border-zinc-200">
         <button
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
             exec("bold");
           }}
-          className="p-1 text-sm text-zinc-600 hover:bg-zinc-100 rounded"
+          className="h-8 w-8 inline-flex items-center justify-center rounded text-sm font-semibold text-zinc-600 hover:bg-white/70"
           title="Fett"
         >
           B
@@ -39,7 +41,7 @@ export default function RichTextEditor({
             e.preventDefault();
             exec("italic");
           }}
-          className="p-1 text-sm italic text-zinc-600 hover:bg-zinc-100 rounded"
+          className="h-8 w-8 inline-flex items-center justify-center rounded text-sm italic text-zinc-600 hover:bg-white/70"
           title="Kursiv"
         >
           I
@@ -50,22 +52,29 @@ export default function RichTextEditor({
             e.preventDefault();
             exec("underline");
           }}
-          className="p-1 text-sm underline text-zinc-600 hover:bg-zinc-100 rounded"
+          className="h-8 w-8 inline-flex items-center justify-center rounded text-sm underline text-zinc-600 hover:bg-white/70"
           title="Unterstrichen"
         >
           U
         </button>
-        <span className="w-px h-4 bg-zinc-200" />
+        <span className="w-px h-4 bg-zinc-200 mx-1" />
         <button
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
             exec("insertUnorderedList");
           }}
-          className="p-1 text-sm text-zinc-600 hover:bg-zinc-100 rounded"
+          className="h-8 w-8 inline-flex items-center justify-center rounded text-zinc-600 hover:bg-white/70"
           title="Liste"
         >
-          •
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="5" cy="7" r="1" />
+            <circle cx="5" cy="12" r="1" />
+            <circle cx="5" cy="17" r="1" />
+            <path d="M9 7h12" />
+            <path d="M9 12h12" />
+            <path d="M9 17h12" />
+          </svg>
         </button>
         <button
           type="button"
@@ -73,10 +82,18 @@ export default function RichTextEditor({
             e.preventDefault();
             exec("insertOrderedList");
           }}
-          className="p-1 text-sm text-zinc-600 hover:bg-zinc-100 rounded"
+          className="h-8 w-8 inline-flex items-center justify-center rounded text-zinc-600 hover:bg-white/70"
           title="Nummerierte Liste"
         >
-          1.
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 7h11" />
+            <path d="M10 12h11" />
+            <path d="M10 17h11" />
+            <path d="M3 8h2V5" />
+            <path d="M5 8V5" />
+            <path d="M3 13h2l-2 3h2" />
+            <path d="M3 18h2" />
+          </svg>
         </button>
       </div>
 
@@ -84,7 +101,7 @@ export default function RichTextEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.currentTarget as HTMLDivElement).innerHTML)}
-        className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+        className="w-full px-3 py-2 text-sm outline-none"
         style={{ minHeight }}
         data-placeholder={placeholder}
         dangerouslySetInnerHTML={{ __html: value || "" }}
