@@ -231,7 +231,7 @@ export default function RichTextEditor({
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
         onFocus={saveSelection}
-        className="w-full px-3 py-2 text-sm outline-none"
+        className="w-full px-3 py-2 text-sm outline-none whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
         style={{ minHeight }}
         data-placeholder={placeholder}
       />
