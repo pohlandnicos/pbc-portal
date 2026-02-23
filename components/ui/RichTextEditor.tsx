@@ -16,6 +16,7 @@ export default function RichTextEditor({
   const minHeight = rows * 24;
   const editorRef = useRef<HTMLDivElement | null>(null);
   const lastHtmlRef = useRef<string>(value || "");
+  const selectionRef = useRef<Range | null>(null);
 
   useEffect(() => {
     const el = editorRef.current;
@@ -30,10 +31,51 @@ export default function RichTextEditor({
     lastHtmlRef.current = next;
   }, [value]);
 
+  function saveSelection() {
+    const el = editorRef.current;
+    if (!el) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (!el.contains(range.startContainer) || !el.contains(range.endContainer)) return;
+    selectionRef.current = range.cloneRange();
+  }
+
+  function restoreSelection() {
+    const el = editorRef.current;
+    if (!el) return;
+
+    const sel = window.getSelection();
+    if (!sel) return;
+
+    sel.removeAllRanges();
+
+    if (selectionRef.current) {
+      sel.addRange(selectionRef.current);
+      return;
+    }
+
+    // If we don't have a saved selection yet, place caret at end.
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    sel.addRange(range);
+  }
+
   function exec(command: string) {
     // execCommand is deprecated but still the most compatible way to implement
     // simple rich-text controls without additional dependencies.
     document.execCommand(command);
+  }
+
+  function execInEditor(command: string) {
+    const el = editorRef.current;
+    if (!el) return;
+
+    el.focus();
+    restoreSelection();
+    exec(command);
+    saveSelection();
   }
 
   return (
@@ -45,7 +87,7 @@ export default function RichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            exec("bold");
+            execInEditor("bold");
           }}
           className="h-8 w-8 inline-flex items-center justify-center rounded text-sm font-semibold text-zinc-600 hover:bg-white/70"
           title="Fett"
@@ -56,7 +98,7 @@ export default function RichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            exec("italic");
+            execInEditor("italic");
           }}
           className="h-8 w-8 inline-flex items-center justify-center rounded text-sm italic text-zinc-600 hover:bg-white/70"
           title="Kursiv"
@@ -67,7 +109,7 @@ export default function RichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            exec("underline");
+            execInEditor("underline");
           }}
           className="h-8 w-8 inline-flex items-center justify-center rounded text-sm underline text-zinc-600 hover:bg-white/70"
           title="Unterstrichen"
@@ -79,7 +121,7 @@ export default function RichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            exec("insertUnorderedList");
+            execInEditor("insertUnorderedList");
           }}
           className="h-8 w-8 inline-flex items-center justify-center rounded text-zinc-600 hover:bg-white/70"
           title="Liste"
@@ -97,7 +139,7 @@ export default function RichTextEditor({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            exec("insertOrderedList");
+            execInEditor("insertOrderedList");
           }}
           className="h-8 w-8 inline-flex items-center justify-center rounded text-zinc-600 hover:bg-white/70"
           title="Nummerierte Liste"
@@ -123,6 +165,9 @@ export default function RichTextEditor({
           lastHtmlRef.current = html;
           onChange(html);
         }}
+        onMouseUp={saveSelection}
+        onKeyUp={saveSelection}
+        onFocus={saveSelection}
         className="w-full px-3 py-2 text-sm outline-none"
         style={{ minHeight }}
         data-placeholder={placeholder}
