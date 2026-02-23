@@ -6,6 +6,8 @@ import type { OfferGroup, OfferItem } from "@/types/offer";
 type Props = {
   group: OfferGroup;
   items: OfferItem[];
+  onDeleteGroup: () => void;
+  onDuplicateGroup: () => void;
   onUpdateGroup: (group: OfferGroup) => void;
   onAddItem: () => void;
   onUpdateItem: (item: OfferItem) => void;
@@ -17,6 +19,8 @@ type Props = {
 export default function OfferGroupSection({
   group,
   items,
+  onDeleteGroup,
+  onDuplicateGroup,
   onUpdateGroup,
   onAddItem,
   onUpdateItem,
@@ -25,6 +29,7 @@ export default function OfferGroupSection({
   onDuplicateItem,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const gridTemplateColumns = useMemo(
     () => "40px 120px 60px 100px 1fr 80px 80px 80px 80px 80px",
@@ -56,9 +61,46 @@ export default function OfferGroupSection({
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-zinc-600">{group.total_net.toFixed(2)} €</span>
-          <button type="button" className="text-zinc-400 hover:text-zinc-600">
-            ⋮
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              className="text-zinc-400 hover:text-zinc-600"
+              aria-label="Gruppenaktionen"
+            >
+              ⋮
+            </button>
+
+            {menuOpen && (
+              <div
+                className="absolute right-0 top-6 z-20 w-40 rounded-md border border-zinc-200 bg-white shadow-sm"
+                role="menu"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDuplicateGroup();
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50"
+                  role="menuitem"
+                >
+                  Duplizieren
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDeleteGroup();
+                  }}
+                  className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-zinc-50"
+                  role="menuitem"
+                >
+                  Entfernen
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -82,10 +124,15 @@ export default function OfferGroupSection({
                 <div className="text-right">Gesamtpreis</div>
               </div>
 
-              <div className="grid gap-4" style={{ gridTemplateColumns }}>
-                <div className="flex items-center">{item.position_index}</div>
+              <div
+                className="grid gap-0 rounded-md border border-blue-200 bg-blue-50/60 overflow-hidden"
+                style={{ gridTemplateColumns }}
+              >
+                <div className="flex items-center px-2 py-1 text-sm border-r border-blue-200">
+                  {item.position_index}
+                </div>
 
-                <div className="flex items-center">
+                <div className="flex items-center px-2 py-1 border-r border-blue-200">
                   <select
                     value={item.type}
                     onChange={(e) =>
@@ -94,7 +141,7 @@ export default function OfferGroupSection({
                         type: e.target.value as OfferItem["type"],
                       })
                     }
-                    className="w-full border border-zinc-200 rounded text-sm py-1 px-2 bg-transparent"
+                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
                   >
                     <option value="material">Material</option>
                     <option value="labor">Arbeit</option>
@@ -102,22 +149,22 @@ export default function OfferGroupSection({
                   </select>
                 </div>
 
-                <div>
+                <div className="px-2 py-1 border-r border-blue-200">
                   <input
                     type="number"
                     value={item.qty}
                     onChange={(e) => onUpdateItem({ ...item, qty: Number(e.target.value) })}
                     min={0}
                     step={0.01}
-                    className="w-full text-right border border-zinc-200 rounded text-sm py-1 px-2"
+                    className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
                   />
                 </div>
 
-                <div>
+                <div className="px-2 py-1 border-r border-blue-200">
                   <select
                     value={item.unit}
                     onChange={(e) => onUpdateItem({ ...item, unit: e.target.value })}
-                    className="w-full border border-zinc-200 rounded text-sm py-1 px-2"
+                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
                   >
                     <option value="Stück">Stück</option>
                     <option value="Stunde">Stunde</option>
@@ -129,18 +176,18 @@ export default function OfferGroupSection({
                   </select>
                 </div>
 
-                <div>
+                <div className="px-2 py-1 border-r border-blue-200">
                   <input
                     type="text"
                     value={item.name}
                     onChange={(e) => onUpdateItem({ ...item, name: e.target.value })}
                     placeholder="Material hinzufügen"
-                    className="w-full border border-zinc-200 rounded text-sm py-1 px-2"
+                    className="w-full bg-transparent border-none text-sm p-0 focus:outline-none focus:ring-0"
                   />
                 </div>
 
-                <div>
-                  <div className="flex items-center border border-zinc-200 rounded">
+                <div className="px-2 py-1 border-r border-blue-200">
+                  <div className="flex items-center justify-end gap-1">
                     <input
                       type="number"
                       value={item.purchase_price}
@@ -149,14 +196,14 @@ export default function OfferGroupSection({
                       }
                       min={0}
                       step={0.01}
-                      className="w-full text-right border-none text-sm py-1 pl-2"
+                      className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
                     />
-                    <span className="pr-2 text-zinc-400">€</span>
+                    <span className="text-zinc-400 text-sm">€</span>
                   </div>
                 </div>
 
-                <div>
-                  <div className="flex items-center border border-zinc-200 rounded">
+                <div className="px-2 py-1 border-r border-blue-200">
+                  <div className="flex items-center justify-end gap-1">
                     <input
                       type="number"
                       value={item.markup_percent}
@@ -165,24 +212,24 @@ export default function OfferGroupSection({
                       }
                       min={0}
                       step={0.1}
-                      className="w-full text-right border-none text-sm py-1 pl-2"
+                      className="w-full bg-transparent text-right border-none text-sm p-0 focus:outline-none focus:ring-0"
                     />
-                    <span className="pr-2 text-zinc-400">%</span>
+                    <span className="text-zinc-400 text-sm">%</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end px-2">
+                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-blue-200">
                   {item.margin_amount.toFixed(2)} €
                 </div>
-                <div className="flex items-center justify-end px-2">
+                <div className="flex items-center justify-end px-2 py-1 text-sm border-r border-blue-200">
                   {item.unit_price.toFixed(2)} €
                 </div>
-                <div className="flex items-center justify-end px-2">
+                <div className="flex items-center justify-end px-2 py-1 text-sm">
                   {item.line_total.toFixed(2)} €
                 </div>
               </div>
 
-              <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "40px 1fr 48px" }}>
+              <div className="grid gap-3 mt-2" style={{ gridTemplateColumns: "40px minmax(280px,560px) 56px 1fr" }}>
                 <div />
                 <textarea
                   value={item.description ?? ""}
@@ -194,14 +241,15 @@ export default function OfferGroupSection({
                   }
                   placeholder="Beschreibung"
                   rows={3}
-                  className="w-full border border-zinc-200 rounded text-sm p-2 focus:ring-1 focus:ring-blue-500 resize-none"
+                  className="w-full border border-zinc-200 rounded-md text-sm p-2 focus:outline-none focus:ring-0 resize-none"
                 />
                 <button
                   type="button"
-                  className="flex items-center justify-center text-zinc-400 hover:text-zinc-600"
+                  className="h-10 w-14 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
+                  aria-label="Bild hinzufügen"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-4 h-4 mx-auto"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -210,6 +258,7 @@ export default function OfferGroupSection({
                     <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </button>
+                <div />
               </div>
 
               <div className="grid gap-4 mt-2" style={{ gridTemplateColumns: "40px 1fr auto" }}>
@@ -218,7 +267,7 @@ export default function OfferGroupSection({
                 <select
                   value="normal"
                   onChange={() => {}}
-                  className="text-sm border border-zinc-200 rounded py-1 px-3"
+                  className="text-sm border border-zinc-200 rounded-md py-1 px-2 bg-white focus:outline-none focus:ring-0"
                 >
                   <option value="normal">Normalposition</option>
                   <option value="alternative">Alternativposition</option>

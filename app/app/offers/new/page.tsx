@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { OfferGroup, OfferItem } from "@/types/offer";
-import { handleAddGroup, handleMoveGroup, handleDeleteGroup } from "@/lib/offer-handlers";
+import { handleAddGroup, handleMoveGroup, handleDeleteGroup, handleDuplicateGroup } from "@/lib/offer-handlers";
 import { handleAddItem, handleMoveItem, handleDuplicateItem, handleUpdateItem } from "@/lib/item-handlers";
 import { calculateOfferTotals } from "@/lib/calculations";
 import OfferSummary from "@/components/offers/OfferSummary";
@@ -164,6 +164,16 @@ export default function Page() {
   // Gruppe löschen
   function onDeleteGroup(groupId: string) {
     const { groups: newGroups, items: newItems } = handleDeleteGroup(
+      groups,
+      items,
+      groupId
+    );
+    setGroups(newGroups);
+    setItems(newItems);
+  }
+
+  function onDuplicateGroup(groupId: string) {
+    const { groups: newGroups, items: newItems } = handleDuplicateGroup(
       groups,
       items,
       groupId
@@ -385,6 +395,8 @@ export default function Page() {
                   key={group.id}
                   group={group}
                   items={items[group.id] ?? []}
+                  onDeleteGroup={() => onDeleteGroup(group.id)}
+                  onDuplicateGroup={() => onDuplicateGroup(group.id)}
                   onUpdateGroup={(updatedGroup) =>
                     setGroups((prev) =>
                       prev.map((g) =>

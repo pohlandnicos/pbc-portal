@@ -54,3 +54,47 @@ export function handleDeleteGroup(
     items: newItems,
   };
 }
+
+export function handleDuplicateGroup(
+  groups: OfferGroup[],
+  items: Record<string, OfferItem[]>,
+  groupId: string
+): { groups: OfferGroup[]; items: Record<string, OfferItem[]> } {
+  const index = groups.findIndex((g) => g.id === groupId);
+  if (index === -1) return { groups, items };
+
+  const sourceGroup = groups[index];
+  const newGroupId = Math.random().toString();
+  const newGroup: OfferGroup = {
+    ...sourceGroup,
+    id: newGroupId,
+    title: sourceGroup.title,
+    material_cost: 0,
+    labor_cost: 0,
+    other_cost: 0,
+    material_margin: 0,
+    labor_margin: 0,
+    other_margin: 0,
+    total_net: 0,
+  };
+
+  const newGroups = [...groups];
+  newGroups.splice(index + 1, 0, newGroup);
+
+  const sourceItems = items[groupId] ?? [];
+  const duplicatedItems: OfferItem[] = sourceItems.map((it, i) => ({
+    ...it,
+    id: Math.random().toString(),
+    position_index: String(i + 1),
+  }));
+
+  const newItems: Record<string, OfferItem[]> = {
+    ...items,
+    [newGroupId]: duplicatedItems,
+  };
+
+  return {
+    groups: newGroups.map((g, i) => ({ ...g, index: i + 1 })),
+    items: newItems,
+  };
+}
