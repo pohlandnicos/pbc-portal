@@ -38,6 +38,16 @@ export default function OfferGroupSection({
   const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
 
+  function moveItemStepwise(itemId: string, direction: "up" | "down", steps: number) {
+    if (steps <= 0) {
+      setDraggingItemId(null);
+      return;
+    }
+
+    onMoveItem(itemId, direction);
+    window.setTimeout(() => moveItemStepwise(itemId, direction, steps - 1), 0);
+  }
+
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
       const target = e.target;
@@ -136,9 +146,7 @@ export default function OfferGroupSection({
               key={item.id}
               className="mb-6"
               onDragOver={(e) => {
-                if (e.dataTransfer.types?.includes("text/plain")) {
-                  e.preventDefault();
-                }
+                if (draggingItemId || e.dataTransfer.types?.length) e.preventDefault();
               }}
               onDrop={(e) => {
                 const draggedId = e.dataTransfer.getData("text/plain") || draggingItemId;
@@ -154,11 +162,7 @@ export default function OfferGroupSection({
 
                 const direction: "up" | "down" = fromIndex > toIndex ? "up" : "down";
                 const steps = Math.abs(fromIndex - toIndex);
-                for (let step = 0; step < steps; step += 1) {
-                  onMoveItem(draggedId, direction);
-                }
-
-                setDraggingItemId(null);
+                moveItemStepwise(draggedId, direction, steps);
               }}
             >
               <div
