@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { OfferGroup, OfferItem } from "@/types/offer";
 
 type Props = {
@@ -34,6 +35,17 @@ export default function OfferGroupSection({
   const [positionTypeMenuFor, setPositionTypeMenuFor] = useState<string | null>(null);
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
   const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
+
+  useEffect(() => {
+    function onPointerDown() {
+      setMenuOpen(false);
+      setItemTypeMenuFor(null);
+      setPositionTypeMenuFor(null);
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
 
   const gridTemplateColumns = useMemo(
     () => "56px 120px 60px 100px 1fr 80px 80px 80px 80px 80px",
@@ -69,6 +81,7 @@ export default function OfferGroupSection({
             <button
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
+              onMouseDown={(e) => e.stopPropagation()}
               className="text-zinc-400 hover:text-zinc-600"
               aria-label="Gruppenaktionen"
             >
@@ -77,6 +90,7 @@ export default function OfferGroupSection({
 
             {menuOpen && (
               <div
+                onMouseDown={(e) => e.stopPropagation()}
                 className="absolute right-0 top-6 z-20 w-40 rounded-md border border-zinc-200 bg-white shadow-sm"
                 role="menu"
               >
@@ -130,7 +144,7 @@ export default function OfferGroupSection({
 
               <div className="flex items-center gap-2">
                 <div
-                  className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-hidden flex-1"
+                  className="grid gap-0 rounded-md border border-zinc-200 bg-zinc-50 overflow-visible flex-1"
                   style={{ gridTemplateColumns }}
                 >
                   <div className="flex items-center gap-2 px-2 py-1 text-sm border-r border-zinc-200">
@@ -156,6 +170,7 @@ export default function OfferGroupSection({
                       <button
                         type="button"
                         onClick={() => setItemTypeMenuFor((v) => (v === item.id ? null : item.id))}
+                        onMouseDown={(e) => e.stopPropagation()}
                         className="w-full flex items-center justify-between gap-2 bg-transparent text-sm text-zinc-800 hover:text-zinc-900"
                         aria-label="Art auswählen"
                       >
@@ -197,7 +212,10 @@ export default function OfferGroupSection({
                       </button>
 
                       {itemTypeMenuFor === item.id && (
-                        <div className="absolute left-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                        <div
+                          onMouseDown={(e) => e.stopPropagation()}
+                          className="absolute left-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20"
+                        >
                           {([
                             { value: "material", label: "Material", icon: (
                               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -384,6 +402,7 @@ export default function OfferGroupSection({
                         onClick={() =>
                           setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
                         }
+                        onMouseDown={(e) => e.stopPropagation()}
                         className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
                       >
                         {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
@@ -395,7 +414,10 @@ export default function OfferGroupSection({
                       </button>
 
                       {positionTypeMenuFor === item.id && (
-                        <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                        <div
+                          onMouseDown={(e) => e.stopPropagation()}
+                          className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20"
+                        >
                           <button
                             type="button"
                             onClick={() => {
