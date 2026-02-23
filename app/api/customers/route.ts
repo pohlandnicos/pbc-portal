@@ -29,7 +29,11 @@ export async function GET() {
         salutation,
         first_name,
         last_name,
-        type
+        type,
+        billing_street,
+        billing_house_number,
+        billing_postal_code,
+        billing_city
       `)
       .order("company_name", { nullsFirst: true })
       .order("last_name", { nullsFirst: true });
@@ -43,6 +47,9 @@ export async function GET() {
         c.type === "company"
           ? c.company_name
           : `${c.salutation} ${c.first_name} ${c.last_name}`.trim(),
+      street: `${c.billing_street ?? ""} ${c.billing_house_number ?? ""}`.trim(),
+      zip: c.billing_postal_code ?? "",
+      city: c.billing_city ?? "",
     }));
 
     return NextResponse.json({ data: customers });
