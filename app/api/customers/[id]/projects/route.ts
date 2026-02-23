@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/supabase";
 
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export async function GET(_request: Request, context: any) {
   const params = await Promise.resolve(context?.params);
   const id = params?.id as string | undefined;
@@ -16,6 +11,21 @@ export async function GET(_request: Request, context: any) {
   }
 
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        {
+          error: "missing_env",
+          details: "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are required",
+        },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
     const { data, error } = await supabase
       .from("projects")
       .select(`
