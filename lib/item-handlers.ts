@@ -1,11 +1,12 @@
 import type { OfferItem } from "@/types/offer";
+import { calculateItemTotals } from "./calculations";
 
 export function handleAddItem(items: OfferItem[], groupId: string): OfferItem {
   const newItem: OfferItem = {
     id: Math.random().toString(),
     type: "material",
     position_index: `${(items?.length ?? 0) + 1}`,
-    name: "Material hinzufügen",
+    name: "",
     description: null,
     qty: 1,
     unit: "Stück",
@@ -16,7 +17,7 @@ export function handleAddItem(items: OfferItem[], groupId: string): OfferItem {
     line_total: 0,
   };
 
-  return newItem;
+  return calculateItemTotals(newItem);
 }
 
 export function handleMoveItem(
@@ -58,23 +59,12 @@ export function handleDuplicateItem(
     position_index: `${items.length + 1}`,
   };
 
-  return [...items, newItem];
+  return [...items, calculateItemTotals(newItem)];
 }
 
 export function handleUpdateItem(
   item: OfferItem,
   updates: Partial<OfferItem>
 ): OfferItem {
-  const newItem = { ...item, ...updates };
-
-  // Berechne Marge
-  newItem.margin_amount = newItem.purchase_price * (newItem.markup_percent / 100);
-
-  // Berechne Einzelpreis
-  newItem.unit_price = newItem.purchase_price + newItem.margin_amount;
-
-  // Berechne Gesamtpreis
-  newItem.line_total = newItem.unit_price * newItem.qty;
-
-  return newItem;
+  return calculateItemTotals({ ...item, ...updates });
 }

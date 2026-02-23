@@ -1,103 +1,115 @@
 import type { OfferGroup, OfferItem } from "@/types/offer";
 
-export type OfferSummary = {
-  // Nettosummen
-  totalNet: number;
-  costs: {
-    total: number;
-    material: number;
-    labor: number;
-    other: number;
-  };
-  
-  // Margen
-  margins: {
-    total: number;
-    material: number;
-    labor: number;
-    other: number;
-  };
-  
-  // Rabatt
-  discount: {
-    percent: number | null;
-    amount: number;
-  };
-  
-  // Steuer
-  tax: {
-    rate: number;
-    total: number;
-    laborOnly: {
-      net: number;
-      tax: number;
-    };
-  };
-  
-  // Brutto
-  totalGross: number;
-};
+export function calculateItemTotals(item: OfferItem): OfferItem {
+  // Berechne Marge
+  const marginAmount = item.purchase_price * (item.markup_percent / 100);
 
-export function calculateOfferSummary(
-  groups: OfferGroup[],
-  items: Record<string, OfferItem[]>,
-  taxRate: number,
-  discountPercent: number | null = null,
-  showVatForLabor: boolean = false
-): OfferSummary {
-  // Nettosummen pro Kategorie
-  const costs = {
-    material: groups.reduce((sum, g) => sum + g.material_cost, 0),
-    labor: groups.reduce((sum, g) => sum + g.labor_cost, 0),
-    other: groups.reduce((sum, g) => sum + g.other_cost, 0),
-    total: 0
-  };
-  costs.total = costs.material + costs.labor + costs.other;
+  // Berechne Einzelpreis
+  const unitPrice = item.purchase_price + marginAmount;
 
-  // Margen pro Kategorie
-  const margins = {
-    material: groups.reduce((sum, g) => sum + g.material_margin, 0),
-    labor: groups.reduce((sum, g) => sum + g.labor_margin, 0),
-    other: groups.reduce((sum, g) => sum + g.other_margin, 0),
-    total: 0
-  };
-  margins.total = margins.material + margins.labor + margins.other;
-
-  // Nettosumme
-  const totalNet = costs.total + margins.total;
-
-  // Rabatt
-  const discountAmount = discountPercent ? totalNet * (discountPercent / 100) : 0;
-  const netAfterDiscount = totalNet - discountAmount;
-
-  // Steuer
-  const taxTotal = netAfterDiscount * (taxRate / 100);
-  
-  // Lohnkosten MwSt
-  const laborTax = showVatForLabor ? {
-    net: costs.labor + margins.labor,
-    tax: (costs.labor + margins.labor) * (taxRate / 100)
-  } : {
-    net: 0,
-    tax: 0
-  };
-
-  // Bruttosumme
-  const totalGross = netAfterDiscount + taxTotal;
+  // Berechne Gesamtpreis
+  const lineTotal = unitPrice * item.qty;
 
   return {
-    totalNet,
-    costs,
-    margins,
-    discount: {
-      percent: discountPercent,
-      amount: discountAmount
+    ...item,
+    margin_amount: marginAmount,
+    unit_price: unitPrice,
+    line_total: lineTotal,
+  };
+}
+
+export function calculateGroupTotals(
+  group: OfferGroup,
+  items: OfferItem[]
+): OfferGroup {
+  const totals = items.reduce(
+    (acc, item) => {
+      const itemCost = item.purchase_price * item.qty;
+      const itemMargin = item.margin_amount * item.qty;
+
+      switch (item.type) {
+        case "material":
+          acc.material_cost += itemCost;
+          acc.material_margin += itemMargin;
+          break;
+        case "labor":
+          acc.labor_cost += itemCost;
+          acc.labor_margin += itemMargin;
+          break;
+        case "other":
+          acc.other_cost += itemCost;
+          acc.other_margin += itemMargin;
+          break;
+      }
+
+      return acc;
     },
-    tax: {
-      rate: taxRate,
-      total: taxTotal,
-      laborOnly: laborTax
+    {
+      material_cost: 0,
+      labor_cost: 0,
+      other_cost: 0,
+      material_margin: 0,
+      labor_margin: 0,
+      other_margin: 0,
+    }
+  );
+
+  const total_net =
+    totals.material_cost +
+    totals.labor_cost +
+    totals.other_cost +
+    totals.material_margin +
+    totals.labor_margin +
+    totals.other_margin;
+
+  return {
+    ...group,
+    ...totals,
+    total_net,
+  };
+}
+
+export function calculateOfferTotals(
+  groups: OfferGroup[],
+  items: Record<string, OfferItem[]>
+): {
+  groups: OfferGroup[];
+  material_cost: number;
+  labor_cost: number;
+  other_cost: number;
+  material_margin: number;
+  labor_margin: number;
+  other_margin: number;
+  total_net: number;
+} {
+  const updatedGroups = groups.map((group) =>
+    calculateGroupTotals(group, items[group.id] ?? [])
+  );
+
+  const totals = updatedGroups.reduce(
+    (acc, group) => {
+      acc.material_cost += group.material_cost;
+      acc.labor_cost += group.labor_cost;
+      acc.other_cost += group.other_cost;
+      acc.material_margin += group.material_margin;
+      acc.labor_margin += group.labor_margin;
+      acc.other_margin += group.other_margin;
+      acc.total_net += group.total_net;
+      return acc;
     },
-    totalGross
+    {
+      material_cost: 0,
+      labor_cost: 0,
+      other_cost: 0,
+      material_margin: 0,
+      labor_margin: 0,
+      other_margin: 0,
+      total_net: 0,
+    }
+  );
+
+  return {
+    groups: updatedGroups,
+    ...totals,
   };
 }
