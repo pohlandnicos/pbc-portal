@@ -674,6 +674,29 @@ export default function OfferGroupSection({
                     {draggingItem.line_total.toFixed(2)} €
                   </div>
                 </div>
+
+                <div className="flex items-start gap-2 mt-2 p-2">
+                  <div
+                    className="grid gap-3 flex-1"
+                    style={{ gridTemplateColumns: "minmax(320px,640px) 96px 1fr" }}
+                  >
+                    <div className="h-24 w-full rounded-md border border-zinc-200 bg-white p-2 text-sm text-zinc-600 overflow-hidden">
+                      {(draggingItem.description ?? "") || "Beschreibung"}
+                    </div>
+
+                    <div className="h-24 w-24 rounded-md border border-zinc-200 bg-white" />
+
+                    <div className="flex items-start justify-end">
+                      <div className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800">
+                        {(positionTypeById[draggingItem.id] ?? "normal") === "normal" && "Normalposition"}
+                        {(positionTypeById[draggingItem.id] ?? "normal") === "alternative" && "Alternativposition"}
+                        {(positionTypeById[draggingItem.id] ?? "normal") === "demand" && "Bedarfsposition"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-5" />
+                </div>
               </div>
             </div>
           )}
