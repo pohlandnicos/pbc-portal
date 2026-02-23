@@ -522,7 +522,7 @@ export default function OfferGroupSection({
                 </button>
               </div>
 
-              <div className="flex items-start gap-2 mt-2">
+              <div className={dragGhost?.itemId === item.id ? "hidden" : "flex items-start gap-2 mt-2"}>
                 <div className="grid gap-3 flex-1" style={{ gridTemplateColumns: "minmax(320px,640px) 96px 1fr" }}>
                   <textarea
                     value={item.description ?? ""}
