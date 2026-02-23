@@ -14,7 +14,7 @@ export type OfferGroup = {
 
 export type OfferItem = {
   id: string;
-  type: "material" | "labor" | "other";
+  type: "material" | "labor" | "mixed" | "other";
   position_index: string;
   name: string;
   description: string | null;

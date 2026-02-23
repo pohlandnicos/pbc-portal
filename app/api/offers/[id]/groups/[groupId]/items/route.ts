@@ -6,7 +6,7 @@ import { z } from "zod";
 
 // POST /api/offers/[id]/groups/[groupId]/items - Neue Position erstellen
 const createSchema = z.object({
-  type: z.enum(["material", "labor", "other"]),
+  type: z.enum(["material", "labor", "mixed", "other"]),
   name: z.string().min(1),
   description: z.string().optional(),
   qty: z.number().min(0),
@@ -107,6 +107,7 @@ export async function POST(
           acc.labor_cost += cost;
           acc.labor_margin += margin;
           break;
+        case "mixed":
         case "other":
           acc.other_cost += cost;
           acc.other_margin += margin;

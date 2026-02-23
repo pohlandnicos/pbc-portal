@@ -132,7 +132,7 @@ export interface Database {
           id: string
           org_id: string
           offer_group_id: string
-          type: "material" | "labor" | "other"
+          type: "material" | "labor" | "mixed" | "other"
           position_index: string
           name: string
           description: string | null
@@ -150,7 +150,7 @@ export interface Database {
           id?: string
           org_id: string
           offer_group_id: string
-          type: "material" | "labor" | "other"
+          type: "material" | "labor" | "mixed" | "other"
           position_index: string
           name: string
           description?: string | null
@@ -168,7 +168,7 @@ export interface Database {
           id?: string
           org_id?: string
           offer_group_id?: string
-          type?: "material" | "labor" | "other"
+          type?: "material" | "labor" | "mixed" | "other"
           position_index?: string
           name?: string
           description?: string | null

@@ -30,6 +30,7 @@ export default function OfferGroupSection({
 }: Props) {
   const [expanded, setExpanded] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [itemTypeMenuFor, setItemTypeMenuFor] = useState<string | null>(null);
   const [positionTypeMenuFor, setPositionTypeMenuFor] = useState<string | null>(null);
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
   const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
@@ -112,19 +113,19 @@ export default function OfferGroupSection({
           {items.map((item) => (
             <div key={item.id} className="mb-6">
               <div
-                className="grid gap-4 mb-1 text-xs text-zinc-500"
+                className="grid gap-0 mb-1 text-xs text-zinc-500"
                 style={{ gridTemplateColumns }}
               >
-                <div>Nr</div>
-                <div>Art</div>
-                <div>Menge</div>
-                <div>Einheit</div>
-                <div>Bezeichnung</div>
-                <div className="text-right">Einkaufspreis</div>
-                <div className="text-right">Aufschlag</div>
-                <div className="text-right">Marge</div>
-                <div className="text-right">Einzelpreis</div>
-                <div className="text-right">Gesamtpreis</div>
+                <div className="px-2 text-left">Nr</div>
+                <div className="px-2 text-left">Art</div>
+                <div className="px-2 text-left">Menge</div>
+                <div className="px-2 text-left">Einheit</div>
+                <div className="px-2 text-left">Bezeichnung</div>
+                <div className="px-2 text-left">Einkaufspreis</div>
+                <div className="px-2 text-left">Aufschlag</div>
+                <div className="px-2 text-left">Marge</div>
+                <div className="px-2 text-left">Einzelpreis</div>
+                <div className="px-2 text-left">Gesamtpreis</div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -151,20 +152,103 @@ export default function OfferGroupSection({
                   </div>
 
                   <div className="flex items-center px-2 py-1 border-r border-zinc-200">
-                    <select
-                      value={item.type}
-                      onChange={(e) =>
-                        onUpdateItem({
-                          ...item,
-                          type: e.target.value as OfferItem["type"],
-                        })
-                      }
-                      className="w-full bg-transparent border-none text-sm p-0 appearance-none shadow-none focus:outline-none focus:ring-0"
-                    >
-                      <option value="material">Material</option>
-                      <option value="labor">Arbeit</option>
-                      <option value="other">Sonstiges</option>
-                    </select>
+                    <div className="relative w-full">
+                      <button
+                        type="button"
+                        onClick={() => setItemTypeMenuFor((v) => (v === item.id ? null : item.id))}
+                        className="w-full flex items-center justify-between gap-2 bg-transparent text-sm text-zinc-800 hover:text-zinc-900"
+                        aria-label="Art auswählen"
+                      >
+                        <span className="flex items-center gap-2">
+                          {item.type === "material" && (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" />
+                            </svg>
+                          )}
+                          {item.type === "labor" && (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2">
+                              <circle cx="12" cy="12" r="9" />
+                              <path d="M12 7v5l3 2" />
+                            </svg>
+                          )}
+                          {item.type === "mixed" && (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 2l8 5-8 5-8-5 8-5z" />
+                              <path d="M4 12l8 5 8-5" />
+                              <path d="M4 17l8 5 8-5" />
+                            </svg>
+                          )}
+                          {item.type === "other" && (
+                            <svg viewBox="0 0 24 24" className="h-4 w-4 text-zinc-500" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                              <path d="M14 2v6h6" />
+                            </svg>
+                          )}
+                          <span>
+                            {item.type === "material" && "Material"}
+                            {item.type === "labor" && "Lohn"}
+                            {item.type === "mixed" && "Mischposition"}
+                            {item.type === "other" && "Sonstiges"}
+                          </span>
+                        </span>
+                        <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
+                          <path d="M5.5 7.5L10 12l4.5-4.5" />
+                        </svg>
+                      </button>
+
+                      {itemTypeMenuFor === item.id && (
+                        <div className="absolute left-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                          {([
+                            { value: "material", label: "Material", icon: (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8" />
+                              </svg>
+                            ) },
+                            { value: "labor", label: "Lohn", icon: (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 7v5l3 2" />
+                              </svg>
+                            ) },
+                            { value: "mixed", label: "Mischposition", icon: (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 2l8 5-8 5-8-5 8-5z" />
+                                <path d="M4 12l8 5 8-5" />
+                                <path d="M4 17l8 5 8-5" />
+                              </svg>
+                            ) },
+                            { value: "other", label: "Sonstiges", icon: (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                <path d="M14 2v6h6" />
+                              </svg>
+                            ) },
+                          ] as const).map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                onUpdateItem({ ...item, type: opt.value as OfferItem["type"] });
+                                setItemTypeMenuFor(null);
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                            >
+                              <span className="flex items-center justify-between gap-3">
+                                <span className="flex items-center gap-2 text-zinc-700">
+                                  <span className="text-zinc-500">{opt.icon}</span>
+                                  {opt.label}
+                                </span>
+                                {item.type === opt.value && (
+                                  <svg viewBox="0 0 20 20" className="h-4 w-4 text-blue-600" fill="currentColor">
+                                    <path d="M7.7 13.3L4.4 10l1.4-1.4 1.9 1.9 6.6-6.6L15.7 5l-8 8.3z" />
+                                  </svg>
+                                )}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="px-2 py-1 border-r border-zinc-200">

@@ -34,6 +34,7 @@ export default function OfferItemRow({
         >
           <option value="material">Material</option>
           <option value="labor">Arbeit</option>
+          <option value="mixed">Mischposition</option>
           <option value="other">Sonstiges</option>
         </Select>
       </td>

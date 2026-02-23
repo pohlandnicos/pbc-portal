@@ -60,6 +60,7 @@ export function calculateOfferTotals(
           labor_cost += qty * purchase_price;
           labor_margin += qty * margin_amount;
           break;
+        case "mixed":
         case "other":
           other_cost += qty * purchase_price;
           other_margin += qty * margin_amount;
