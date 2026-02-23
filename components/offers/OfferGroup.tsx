@@ -32,6 +32,7 @@ export default function OfferGroupSection({
   const [menuOpen, setMenuOpen] = useState(false);
   const [positionTypeMenuFor, setPositionTypeMenuFor] = useState<string | null>(null);
   const [positionTypeById, setPositionTypeById] = useState<Record<string, "normal" | "alternative" | "demand">>({});
+  const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
 
   const gridTemplateColumns = useMemo(
     () => "56px 120px 60px 100px 1fr 80px 80px 80px 80px 80px",
@@ -248,7 +249,7 @@ export default function OfferGroupSection({
 
                 <button
                   type="button"
-                  onClick={() => onDeleteItem(item.id)}
+                  onClick={() => setPendingDeleteItemId(item.id)}
                   className="text-zinc-400/70 hover:text-zinc-700"
                   aria-label="Position löschen"
                 >
@@ -262,88 +263,92 @@ export default function OfferGroupSection({
                 </button>
               </div>
 
-              <div className="grid gap-3 mt-2" style={{ gridTemplateColumns: "minmax(320px,640px) 96px 1fr" }}>
-                <textarea
-                  value={item.description ?? ""}
-                  onChange={(e) =>
-                    onUpdateItem({
-                      ...item,
-                      description: e.target.value.length ? e.target.value : null,
-                    })
-                  }
-                  placeholder="Beschreibung"
-                  rows={3}
-                  className="h-24 w-full border border-zinc-200 rounded-md text-sm p-2 focus:outline-none focus:ring-0 resize-none"
-                />
-                <button
-                  type="button"
-                  className="h-24 w-24 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
-                  aria-label="Bild hinzufügen"
-                >
-                  <svg
-                    className="w-4 h-4 mx-auto"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
+              <div className="flex items-start gap-2 mt-2">
+                <div className="grid gap-3 flex-1" style={{ gridTemplateColumns: "minmax(320px,640px) 96px 1fr" }}>
+                  <textarea
+                    value={item.description ?? ""}
+                    onChange={(e) =>
+                      onUpdateItem({
+                        ...item,
+                        description: e.target.value.length ? e.target.value : null,
+                      })
+                    }
+                    placeholder="Beschreibung"
+                    rows={3}
+                    className="h-24 w-full border border-zinc-200 rounded-md text-sm p-2 focus:outline-none focus:ring-0 resize-none"
+                  />
+                  <button
+                    type="button"
+                    className="h-24 w-24 rounded-md border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
+                    aria-label="Bild hinzufügen"
                   >
-                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </button>
-
-                <div className="flex items-start justify-end">
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
-                      }
-                      className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
+                    <svg
+                      className="w-4 h-4 mx-auto"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
                     >
-                      {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
-                      {(positionTypeById[item.id] ?? "normal") === "alternative" && "Alternativposition"}
-                      {(positionTypeById[item.id] ?? "normal") === "demand" && "Bedarfsposition"}
-                      <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
-                        <path d="M5.5 7.5L10 12l4.5-4.5" />
-                      </svg>
-                    </button>
+                      <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
 
-                    {positionTypeMenuFor === item.id && (
-                      <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "normal" }));
-                            setPositionTypeMenuFor(null);
-                          }}
-                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                        >
-                          Normalposition
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "alternative" }));
-                            setPositionTypeMenuFor(null);
-                          }}
-                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                        >
-                          Alternativposition
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPositionTypeById((prev) => ({ ...prev, [item.id]: "demand" }));
-                            setPositionTypeMenuFor(null);
-                          }}
-                          className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
-                        >
-                          Bedarfsposition
-                        </button>
-                      </div>
-                    )}
+                  <div className="flex items-start justify-end">
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPositionTypeMenuFor((v) => (v === item.id ? null : item.id))
+                        }
+                        className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-800 hover:bg-zinc-50"
+                      >
+                        {(positionTypeById[item.id] ?? "normal") === "normal" && "Normalposition"}
+                        {(positionTypeById[item.id] ?? "normal") === "alternative" && "Alternativposition"}
+                        {(positionTypeById[item.id] ?? "normal") === "demand" && "Bedarfsposition"}
+                        <svg viewBox="0 0 20 20" className="h-4 w-4 text-zinc-500" fill="currentColor">
+                          <path d="M5.5 7.5L10 12l4.5-4.5" />
+                        </svg>
+                      </button>
+
+                      {positionTypeMenuFor === item.id && (
+                        <div className="absolute right-0 mt-2 w-56 rounded-md border border-zinc-200 bg-white shadow-sm z-20">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPositionTypeById((prev) => ({ ...prev, [item.id]: "normal" }));
+                              setPositionTypeMenuFor(null);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                          >
+                            Normalposition
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPositionTypeById((prev) => ({ ...prev, [item.id]: "alternative" }));
+                              setPositionTypeMenuFor(null);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                          >
+                            Alternativposition
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPositionTypeById((prev) => ({ ...prev, [item.id]: "demand" }));
+                              setPositionTypeMenuFor(null);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-50"
+                          >
+                            Bedarfsposition
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                <div className="w-5" />
               </div>
             </div>
           ))}
@@ -354,7 +359,7 @@ export default function OfferGroupSection({
         <button
           type="button"
           onClick={onAddItem}
-          className="inline-flex items-center gap-2 rounded-md border border-zinc-300 bg-zinc-200 px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-300"
+          className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100"
         >
           <svg
             className="w-4 h-4"
@@ -368,6 +373,43 @@ export default function OfferGroupSection({
           Position hinzufügen
         </button>
       </div>
+
+      {pendingDeleteItemId && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={() => setPendingDeleteItemId(null)}
+          />
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
+              <div className="text-base font-semibold text-zinc-900">Leistung löschen?</div>
+              <div className="mt-2 text-sm text-zinc-600">
+                Die Leistung wird unwiderruflich gelöscht. Diese Aktion kann nicht mehr rückgängig gemacht werden.
+              </div>
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPendingDeleteItemId(null)}
+                  className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = pendingDeleteItemId;
+                    setPendingDeleteItemId(null);
+                    onDeleteItem(id);
+                  }}
+                  className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                >
+                  Entfernen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
