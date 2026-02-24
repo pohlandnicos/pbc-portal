@@ -224,6 +224,12 @@ export default function Page() {
           offer_date: offerDate,
           intro_salutation: introSalutation,
           intro_body_html: introText,
+          outro_body_html: outroText,
+          payment_due_days: paymentDueDays,
+          discount_percent: discountPercent ?? undefined,
+          discount_days: discountDays ?? undefined,
+          tax_rate: taxRate,
+          show_vat_for_labor: showVatForLabor,
         }),
       });
 

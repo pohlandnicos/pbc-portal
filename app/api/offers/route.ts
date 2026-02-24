@@ -57,7 +57,12 @@ const createSchema = z.object({
   offer_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   intro_salutation: z.string().optional(),
   intro_body_html: z.string().optional(),
-  outro_body_html: z.string().optional()
+  outro_body_html: z.string().optional(),
+  payment_due_days: z.number().int().min(0).optional(),
+  discount_percent: z.number().min(0).max(100).optional(),
+  discount_days: z.number().int().min(0).optional(),
+  tax_rate: z.number().min(0).max(100).optional(),
+  show_vat_for_labor: z.boolean().optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -92,21 +97,65 @@ export async function POST(request: NextRequest) {
 
   const { title, ...rest } = parsed.data;
 
-  const { data: offer, error: offerError } = await supabase
+  async function getNextOfferNumber() {
+    const { data: settings, error: settingsError } = await supabase
+      .from("org_offer_invoice_settings")
+      .select("offer_prefix, offer_next_number")
+      .eq("org_id", orgId)
+      .maybeSingle();
+
+    if (settingsError) {
+      return { offer_number: null as string | null, next_number: null as number | null };
+    }
+
+    const offerPrefix = (settings?.offer_prefix ?? "A-").trim();
+    const next = settings?.offer_next_number ?? 1;
+    const offer_number = `${offerPrefix}${next}`;
+    return { offer_number, next_number: next };
+  }
+
+  async function bumpOfferNextNumber(next: number) {
+    await supabase
+      .from("org_offer_invoice_settings")
+      .upsert(
+        { org_id: orgId, offer_next_number: next + 1 },
+        { onConflict: "org_id" }
+      );
+  }
+
+  let offerNumber: string | null = null;
+  let nextNumber: number | null = null;
+  const nextResult = await getNextOfferNumber();
+  offerNumber = nextResult.offer_number;
+  nextNumber = nextResult.next_number;
+
+  const baseInsert = {
+    org_id: orgId,
+    ...rest,
+    name: title,
+    status: "draft",
+    ...(offerNumber ? { offer_number: offerNumber } : null)
+  };
+
+  let offerInsertResult = await supabase
     .from("offers")
-    .insert({
-      org_id: orgId,
-      ...rest,
-      name: title,
-      status: "draft",
-      total_net: 0,
-      total_tax: 0,
-      total_gross: 0,
-      tax_rate: 19,
-      payment_due_days: 7
-    })
+    .insert(baseInsert)
     .select()
     .single();
+
+  // Falls es zu einem Unique-Conflict kommt, einmal neu versuchen
+  if (offerInsertResult.error && offerInsertResult.error.code === "23505") {
+    const retryNext = await getNextOfferNumber();
+    offerNumber = retryNext.offer_number;
+    nextNumber = retryNext.next_number;
+    offerInsertResult = await supabase
+      .from("offers")
+      .insert({ ...baseInsert, ...(offerNumber ? { offer_number: offerNumber } : null) })
+      .select()
+      .single();
+  }
+
+  const { data: offer, error: offerError } = offerInsertResult;
 
   if (offerError) {
     console.error('Database error:', offerError);
@@ -114,6 +163,10 @@ export async function POST(request: NextRequest) {
       { error: "db_error", message: offerError.message, details: offerError },
       { status: 500 }
     );
+  }
+
+  if (typeof nextNumber === "number") {
+    await bumpOfferNextNumber(nextNumber);
   }
 
   // 2. Standard Templates laden und anwenden
@@ -127,12 +180,25 @@ export async function POST(request: NextRequest) {
     const introTemplate = templates.find(t => t.type === "intro");
     const outroTemplate = templates.find(t => t.type === "outro");
 
+    const templateUpdate: Record<string, unknown> = {};
+    if (!parsed.data.intro_salutation && introTemplate?.salutation) {
+      templateUpdate.intro_salutation = introTemplate.salutation;
+    }
+    if (!parsed.data.intro_body_html && introTemplate?.body_html) {
+      templateUpdate.intro_body_html = introTemplate.body_html;
+    }
+    if (!parsed.data.outro_body_html && outroTemplate?.body_html) {
+      templateUpdate.outro_body_html = outroTemplate.body_html;
+    }
+
+    if (Object.keys(templateUpdate).length === 0) {
+      return NextResponse.json({ data: offer });
+    }
+
     const { error: templateError } = await supabase
       .from("offers")
       .update({
-        intro_salutation: introTemplate?.salutation,
-        intro_body_html: introTemplate?.body_html,
-        outro_body_html: outroTemplate?.body_html
+        ...templateUpdate
       })
       .eq("id", offer.id);
 
