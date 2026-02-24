@@ -207,12 +207,12 @@ export default function OfferPage({ params }: { params: { id: string } }) {
 
           {/* Rechts: Actions */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
+            <Link
+              href={`/app/offers/${offer.id}/pdf-preview`}
               className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
             >
               PDF
-            </button>
+            </Link>
 
             {offer.status === "draft" ? (
               <button
