@@ -86,6 +86,115 @@ export default function Page() {
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
 
+  async function syncGroupsAndItemsToOffer(offerId: string) {
+    const localGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
+    if (localGroups.length === 0) return;
+
+    const offerRes = await fetch(`/api/offers/${offerId}`, { cache: "no-store" });
+    const offerJson = (await offerRes.json().catch(() => null)) as
+      | { data?: { groups?: Array<{ id: string; index: number; title: string }> } | null; error?: string; message?: string }
+      | null;
+
+    if (!offerRes.ok) {
+      const apiMessage =
+        (typeof offerJson?.message === "string" && offerJson.message.length > 0
+          ? offerJson.message
+          : null) ??
+        (typeof offerJson?.error === "string" && offerJson.error.length > 0 ? offerJson.error : null);
+      throw new Error(apiMessage ?? `Angebot laden fehlgeschlagen (HTTP ${offerRes.status})`);
+    }
+
+    const existingGroups = (offerJson?.data?.groups ?? []).slice().sort((a, b) => a.index - b.index);
+    if (existingGroups.length === 0) {
+      throw new Error("Angebotsgruppen konnten nicht geladen werden");
+    }
+
+    const groupIdByLocalIndex = new Map<number, string>();
+
+    // 1) Erste existierende Gruppe als Basis verwenden (wird beim Offer-Create automatisch erzeugt)
+    const firstExisting = existingGroups[0];
+    const firstLocal = localGroups[0];
+
+    // Titel/Index angleichen
+    if (firstLocal?.title && firstLocal.title !== firstExisting.title) {
+      await fetch(`/api/offers/${offerId}/groups/${firstExisting.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: firstLocal.title, index: 1 }),
+      });
+    }
+    groupIdByLocalIndex.set(firstLocal.index, firstExisting.id);
+
+    // 2) Weitere Gruppen anlegen
+    for (let i = 1; i < localGroups.length; i++) {
+      const g = localGroups[i];
+      const createGroupRes = await fetch(`/api/offers/${offerId}/groups`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: g.title || "Leistungen" }),
+      });
+
+      const createGroupJson = (await createGroupRes.json().catch(() => null)) as
+        | { data?: { id?: string } | null; error?: string; message?: string }
+        | null;
+      if (!createGroupRes.ok) {
+        const apiMessage =
+          (typeof createGroupJson?.message === "string" && createGroupJson.message.length > 0
+            ? createGroupJson.message
+            : null) ??
+          (typeof createGroupJson?.error === "string" && createGroupJson.error.length > 0
+            ? createGroupJson.error
+            : null);
+        throw new Error(apiMessage ?? `Gruppe anlegen fehlgeschlagen (HTTP ${createGroupRes.status})`);
+      }
+
+      const newGroupId = createGroupJson?.data?.id;
+      if (!newGroupId) throw new Error("Gruppe anlegen fehlgeschlagen");
+
+      // Index sauber setzen (API erstellt fortlaufend, wir setzen ihn explizit passend)
+      await fetch(`/api/offers/${offerId}/groups/${newGroupId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index: g.index, title: g.title || "Leistungen" }),
+      });
+
+      groupIdByLocalIndex.set(g.index, newGroupId);
+    }
+
+    // 3) Items für jede Gruppe anlegen
+    for (const g of localGroups) {
+      const groupId = groupIdByLocalIndex.get(g.index);
+      if (!groupId) continue;
+
+      const groupItems = (items[g.id] ?? []).filter((it) => (it.name ?? "").trim().length > 0);
+      for (const it of groupItems) {
+        const itemRes = await fetch(`/api/offers/${offerId}/groups/${groupId}/items`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: it.type,
+            name: it.name,
+            description: it.description ?? undefined,
+            qty: Number(it.qty ?? 0),
+            unit: it.unit,
+            purchase_price: Number(it.purchase_price ?? 0),
+            markup_percent: Number(it.markup_percent ?? 0),
+          }),
+        });
+
+        if (!itemRes.ok) {
+          const json = (await itemRes.json().catch(() => null)) as
+            | { error?: string; message?: string }
+            | null;
+          const apiMessage =
+            (typeof json?.message === "string" && json.message.length > 0 ? json.message : null) ??
+            (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
+          throw new Error(apiMessage ?? `Position anlegen fehlgeschlagen (HTTP ${itemRes.status})`);
+        }
+      }
+    }
+  }
+
   const [createCustomerOpen, setCreateCustomerOpen] = useState(false);
 
   const [customerOpen, setCustomerOpen] = useState(false);
@@ -403,7 +512,14 @@ export default function Page() {
                 disabled={submitting}
                 onClick={async () => {
                   const id = await createDraftOffer();
-                  if (id) router.push(`/app/offers/${id}/pdf-preview`);
+                  if (!id) return;
+                  try {
+                    await syncGroupsAndItemsToOffer(id);
+                  } catch (e) {
+                    setError(e instanceof Error ? e.message : "Speichern der Positionen fehlgeschlagen");
+                    return;
+                  }
+                  router.push(`/app/offers/${id}/pdf-preview`);
                 }}
               >
                 Vorschau
