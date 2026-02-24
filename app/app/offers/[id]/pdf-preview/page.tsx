@@ -284,9 +284,12 @@ export default function OfferPdfPreviewPage() {
             className="text-[12px] leading-[1.35] text-zinc-900"
             style={{ paddingLeft: "25mm", paddingRight: "20mm", paddingTop: "20mm", paddingBottom: "20mm" }}
           >
-            <div className="relative" style={{ minHeight: "120mm" }}>
+            <div className="relative" style={{ minHeight: "297mm" }}>
               {senderLine ? (
-                <div className="text-[10px] text-zinc-600" style={{ position: "absolute", left: 0, top: 0 }}>
+                <div
+                  className="text-[10px] text-zinc-600"
+                  style={{ position: "absolute", left: 0, top: "27mm" }}
+                >
                   {senderLine}
                 </div>
               ) : null}
@@ -295,8 +298,8 @@ export default function OfferPdfPreviewPage() {
                 <div
                   style={{
                     position: "absolute",
-                    top: 0,
-                    right: 0,
+                    top: "0mm",
+                    right: "0mm",
                     width: `${logoSizePx}px`,
                     height: `${logoSizePx}px`,
                   }}
@@ -323,7 +326,15 @@ export default function OfferPdfPreviewPage() {
                 ))}
               </div>
 
-              <div style={{ position: "absolute", right: 0, top: "40mm", width: "70mm", textAlign: "right" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: "40mm",
+                  width: "70mm",
+                  textAlign: "right",
+                }}
+              >
                 <div className="flex justify-end gap-2">
                   <div className="text-zinc-600">Angebotsdatum:</div>
                   <div>{formatDateDE(data.offer_date)}</div>
@@ -337,113 +348,119 @@ export default function OfferPdfPreviewPage() {
                   <div>{data.offer_number ?? data.id}</div>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-2">
-              <div className="text-[22px] font-semibold">{data.title}</div>
-              {executionLocation ? (
-                <div className="mt-2 text-[11px] text-zinc-700">
-                  Ausführungsort: {executionLocation}
+              <div style={{ position: "absolute", left: 0, right: 0, top: "90mm" }}>
+                <div className="text-[22px] font-semibold">{data.title}</div>
+                {executionLocation ? (
+                  <div className="mt-2 text-[11px] text-zinc-700">
+                    Ausführungsort: {executionLocation}
+                  </div>
+                ) : null}
+
+                <div className="mt-8 text-[12px]">
+                  <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
+                  <div className="mt-1 text-zinc-800">
+                    {data.intro_body_html
+                      ? data.intro_body_html.replace(/<[^>]*>/g, "").trim()
+                      : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  {(data.groups ?? [])
+                    .slice()
+                    .sort((a, b) => a.index - b.index)
+                    .map((g) => (
+                      <div key={g.id} className="mt-6">
+                        <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
+                        <div className="border-b border-zinc-300 pb-1">
+                          <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
+                            <div>Nr.</div>
+                            <div>Bezeichnung</div>
+                            <div className="text-right">Menge</div>
+                            <div>Einheit</div>
+                            <div className="text-right">Einzelpreis</div>
+                            <div className="text-right">Gesamtpreis</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          {(g.offer_items ?? []).map((it) => (
+                            <div key={it.id} className="border-b border-zinc-200 py-3">
+                              <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
+                                <div className="text-[10px] text-zinc-600">{it.position_index}</div>
+                                <div>
+                                  <div className="text-[11px] font-semibold">{it.name}</div>
+                                  {it.description ? (
+                                    <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
+                                  ) : null}
+                                </div>
+                                <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
+                                <div className="text-[11px]">{it.unit}</div>
+                                <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
+                                <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                <div style={{ height: "28mm" }} />
+              </div>
+
+              {footerColumns ? (
+                <div style={{ position: "absolute", left: 0, right: 0, bottom: "12mm" }}>
+                  <div className="border-t border-zinc-300 pt-4">
+                    {footerColumns.mode === "custom" ? (
+                      <div
+                        className="text-[10px] text-zinc-900"
+                        dangerouslySetInnerHTML={{ __html: footerColumns.html }}
+                      />
+                    ) : (
+                      <div className="grid grid-cols-4 gap-6 text-[10px]">
+                        <div>
+                          <div className="mb-2 font-semibold">Anschrift</div>
+                          {footerColumns.address.map((l, idx) => (
+                            <div key={idx}>{l}</div>
+                          ))}
+                        </div>
+                        <div>
+                          <div className="mb-2 font-semibold">Bankverbindung</div>
+                          {footerColumns.bank.length ? (
+                            footerColumns.bank.map((l, idx) => <div key={idx}>{l}</div>)
+                          ) : (
+                            <div className="text-zinc-500">—</div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="mb-2 font-semibold">Kontakt</div>
+                          {footerColumns.contact.length ? (
+                            footerColumns.contact.map((l, idx) => <div key={idx}>{l}</div>)
+                          ) : (
+                            <div className="text-zinc-500">—</div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="mb-2 font-semibold">Unternehmensdaten</div>
+                          {footerColumns.legal.length ? (
+                            footerColumns.legal.map((l, idx) => <div key={idx}>{l}</div>)
+                          ) : (
+                            <div className="text-zinc-500">—</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-4 text-right text-[10px] text-zinc-600">Seite 1/1</div>
+                  </div>
                 </div>
               ) : null}
             </div>
-
-            <div className="mt-8 text-[12px]">
-              <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
-              <div className="mt-1 text-zinc-800">
-                {data.intro_body_html
-                  ? data.intro_body_html.replace(/<[^>]*>/g, "").trim()
-                  : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
-              </div>
-            </div>
-
-            <div className="mt-8">
-              {(data.groups ?? [])
-                .slice()
-                .sort((a, b) => a.index - b.index)
-                .map((g) => (
-                  <div key={g.id} className="mt-6">
-                    <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
-                    <div className="border-b border-zinc-300 pb-1">
-                      <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
-                        <div>Nr.</div>
-                        <div>Bezeichnung</div>
-                        <div className="text-right">Menge</div>
-                        <div>Einheit</div>
-                        <div className="text-right">Einzelpreis</div>
-                        <div className="text-right">Gesamtpreis</div>
-                      </div>
-                    </div>
-
-                    <div>
-                      {(g.offer_items ?? []).map((it) => (
-                        <div key={it.id} className="border-b border-zinc-200 py-3">
-                          <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
-                            <div className="text-[10px] text-zinc-600">{it.position_index}</div>
-                            <div>
-                              <div className="text-[11px] font-semibold">{it.name}</div>
-                              {it.description ? (
-                                <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
-                              ) : null}
-                            </div>
-                            <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
-                            <div className="text-[11px]">{it.unit}</div>
-                            <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
-                            <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {footerColumns ? (
-              <div className="mt-10 border-t border-zinc-300 pt-4">
-                {footerColumns.mode === "custom" ? (
-                  <div
-                    className="text-[10px] text-zinc-900"
-                    dangerouslySetInnerHTML={{ __html: footerColumns.html }}
-                  />
-                ) : (
-                  <div className="grid grid-cols-4 gap-6 text-[10px]">
-                    <div>
-                      <div className="mb-2 font-semibold">Anschrift</div>
-                      {footerColumns.address.map((l, idx) => (
-                        <div key={idx}>{l}</div>
-                      ))}
-                    </div>
-                    <div>
-                      <div className="mb-2 font-semibold">Bankverbindung</div>
-                      {footerColumns.bank.length ? (
-                        footerColumns.bank.map((l, idx) => <div key={idx}>{l}</div>)
-                      ) : (
-                        <div className="text-zinc-500">—</div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="mb-2 font-semibold">Kontakt</div>
-                      {footerColumns.contact.length ? (
-                        footerColumns.contact.map((l, idx) => <div key={idx}>{l}</div>)
-                      ) : (
-                        <div className="text-zinc-500">—</div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="mb-2 font-semibold">Unternehmensdaten</div>
-                      {footerColumns.legal.length ? (
-                        footerColumns.legal.map((l, idx) => <div key={idx}>{l}</div>)
-                      ) : (
-                        <div className="text-zinc-500">—</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : null}
           </div>
         </div>
       </div>
     </div>
   );
+
 }
