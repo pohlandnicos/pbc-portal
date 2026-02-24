@@ -79,6 +79,8 @@ export default function Page() {
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
 
+  const [createCustomerOpen, setCreateCustomerOpen] = useState(false);
+
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const customerBoxRef = useRef<HTMLDivElement | null>(null);
@@ -290,6 +292,20 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      <CustomerCreateDialog
+        open={createCustomerOpen}
+        onOpenChange={setCreateCustomerOpen}
+        onCreated={async (newId) => {
+          await loadCustomers();
+          if (newId) {
+            setCustomerId(newId);
+            setCustomerSearch(customers.find((c) => c.id === newId)?.name ?? "");
+          }
+          setCreateCustomerOpen(false);
+        }}
+        renderTrigger={() => null}
+      />
+
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Header */}
@@ -387,28 +403,18 @@ export default function Page() {
                         )}
                       </div>
                       <div className="border-t border-zinc-200 bg-white px-3 py-2">
-                        <CustomerCreateDialog
-                          onCreated={async (newId) => {
-                            await loadCustomers();
-                            if (newId) {
-                              setCustomerId(newId);
-                              setCustomerOpen(false);
-                            }
+                        <button
+                          type="button"
+                          className="w-full text-left text-sm text-blue-600 hover:text-blue-700"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCustomerOpen(false);
+                            setCreateCustomerOpen(true);
                           }}
-                          renderTrigger={(open) => (
-                            <button
-                              type="button"
-                              className="w-full text-left text-sm text-blue-600 hover:text-blue-700"
-                              onMouseDown={(e) => e.preventDefault()}
-                              onClick={() => {
-                                setCustomerOpen(false);
-                                open();
-                              }}
-                            >
-                              + Kunden anlegen
-                            </button>
-                          )}
-                        />
+                        >
+                          + Kunden anlegen
+                        </button>
                       </div>
                     </div>
                   ) : null}
