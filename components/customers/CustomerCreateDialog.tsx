@@ -221,23 +221,21 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
       )}
 
       {isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-2xl rounded-xl bg-white shadow-lg">
-            <div className="flex items-center justify-between border-b px-5 py-4">
-              <div>
-                <div className="text-base font-semibold">Kunde hinzufügen</div>
-                <div className="text-sm text-zinc-600">Pflichtfelder ausfüllen und speichern.</div>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8">
+          <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b px-6 py-4">
+              <div className="text-base font-semibold">Kunde erstellen</div>
               <button
                 type="button"
-                className="rounded-md px-3 py-1 text-sm text-zinc-700"
+                className="rounded-md px-2 py-1 text-sm text-zinc-600 hover:bg-zinc-100"
                 onClick={close}
               >
-                Schließen
+                ✕
               </button>
             </div>
 
-            <form className="space-y-4 px-5 py-4" onSubmit={onSubmit}>
+            <form className="flex max-h-[80vh] flex-col" onSubmit={onSubmit}>
+              <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -299,11 +297,15 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 </div>
               )}
 
+              <div>
+                <div className="text-sm font-semibold text-zinc-900">Rechnungsadresse</div>
+              </div>
+
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
                   <label className="text-sm text-zinc-700">Straße*</label>
                   <input
-                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                     value={form.billing_street}
                     onChange={(e) => setForm((s) => ({ ...s, billing_street: e.target.value }))}
                   />
@@ -311,7 +313,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 <div>
                   <label className="text-sm text-zinc-700">Hausnummer*</label>
                   <input
-                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                     value={form.billing_house_number}
                     onChange={(e) =>
                       setForm((s) => ({ ...s, billing_house_number: e.target.value }))
@@ -321,7 +323,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 <div>
                   <label className="text-sm text-zinc-700">PLZ*</label>
                   <input
-                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                     value={form.billing_postal_code}
                     onChange={(e) =>
                       setForm((s) => ({ ...s, billing_postal_code: e.target.value }))
@@ -331,28 +333,29 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 <div>
                   <label className="text-sm text-zinc-700">Ort*</label>
                   <input
-                    className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                     value={form.billing_city}
                     onChange={(e) => setForm((s) => ({ ...s, billing_city: e.target.value }))}
                   />
                 </div>
               </div>
 
-              <div className="rounded-lg border bg-zinc-50 px-4 py-3">
+              <div>
                 <button
                   type="button"
-                  className="text-sm font-medium text-zinc-800"
+                  className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
                   onClick={() => setAdvancedOpen((s) => !s)}
                 >
-                  Weitere Felder {advancedOpen ? "ausblenden" : "einblenden"}
+                  <span className="text-zinc-500">{advancedOpen ? "▾" : "▸"}</span>
+                  Details {advancedOpen ? "ausblenden" : "einblenden"}
                 </button>
 
                 {advancedOpen ? (
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="md:col-span-2">
                       <label className="text-sm text-zinc-700">Beschreibung</label>
                       <textarea
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.description}
                         onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))}
                       />
@@ -361,7 +364,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Kundennummer</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.customer_number}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, customer_number: e.target.value }))
@@ -373,7 +376,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                       <div>
                         <label className="text-sm text-zinc-700">Leitweg-ID</label>
                         <input
-                          className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                          className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                           value={form.leitweg_id}
                           onChange={(e) =>
                             setForm((s) => ({ ...s, leitweg_id: e.target.value }))
@@ -385,7 +388,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Lieferantennr.</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.supplier_number}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, supplier_number: e.target.value }))
@@ -396,7 +399,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">USt-ID</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.vat_id}
                         onChange={(e) => setForm((s) => ({ ...s, vat_id: e.target.value }))}
                       />
@@ -405,7 +408,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Vendor Nr.</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.vendor_number}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, vendor_number: e.target.value }))
@@ -416,7 +419,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Adresszusatz</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.billing_address_extra}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, billing_address_extra: e.target.value }))
@@ -427,21 +430,22 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 ) : null}
               </div>
 
-              <div className="rounded-lg border bg-zinc-50 px-4 py-3">
+              <div>
                 <button
                   type="button"
-                  className="text-sm font-medium text-zinc-800"
+                  className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
                   onClick={() => setContactOpen((s) => !s)}
                 >
-                  Kontakt {contactOpen ? "ausblenden" : "einblenden"}
+                  <span className="text-zinc-500">{contactOpen ? "▾" : "▸"}</span>
+                  Kontaktdaten {contactOpen ? "ausblenden" : "einblenden"}
                 </button>
 
                 {contactOpen ? (
-                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div>
                       <label className="text-sm text-zinc-700">Telefon (Festnetz)</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.phone_landline}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, phone_landline: e.target.value }))
@@ -451,7 +455,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Telefon (Mobil)</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.phone_mobile}
                         onChange={(e) =>
                           setForm((s) => ({ ...s, phone_mobile: e.target.value }))
@@ -461,7 +465,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div className="md:col-span-2">
                       <label className="text-sm text-zinc-700">E-Mail</label>
                       <input
-                        className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
                         value={form.email}
                         onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
                       />
@@ -480,10 +484,12 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 </div>
               ) : null}
 
-              <div className="flex items-center justify-end gap-2 border-t pt-4">
+              </div>
+
+              <div className="flex items-center justify-end gap-2 border-t bg-white px-6 py-4">
                 <button
                   type="button"
-                  className="rounded-md border px-4 py-2 text-sm"
+                  className="rounded-lg bg-zinc-100 px-4 py-2 text-sm text-zinc-800 hover:bg-zinc-200 disabled:opacity-50"
                   onClick={close}
                   disabled={loading}
                 >
@@ -491,10 +497,10 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 </button>
                 <button
                   type="submit"
-                  className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                   disabled={loading}
                 >
-                  {loading ? "Speichern..." : "Erstellen"}
+                  {loading ? "Speichern..." : "+ Erstellen"}
                 </button>
               </div>
             </form>
