@@ -355,24 +355,34 @@ export default function OfferPdfPreviewPage() {
             <div
               key={pageIndex}
               className="mx-auto rounded bg-white shadow"
-              style={{ width: "210mm", height: "297mm" }}
+              style={{ width: "210mm", height: "297mm", position: "relative" }}
             >
+              {layout?.logo_enabled && layout.logo_url ? (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "6mm",
+                    right: "18mm",
+                    width: `${logoSizePx}px`,
+                    height: `${logoSizePx}px`,
+                  }}
+                >
+                  <img
+                    src={layout.logo_url}
+                    alt="Logo"
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                </div>
+              ) : null}
+
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
-                style={{ paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "10mm" }}
+                style={{ paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "6mm" }}
               >
                 <div>
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1" />
-                    {layout?.logo_enabled && layout.logo_url ? (
-                      <div style={{ width: `${logoSizePx}px`, height: `${logoSizePx}px` }}>
-                        <img
-                          src={layout.logo_url}
-                          alt="Logo"
-                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                        />
-                      </div>
-                    ) : null}
+                    <div />
                   </div>
 
                   <div className="grid grid-cols-[90mm_1fr] gap-6" style={{ marginTop: "10mm", minHeight: "45mm" }}>
@@ -424,6 +434,7 @@ export default function OfferPdfPreviewPage() {
                 </div>
 
                 <div className="flex-1 overflow-hidden pt-4">
+                  {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
                   {pageGroups.map((g) => (
                     <div key={`${pageIndex}-${g.id}`} className="mt-6">
                       <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
@@ -462,7 +473,7 @@ export default function OfferPdfPreviewPage() {
                 </div>
 
                 {footerColumns ? (
-                  <div className="border-t border-zinc-300 pt-4">
+                  <div className="mt-auto border-t border-zinc-300 pt-2">
                     {footerColumns.mode === "custom" ? (
                       <div
                         className="text-[10px] text-zinc-900"
@@ -503,10 +514,10 @@ export default function OfferPdfPreviewPage() {
                       </div>
                     )}
 
-                    <div className="mt-4 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
+                    <div className="mt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
                   </div>
                 ) : (
-                  <div className="pt-4 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
+                  <div className="mt-auto pt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
                 )}
               </div>
             </div>
