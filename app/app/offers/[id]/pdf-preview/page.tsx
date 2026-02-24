@@ -359,13 +359,11 @@ export default function OfferPdfPreviewPage() {
             >
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
-                style={{ paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "12mm", paddingBottom: "8mm" }}
+                style={{ paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "10mm" }}
               >
                 <div>
                   <div className="flex items-start justify-between">
-                    <div className="min-w-0 flex-1">
-                      {senderLine ? <div className="text-[10px] text-zinc-600">{senderLine}</div> : null}
-                    </div>
+                    <div className="min-w-0 flex-1" />
                     {layout?.logo_enabled && layout.logo_url ? (
                       <div style={{ width: `${logoSizePx}px`, height: `${logoSizePx}px` }}>
                         <img
@@ -377,8 +375,9 @@ export default function OfferPdfPreviewPage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-3 grid grid-cols-[90mm_1fr] gap-6" style={{ minHeight: "45mm" }}>
+                  <div className="grid grid-cols-[90mm_1fr] gap-6" style={{ marginTop: "10mm", minHeight: "45mm" }}>
                     <div>
+                      {senderLine ? <div className="mb-1 text-[10px] text-zinc-600">{senderLine}</div> : null}
                       {recipientLines.map((l, idx) => (
                         <div key={idx}>{l}</div>
                       ))}
