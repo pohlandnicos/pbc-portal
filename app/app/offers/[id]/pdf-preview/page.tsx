@@ -57,6 +57,10 @@ type OfferData = {
   project_number?: string | null;
   intro_salutation: string | null;
   intro_body_html: string | null;
+  total_net?: number | null;
+  total_tax?: number | null;
+  total_gross?: number | null;
+  tax_rate?: number | null;
   customers: OfferCustomer | null;
   projects: OfferProject | null;
   groups: OfferGroup[];
@@ -266,6 +270,41 @@ export default function OfferPdfPreviewPage() {
 
   const pages = useMemo(() => paginateOfferGroups(data?.groups ?? []), [data?.groups]);
 
+  const computedNetTotal = useMemo(() => {
+    const groups = data?.groups ?? [];
+    let sum = 0;
+    for (const g of groups) {
+      for (const it of g.offer_items ?? []) {
+        sum += Number(it.line_total ?? 0);
+      }
+    }
+    return sum;
+  }, [data?.groups]);
+
+  const taxRate = useMemo(() => {
+    const r = data?.tax_rate;
+    if (typeof r === "number" && Number.isFinite(r)) return r;
+    return 19;
+  }, [data?.tax_rate]);
+
+  const finalNet = useMemo(() => {
+    const v = data?.total_net;
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+    return computedNetTotal;
+  }, [computedNetTotal, data?.total_net]);
+
+  const finalTax = useMemo(() => {
+    const v = data?.total_tax;
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+    return (finalNet * taxRate) / 100;
+  }, [data?.total_tax, finalNet, taxRate]);
+
+  const finalGross = useMemo(() => {
+    const v = data?.total_gross;
+    if (typeof v === "number" && Number.isFinite(v) && v > 0) return v;
+    return finalNet + finalTax;
+  }, [data?.total_gross, finalNet, finalTax]);
+
   const logoSizePx = useMemo(() => {
     const size = layout?.logo_size ?? "medium";
     if (size === "small") return 150;
@@ -350,6 +389,19 @@ export default function OfferPdfPreviewPage() {
           const pageNo = pageIndex + 1;
           const pageCount = pages.length;
           const isFirst = pageIndex === 0;
+          const isLast = pageIndex === pageCount - 1;
+
+          const runningSubtotalNet = pages.slice(0, pageIndex + 1).reduce((sumP, pg) => {
+            return (
+              sumP +
+              pg.reduce((sumG, g) => {
+                return (
+                  sumG +
+                  (g.offer_items ?? []).reduce((sumI, it) => sumI + Number(it.line_total ?? 0), 0)
+                );
+              }, 0)
+            );
+          }, 0);
 
           return (
             <div
@@ -467,6 +519,36 @@ export default function OfferPdfPreviewPage() {
                     </div>
                   ))}
                 </div>
+
+                {!isLast ? (
+                  <div className="mt-2 flex justify-end">
+                    <div className="w-[90mm] border-t border-zinc-300 pt-2">
+                      <div className="flex items-baseline justify-between text-[11px]">
+                        <div className="text-zinc-700">Zwischensumme</div>
+                        <div className="font-semibold">{currencyEUR(runningSubtotalNet)}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {isLast ? (
+                  <div className="mt-4 flex justify-end">
+                    <div className="w-[90mm] border-t border-zinc-300 pt-3">
+                      <div className="flex items-baseline justify-between text-[11px]">
+                        <div className="text-zinc-700">Gesamt Netto</div>
+                        <div className="font-semibold">{currencyEUR(finalNet)}</div>
+                      </div>
+                      <div className="mt-2 flex items-baseline justify-between text-[11px]">
+                        <div className="text-zinc-700">{taxRate} % Umsatzsteuer</div>
+                        <div className="font-semibold">{currencyEUR(finalTax)}</div>
+                      </div>
+                      <div className="mt-3 flex items-baseline justify-between text-[14px] font-semibold">
+                        <div>Gesamtbetrag</div>
+                        <div>{currencyEUR(finalGross)}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
 
                 {footerColumns ? (
                   <div className="mt-auto border-t border-zinc-300 pt-2">
