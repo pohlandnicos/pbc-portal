@@ -108,6 +108,74 @@ function currencyEUR(value: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(value);
 }
 
+type PagedGroup = {
+  id: string;
+  index: number;
+  title: string;
+  offer_items: OfferItem[];
+};
+
+function paginateOfferGroups(groups: OfferGroup[]) {
+  const FIRST_PAGE_CAPACITY = 18;
+  const OTHER_PAGE_CAPACITY = 26;
+
+  const pages: PagedGroup[][] = [];
+  let current: PagedGroup[] = [];
+  let remaining = FIRST_PAGE_CAPACITY;
+
+  function pushPageIfNeeded() {
+    if (current.length > 0) {
+      pages.push(current);
+      current = [];
+    }
+    remaining = OTHER_PAGE_CAPACITY;
+  }
+
+  for (const g of (groups ?? []).slice().sort((a, b) => a.index - b.index)) {
+    const items = (g.offer_items ?? []).slice();
+    let offset = 0;
+
+    while (offset < items.length) {
+      const needsHeaderRows = current.some((x) => x.id === g.id) ? 0 : 2;
+      const availableForThisGroup = Math.max(0, remaining - needsHeaderRows);
+
+      if (availableForThisGroup === 0) {
+        pushPageIfNeeded();
+        continue;
+      }
+
+      const take = Math.min(availableForThisGroup, items.length - offset);
+      const chunk = items.slice(offset, offset + take);
+      offset += take;
+
+      const existingIndex = current.findIndex((x) => x.id === g.id);
+      if (existingIndex >= 0) {
+        current[existingIndex] = {
+          ...current[existingIndex],
+          offer_items: [...current[existingIndex].offer_items, ...chunk],
+        };
+      } else {
+        current.push({ id: g.id, index: g.index, title: g.title, offer_items: chunk });
+        remaining -= needsHeaderRows;
+      }
+
+      remaining -= chunk.length;
+
+      if (remaining <= 0 && offset < items.length) {
+        pushPageIfNeeded();
+      }
+    }
+
+    if (remaining <= 0) {
+      pushPageIfNeeded();
+    }
+  }
+
+  if (current.length > 0) pages.push(current);
+  if (pages.length === 0) pages.push([]);
+  return pages;
+}
+
 export default function OfferPdfPreviewPage() {
   const params = useParams<{ id: string }>();
   const id = typeof params?.id === "string" ? params.id : "";
@@ -196,6 +264,8 @@ export default function OfferPdfPreviewPage() {
     return [company, street, city].filter(Boolean).join(" · ") || null;
   }, [layout]);
 
+  const pages = useMemo(() => paginateOfferGroups(data?.groups ?? []), [data?.groups]);
+
   const logoSizePx = useMemo(() => {
     const size = layout?.logo_size ?? "medium";
     if (size === "small") return 110;
@@ -275,143 +345,124 @@ export default function OfferPdfPreviewPage() {
         <div className="text-sm text-zinc-600">Vorschau</div>
       </div>
 
-      <div className="mx-auto max-w-[900px]">
-        <div
-          className="mx-auto rounded bg-white shadow"
-          style={{ width: "210mm", minHeight: "297mm" }}
-        >
-          <div
-            className="text-[12px] leading-[1.35] text-zinc-900"
-            style={{ paddingLeft: "25mm", paddingRight: "20mm", paddingTop: "20mm", paddingBottom: "20mm" }}
-          >
-            <div className="relative" style={{ minHeight: "297mm" }}>
-              {senderLine ? (
-                <div
-                  className="text-[10px] text-zinc-600"
-                  style={{ position: "absolute", left: 0, top: "27mm" }}
-                >
-                  {senderLine}
-                </div>
-              ) : null}
+      <div className="mx-auto max-w-[900px] space-y-8">
+        {pages.map((pageGroups, pageIndex) => {
+          const pageNo = pageIndex + 1;
+          const pageCount = pages.length;
+          const isFirst = pageIndex === 0;
 
-              {layout?.logo_enabled && layout.logo_url ? (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "0mm",
-                    right: "0mm",
-                    width: `${logoSizePx}px`,
-                    height: `${logoSizePx}px`,
-                  }}
-                >
-                  <img
-                    src={layout.logo_url}
-                    alt="Logo"
-                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                  />
-                </div>
-              ) : null}
-
+          return (
+            <div
+              key={pageIndex}
+              className="mx-auto rounded bg-white shadow"
+              style={{ width: "210mm", height: "297mm" }}
+            >
               <div
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  top: "32mm",
-                  width: "85mm",
-                  minHeight: "45mm",
-                }}
+                className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
+                style={{ paddingLeft: "25mm", paddingRight: "20mm", paddingTop: "20mm", paddingBottom: "12mm" }}
               >
-                {recipientLines.map((l, idx) => (
-                  <div key={idx}>{l}</div>
-                ))}
-              </div>
-
-              <div
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "40mm",
-                  width: "70mm",
-                  textAlign: "right",
-                }}
-              >
-                <div className="flex justify-end gap-2">
-                  <div className="text-zinc-600">Angebotsdatum:</div>
-                  <div>{formatDateDE(data.offer_date)}</div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <div className="text-zinc-600">Projektnummer:</div>
-                  <div>{data.project_number ?? ""}</div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <div className="text-zinc-600">Angebotsnummer:</div>
-                  <div>{data.offer_number ?? data.id}</div>
-                </div>
-              </div>
-
-              <div style={{ position: "absolute", left: 0, right: 0, top: "90mm" }}>
-                <div className="text-[22px] font-semibold">{data.title}</div>
-                {executionLocation ? (
-                  <div className="mt-2 text-[11px] text-zinc-700">
-                    Ausführungsort: {executionLocation}
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      {senderLine ? <div className="text-[10px] text-zinc-600">{senderLine}</div> : null}
+                    </div>
+                    {layout?.logo_enabled && layout.logo_url ? (
+                      <div style={{ width: `${logoSizePx}px`, height: `${logoSizePx}px` }}>
+                        <img
+                          src={layout.logo_url}
+                          alt="Logo"
+                          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
 
-                <div className="mt-8 text-[12px]">
-                  <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
-                  <div className="mt-1 text-zinc-800">
-                    {data.intro_body_html
-                      ? data.intro_body_html.replace(/<[^>]*>/g, "").trim()
-                      : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
+                  <div className="mt-4 grid grid-cols-[90mm_1fr] gap-6" style={{ minHeight: "55mm" }}>
+                    <div>
+                      {recipientLines.map((l, idx) => (
+                        <div key={idx}>{l}</div>
+                      ))}
+                    </div>
+
+                    <div className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <div className="text-zinc-600">Angebotsdatum:</div>
+                        <div>{formatDateDE(data.offer_date)}</div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <div className="text-zinc-600">Projektnummer:</div>
+                        <div>{data.project_number ?? ""}</div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <div className="text-zinc-600">Angebotsnummer:</div>
+                        <div>{data.offer_number ?? data.id}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-8">
-                  {(data.groups ?? [])
-                    .slice()
-                    .sort((a, b) => a.index - b.index)
-                    .map((g) => (
-                      <div key={g.id} className="mt-6">
-                        <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
-                        <div className="border-b border-zinc-300 pb-1">
-                          <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
-                            <div>Nr.</div>
-                            <div>Bezeichnung</div>
-                            <div className="text-right">Menge</div>
-                            <div>Einheit</div>
-                            <div className="text-right">Einzelpreis</div>
-                            <div className="text-right">Gesamtpreis</div>
-                          </div>
+                  {isFirst ? (
+                    <div className="mt-6">
+                      <div className="text-[22px] font-semibold">{data.title}</div>
+                      {executionLocation ? (
+                        <div className="mt-2 text-[11px] text-zinc-700">
+                          Ausführungsort: {executionLocation}
                         </div>
-
-                        <div>
-                          {(g.offer_items ?? []).map((it) => (
-                            <div key={it.id} className="border-b border-zinc-200 py-3">
-                              <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
-                                <div className="text-[10px] text-zinc-600">{it.position_index}</div>
-                                <div>
-                                  <div className="text-[11px] font-semibold">{it.name}</div>
-                                  {it.description ? (
-                                    <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
-                                  ) : null}
-                                </div>
-                                <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
-                                <div className="text-[11px]">{it.unit}</div>
-                                <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
-                                <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
-                              </div>
-                            </div>
-                          ))}
+                      ) : null}
+                      <div className="mt-6 text-[12px]">
+                        <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
+                        <div className="mt-1 text-zinc-800">
+                          {data.intro_body_html
+                            ? data.intro_body_html.replace(/<[^>]*>/g, "").trim()
+                            : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  ) : (
+                    <div className="mt-6">
+                      <div className="text-[14px] font-semibold">{data.title}</div>
+                    </div>
+                  )}
                 </div>
 
-                <div style={{ height: "28mm" }} />
-              </div>
+                <div className="flex-1 overflow-hidden pt-6">
+                  {pageGroups.map((g) => (
+                    <div key={`${pageIndex}-${g.id}`} className="mt-6">
+                      <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
+                      <div className="border-b border-zinc-300 pb-1">
+                        <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
+                          <div>Nr.</div>
+                          <div>Bezeichnung</div>
+                          <div className="text-right">Menge</div>
+                          <div>Einheit</div>
+                          <div className="text-right">Einzelpreis</div>
+                          <div className="text-right">Gesamtpreis</div>
+                        </div>
+                      </div>
 
-              {footerColumns ? (
-                <div style={{ position: "absolute", left: 0, right: 0, bottom: "12mm" }}>
+                      <div>
+                        {g.offer_items.map((it) => (
+                          <div key={it.id} className="border-b border-zinc-200 py-3">
+                            <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
+                              <div className="text-[10px] text-zinc-600">{it.position_index}</div>
+                              <div>
+                                <div className="text-[11px] font-semibold">{it.name}</div>
+                                {it.description ? (
+                                  <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
+                                ) : null}
+                              </div>
+                              <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
+                              <div className="text-[11px]">{it.unit}</div>
+                              <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
+                              <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {footerColumns ? (
                   <div className="border-t border-zinc-300 pt-4">
                     {footerColumns.mode === "custom" ? (
                       <div
@@ -452,13 +503,16 @@ export default function OfferPdfPreviewPage() {
                         </div>
                       </div>
                     )}
-                    <div className="mt-4 text-right text-[10px] text-zinc-600">Seite 1/1</div>
+
+                    <div className="mt-4 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
                   </div>
-                </div>
-              ) : null}
+                ) : (
+                  <div className="pt-4 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
