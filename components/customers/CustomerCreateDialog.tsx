@@ -222,7 +222,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
       {isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8">
           <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b px-6 py-4">
+            <div className="flex items-center justify-between px-6 py-4">
               <div className="text-base font-semibold">Kunde erstellen</div>
               <button
                 type="button"
@@ -309,7 +309,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 >
                   <span
                     className={
-                      "text-zinc-500 transition-transform " + (advancedOpen ? "rotate-180" : "rotate-0")
+                      "text-blue-600 transition-transform " + (advancedOpen ? "rotate-180" : "rotate-0")
                     }
                     aria-hidden="true"
                   >
@@ -477,7 +477,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 >
                   <span
                     className={
-                      "text-zinc-500 transition-transform " + (contactOpen ? "rotate-180" : "rotate-0")
+                      "text-blue-600 transition-transform " + (contactOpen ? "rotate-180" : "rotate-0")
                     }
                     aria-hidden="true"
                   >
@@ -537,7 +537,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
 
               </div>
 
-              <div className="flex items-center justify-end gap-2 border-t bg-white px-6 py-4">
+              <div className="flex items-center justify-end gap-2 bg-white px-6 py-4">
                 <button
                   type="button"
                   className="rounded-lg bg-zinc-100 px-4 py-2 text-sm text-zinc-800 hover:bg-zinc-200 disabled:opacity-50"
