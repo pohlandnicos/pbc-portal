@@ -117,6 +117,12 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
     return first?.message ?? "Ungültige Eingabe";
   }, [form]);
 
+  const inputClass =
+    "mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+
+  const toggleClass =
+    "flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700";
+
   function close() {
     setOpen(false);
     setError(null);
@@ -236,114 +242,76 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
 
             <form className="flex max-h-[80vh] flex-col" onSubmit={onSubmit}>
               <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="type"
-                    checked={form.type === "company"}
-                    onChange={() => setForm((s) => ({ ...s, type: "company" }))}
-                  />
-                  Firmenkunde
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="radio"
-                    name="type"
-                    checked={form.type === "private"}
-                    onChange={() => setForm((s) => ({ ...s, type: "private" }))}
-                  />
-                  Privatkunde
-                </label>
-              </div>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="type"
+                      checked={form.type === "company"}
+                      onChange={() => setForm((s) => ({ ...s, type: "company" }))}
+                    />
+                    Firmenkunde
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="type"
+                      checked={form.type === "private"}
+                      onChange={() => setForm((s) => ({ ...s, type: "private" }))}
+                    />
+                    Privatkunde
+                  </label>
+                </div>
 
-              {form.type === "company" ? (
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="md:col-span-2">
-                    <label className="text-sm text-zinc-700">Firma*</label>
-                    <input
-                      className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                      value={form.company_name}
-                      onChange={(e) => setForm((s) => ({ ...s, company_name: e.target.value }))}
-                    />
+                {form.type === "company" ? (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="md:col-span-2">
+                      <label className="text-sm text-zinc-700">Firma*</label>
+                      <input
+                        className={inputClass}
+                        value={form.company_name}
+                        onChange={(e) => setForm((s) => ({ ...s, company_name: e.target.value }))}
+                      />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div>
-                    <label className="text-sm text-zinc-700">Anrede*</label>
-                    <input
-                      className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                      value={form.salutation}
-                      onChange={(e) => setForm((s) => ({ ...s, salutation: e.target.value }))}
-                    />
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div>
+                      <label className="text-sm text-zinc-700">Anrede*</label>
+                      <select
+                        className={inputClass}
+                        value={form.salutation}
+                        onChange={(e) => setForm((s) => ({ ...s, salutation: e.target.value }))}
+                      >
+                        <option value="">-</option>
+                        <option value="Herr">Herr</option>
+                        <option value="Frau">Frau</option>
+                        <option value="Familie">Familie</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm text-zinc-700">Vorname*</label>
+                      <input
+                        className={inputClass}
+                        value={form.first_name}
+                        onChange={(e) => setForm((s) => ({ ...s, first_name: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-zinc-700">Nachname*</label>
+                      <input
+                        className={inputClass}
+                        value={form.last_name}
+                        onChange={(e) => setForm((s) => ({ ...s, last_name: e.target.value }))}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm text-zinc-700">Vorname*</label>
-                    <input
-                      className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                      value={form.first_name}
-                      onChange={(e) => setForm((s) => ({ ...s, first_name: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-zinc-700">Nachname*</label>
-                    <input
-                      className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
-                      value={form.last_name}
-                      onChange={(e) => setForm((s) => ({ ...s, last_name: e.target.value }))}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="text-sm font-semibold text-zinc-900">Rechnungsadresse</div>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2">
-                <div>
-                  <label className="text-sm text-zinc-700">Straße*</label>
-                  <input
-                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
-                    value={form.billing_street}
-                    onChange={(e) => setForm((s) => ({ ...s, billing_street: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-zinc-700">Hausnummer*</label>
-                  <input
-                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
-                    value={form.billing_house_number}
-                    onChange={(e) =>
-                      setForm((s) => ({ ...s, billing_house_number: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-zinc-700">PLZ*</label>
-                  <input
-                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
-                    value={form.billing_postal_code}
-                    onChange={(e) =>
-                      setForm((s) => ({ ...s, billing_postal_code: e.target.value }))
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-sm text-zinc-700">Ort*</label>
-                  <input
-                    className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
-                    value={form.billing_city}
-                    onChange={(e) => setForm((s) => ({ ...s, billing_city: e.target.value }))}
-                  />
-                </div>
-              </div>
+                )}
 
               <div>
                 <button
                   type="button"
-                  className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                  className={toggleClass}
                   onClick={() => setAdvancedOpen((s) => !s)}
                 >
                   <span className="text-zinc-500">{advancedOpen ? "▾" : "▸"}</span>
@@ -355,7 +323,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div className="md:col-span-2">
                       <label className="text-sm text-zinc-700">Beschreibung</label>
                       <textarea
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.description}
                         onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))}
                       />
@@ -364,8 +332,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Kundennummer</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.customer_number}
+                        placeholder="Optional"
                         onChange={(e) =>
                           setForm((s) => ({ ...s, customer_number: e.target.value }))
                         }
@@ -376,7 +345,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                       <div>
                         <label className="text-sm text-zinc-700">Leitweg-ID</label>
                         <input
-                          className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                          className={inputClass}
                           value={form.leitweg_id}
                           onChange={(e) =>
                             setForm((s) => ({ ...s, leitweg_id: e.target.value }))
@@ -388,8 +357,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Lieferantennr.</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.supplier_number}
+                        placeholder="Optional"
                         onChange={(e) =>
                           setForm((s) => ({ ...s, supplier_number: e.target.value }))
                         }
@@ -399,8 +369,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">USt-ID</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.vat_id}
+                        placeholder="Optional"
                         onChange={(e) => setForm((s) => ({ ...s, vat_id: e.target.value }))}
                       />
                     </div>
@@ -408,21 +379,11 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Vendor Nr.</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.vendor_number}
+                        placeholder="Optional"
                         onChange={(e) =>
                           setForm((s) => ({ ...s, vendor_number: e.target.value }))
-                        }
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm text-zinc-700">Adresszusatz</label>
-                      <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
-                        value={form.billing_address_extra}
-                        onChange={(e) =>
-                          setForm((s) => ({ ...s, billing_address_extra: e.target.value }))
                         }
                       />
                     </div>
@@ -431,9 +392,69 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
               </div>
 
               <div>
+                <div className="text-sm font-semibold text-zinc-900">Rechnungsadresse</div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div>
+                  <label className="text-sm text-zinc-700">Straße*</label>
+                  <input
+                    className={inputClass}
+                    value={form.billing_street}
+                    onChange={(e) => setForm((s) => ({ ...s, billing_street: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-700">Hausnummer*</label>
+                  <input
+                    className={inputClass}
+                    value={form.billing_house_number}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, billing_house_number: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm text-zinc-700">Adresszusatz</label>
+                  <input
+                    className={inputClass}
+                    value={form.billing_address_extra}
+                    placeholder="Firma, c/o – Optional"
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, billing_address_extra: e.target.value }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-700">PLZ*</label>
+                  <input
+                    className={inputClass}
+                    value={form.billing_postal_code}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, billing_postal_code: e.target.value }))
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-700">Ort*</label>
+                  <input
+                    className={inputClass}
+                    value={form.billing_city}
+                    onChange={(e) => setForm((s) => ({ ...s, billing_city: e.target.value }))}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-sm text-zinc-700">Land</label>
+                  <select className={inputClass} value="Deutschland" disabled>
+                    <option value="Deutschland">Deutschland</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
                 <button
                   type="button"
-                  className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+                  className={toggleClass}
                   onClick={() => setContactOpen((s) => !s)}
                 >
                   <span className="text-zinc-500">{contactOpen ? "▾" : "▸"}</span>
@@ -445,8 +466,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Telefon (Festnetz)</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.phone_landline}
+                        placeholder="Optional"
                         onChange={(e) =>
                           setForm((s) => ({ ...s, phone_landline: e.target.value }))
                         }
@@ -455,8 +477,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div>
                       <label className="text-sm text-zinc-700">Telefon (Mobil)</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.phone_mobile}
+                        placeholder="Optional"
                         onChange={(e) =>
                           setForm((s) => ({ ...s, phone_mobile: e.target.value }))
                         }
@@ -465,8 +488,9 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                     <div className="md:col-span-2">
                       <label className="text-sm text-zinc-700">E-Mail</label>
                       <input
-                        className="mt-1 w-full rounded-md border border-zinc-200 px-3 py-2 text-sm"
+                        className={inputClass}
                         value={form.email}
+                        placeholder="Optional"
                         onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
                       />
                     </div>
@@ -500,7 +524,14 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                   className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                   disabled={loading}
                 >
-                  {loading ? "Speichern..." : "+ Erstellen"}
+                  {loading ? (
+                    "Speichern..."
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-white/20">+</span>
+                      Erstellen
+                    </span>
+                  )}
                 </button>
               </div>
             </form>
