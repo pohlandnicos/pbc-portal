@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from("customers")
     .select(
-      "id, company_name, salutation, first_name, last_name, type, billing_street, billing_house_number, billing_postal_code, billing_city"
+      "id, company_name, salutation, first_name, last_name, type, billing_street, billing_house_number, billing_address_extra, billing_postal_code, billing_city"
     )
     .eq("org_id", orgId)
     .order("company_name", { nullsFirst: true })
@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
       c.type === "company"
         ? c.company_name
         : `${c.salutation ?? ""} ${c.first_name ?? ""} ${c.last_name ?? ""}`.trim(),
+    addressExtra: c.billing_address_extra ?? "",
     street: `${c.billing_street ?? ""} ${c.billing_house_number ?? ""}`.trim(),
     zip: c.billing_postal_code ?? "",
     city: c.billing_city ?? "",

@@ -36,6 +36,7 @@ export default function Page() {
   const [customers, setCustomers] = useState<Array<{
     id: string;
     name: string;
+    addressExtra?: string;
     street: string;
     zip: string;
     city: string;
@@ -492,6 +493,7 @@ export default function Page() {
               {selectedCustomer ? (
                 <div className="text-sm">
                   <p>{selectedCustomer.name}</p>
+                  {selectedCustomer.addressExtra ? <p>{selectedCustomer.addressExtra}</p> : null}
                   <p>{selectedCustomer.street}</p>
                   <p>
                     {selectedCustomer.zip} {selectedCustomer.city}
