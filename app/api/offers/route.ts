@@ -107,7 +107,10 @@ export async function POST(request: NextRequest) {
 
   if (offerError) {
     console.error('Database error:', offerError);
-    return NextResponse.json({ error: "db_error", details: offerError }, { status: 500 });
+    return NextResponse.json(
+      { error: "db_error", message: offerError.message, details: offerError },
+      { status: 500 }
+    );
   }
 
   // 2. Standard Templates laden und anwenden
@@ -131,7 +134,10 @@ export async function POST(request: NextRequest) {
       .eq("id", offer.id);
 
     if (templateError) {
-      return NextResponse.json({ error: "db_error" }, { status: 500 });
+      return NextResponse.json(
+        { error: "db_error", message: templateError.message, details: templateError },
+        { status: 500 }
+      );
     }
   }
 
@@ -145,7 +151,12 @@ export async function POST(request: NextRequest) {
       title: "Leistungen"
     });
 
-  if (groupError) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  if (groupError) {
+    return NextResponse.json(
+      { error: "db_error", message: groupError.message, details: groupError },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ data: offer });
 }
