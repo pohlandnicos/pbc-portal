@@ -268,9 +268,9 @@ export default function OfferPdfPreviewPage() {
 
   const logoSizePx = useMemo(() => {
     const size = layout?.logo_size ?? "medium";
-    if (size === "small") return 110;
-    if (size === "large") return 180;
-    return 140;
+    if (size === "small") return 150;
+    if (size === "large") return 240;
+    return 190;
   }, [layout?.logo_size]);
 
   const footerColumns = useMemo(() => {
@@ -359,7 +359,7 @@ export default function OfferPdfPreviewPage() {
             >
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
-                style={{ paddingLeft: "25mm", paddingRight: "20mm", paddingTop: "20mm", paddingBottom: "12mm" }}
+                style={{ paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "12mm", paddingBottom: "8mm" }}
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -377,7 +377,7 @@ export default function OfferPdfPreviewPage() {
                     ) : null}
                   </div>
 
-                  <div className="mt-4 grid grid-cols-[90mm_1fr] gap-6" style={{ minHeight: "55mm" }}>
+                  <div className="mt-3 grid grid-cols-[90mm_1fr] gap-6" style={{ minHeight: "45mm" }}>
                     <div>
                       {recipientLines.map((l, idx) => (
                         <div key={idx}>{l}</div>
@@ -401,14 +401,14 @@ export default function OfferPdfPreviewPage() {
                   </div>
 
                   {isFirst ? (
-                    <div className="mt-6">
+                    <div className="mt-4">
                       <div className="text-[22px] font-semibold">{data.title}</div>
                       {executionLocation ? (
                         <div className="mt-2 text-[11px] text-zinc-700">
                           Ausführungsort: {executionLocation}
                         </div>
                       ) : null}
-                      <div className="mt-6 text-[12px]">
+                      <div className="mt-4 text-[12px]">
                         <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
                         <div className="mt-1 text-zinc-800">
                           {data.intro_body_html
@@ -418,13 +418,13 @@ export default function OfferPdfPreviewPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-6">
+                    <div className="mt-4">
                       <div className="text-[14px] font-semibold">{data.title}</div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex-1 overflow-hidden pt-6">
+                <div className="flex-1 overflow-hidden pt-4">
                   {pageGroups.map((g) => (
                     <div key={`${pageIndex}-${g.id}`} className="mt-6">
                       <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
