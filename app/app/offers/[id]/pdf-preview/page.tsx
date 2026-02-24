@@ -198,9 +198,9 @@ export default function OfferPdfPreviewPage() {
 
   const logoSizePx = useMemo(() => {
     const size = layout?.logo_size ?? "medium";
-    if (size === "small") return 44;
-    if (size === "large") return 84;
-    return 64;
+    if (size === "small") return 110;
+    if (size === "large") return 180;
+    return 140;
   }, [layout?.logo_size]);
 
   const footerColumns = useMemo(() => {
@@ -276,16 +276,30 @@ export default function OfferPdfPreviewPage() {
       </div>
 
       <div className="mx-auto max-w-[900px]">
-        <div className="mx-auto w-[794px] rounded bg-white shadow">
-          <div className="px-[56px] pb-[56px] pt-[56px] text-[12px] leading-[1.35] text-zinc-900">
-            <div className="flex items-start justify-between gap-6">
-              <div className="min-w-0 flex-1">
-                {senderLine ? <div className="text-[10px] text-zinc-600">{senderLine}</div> : null}
-              </div>
+        <div
+          className="mx-auto rounded bg-white shadow"
+          style={{ width: "210mm", minHeight: "297mm" }}
+        >
+          <div
+            className="text-[12px] leading-[1.35] text-zinc-900"
+            style={{ paddingLeft: "25mm", paddingRight: "20mm", paddingTop: "20mm", paddingBottom: "20mm" }}
+          >
+            <div className="relative" style={{ minHeight: "120mm" }}>
+              {senderLine ? (
+                <div className="text-[10px] text-zinc-600" style={{ position: "absolute", left: 0, top: 0 }}>
+                  {senderLine}
+                </div>
+              ) : null}
+
               {layout?.logo_enabled && layout.logo_url ? (
                 <div
-                  className={layout.logo_position === "left" ? "order-first" : "order-last"}
-                  style={{ width: logoSizePx, height: logoSizePx }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    width: `${logoSizePx}px`,
+                    height: `${logoSizePx}px`,
+                  }}
                 >
                   <img
                     src={layout.logo_url}
@@ -294,17 +308,22 @@ export default function OfferPdfPreviewPage() {
                   />
                 </div>
               ) : null}
-            </div>
 
-            <div className="mt-6 flex items-start justify-between gap-10">
-              <div className="min-w-0 flex-1">
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: "32mm",
+                  width: "85mm",
+                  minHeight: "45mm",
+                }}
+              >
                 {recipientLines.map((l, idx) => (
-                  <div key={idx} className="truncate">
-                    {l}
-                  </div>
+                  <div key={idx}>{l}</div>
                 ))}
               </div>
-              <div className="w-[260px] text-right">
+
+              <div style={{ position: "absolute", right: 0, top: "40mm", width: "70mm", textAlign: "right" }}>
                 <div className="flex justify-end gap-2">
                   <div className="text-zinc-600">Angebotsdatum:</div>
                   <div>{formatDateDE(data.offer_date)}</div>
@@ -320,7 +339,7 @@ export default function OfferPdfPreviewPage() {
               </div>
             </div>
 
-            <div className="mt-10">
+            <div className="mt-2">
               <div className="text-[22px] font-semibold">{data.title}</div>
               {executionLocation ? (
                 <div className="mt-2 text-[11px] text-zinc-700">
