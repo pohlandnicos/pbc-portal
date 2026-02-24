@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 
 type Props = {
@@ -109,13 +109,6 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
     phone_mobile: "",
     email: "",
   });
-
-  const requiredError = useMemo(() => {
-    const parsed = schema.safeParse(form);
-    if (parsed.success) return null;
-    const first = parsed.error.issues[0];
-    return first?.message ?? "Ungültige Eingabe";
-  }, [form]);
 
   const inputClass =
     "mt-1 w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
@@ -314,7 +307,20 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                   className={toggleClass}
                   onClick={() => setAdvancedOpen((s) => !s)}
                 >
-                  <span className="text-zinc-500">{advancedOpen ? "▾" : "▸"}</span>
+                  <span
+                    className={
+                      "text-zinc-500 transition-transform " + (advancedOpen ? "rotate-180" : "rotate-0")
+                    }
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </span>
                   Details {advancedOpen ? "ausblenden" : "einblenden"}
                 </button>
 
@@ -445,9 +451,21 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-sm text-zinc-700">Land</label>
-                  <select className={inputClass} value="Deutschland" disabled>
-                    <option value="Deutschland">Deutschland</option>
-                  </select>
+                  <div className="relative">
+                    <input className={inputClass + " pr-10"} value="Deutschland" readOnly />
+                    <span
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400"
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -457,7 +475,20 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
                   className={toggleClass}
                   onClick={() => setContactOpen((s) => !s)}
                 >
-                  <span className="text-zinc-500">{contactOpen ? "▾" : "▸"}</span>
+                  <span
+                    className={
+                      "text-zinc-500 transition-transform " + (contactOpen ? "rotate-180" : "rotate-0")
+                    }
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                      <path
+                        fillRule="evenodd"
+                        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </span>
                   Kontaktdaten {contactOpen ? "ausblenden" : "einblenden"}
                 </button>
 
@@ -501,10 +532,6 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
               {error ? (
                 <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                   {error}
-                </div>
-              ) : requiredError ? (
-                <div className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600">
-                  {requiredError}
                 </div>
               ) : null}
 
