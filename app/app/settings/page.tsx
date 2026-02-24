@@ -8,6 +8,16 @@ export default function SettingsPage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <a
+          href="/app/settings/account"
+          className="rounded-xl border border-zinc-200 bg-white p-4 hover:bg-zinc-50 transition-colors"
+        >
+          <div className="text-sm font-semibold text-zinc-900">Mein Konto</div>
+          <div className="mt-1 text-sm text-zinc-600">
+            Profil, E-Mail und Passwort.
+          </div>
+        </a>
+
+        <a
           href="/app/settings/offer-invoice"
           className="rounded-xl border border-zinc-200 bg-white p-4 hover:bg-zinc-50 transition-colors"
         >

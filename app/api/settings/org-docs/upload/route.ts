@@ -5,8 +5,9 @@ import { rateLimit } from "@/lib/security/rateLimit";
 
 const MAX_PDF_BYTES = 1_000_000;
 const MAX_LOGO_BYTES = 1_000_000;
+const MAX_AVATAR_BYTES = 1_000_000;
 
-type UploadKind = "agb" | "withdrawal" | "logo";
+type UploadKind = "agb" | "withdrawal" | "logo" | "avatar";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
   const kind = (form.get("kind") ?? "") as UploadKind;
   const file = form.get("file");
 
-  if (!kind || !["agb", "withdrawal", "logo"].includes(kind)) {
+  if (!kind || !["agb", "withdrawal", "logo", "avatar"].includes(kind)) {
     return NextResponse.json({ error: "invalid_kind" }, { status: 400 });
   }
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "missing_file" }, { status: 400 });
   }
 
-  if (kind !== "logo") {
+  if (kind !== "logo" && kind !== "avatar") {
     if (file.type !== "application/pdf") {
       return NextResponse.json({ error: "invalid_file_type" }, { status: 400 });
     }
@@ -47,14 +48,22 @@ export async function POST(request: NextRequest) {
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: "invalid_file_type" }, { status: 400 });
     }
-    if (file.size > MAX_LOGO_BYTES) {
+    if (kind === "logo" && file.size > MAX_LOGO_BYTES) {
+      return NextResponse.json({ error: "file_too_large" }, { status: 400 });
+    }
+    if (kind === "avatar" && file.size > MAX_AVATAR_BYTES) {
       return NextResponse.json({ error: "file_too_large" }, { status: 400 });
     }
   }
 
-  const ext = kind === "logo" ? (file.name.split(".").pop() || "png") : "pdf";
+  const ext = kind === "logo" || kind === "avatar" ? (file.name.split(".").pop() || "png") : "pdf";
   const safeExt = ext.toLowerCase().replace(/[^a-z0-9]+/g, "");
-  const filename = kind === "logo" ? `logo.${safeExt || "png"}` : `${kind}.pdf`;
+  const filename =
+    kind === "logo"
+      ? `logo.${safeExt || "png"}`
+      : kind === "avatar"
+        ? `avatars/${Date.now()}.${safeExt || "png"}`
+        : `${kind}.pdf`;
   const path = `${orgId}/${filename}`;
 
   const { error: uploadError } = await supabase
@@ -70,6 +79,19 @@ export async function POST(request: NextRequest) {
     const { error: dbError } = await supabase
       .from("org_text_layout_settings")
       .upsert({ org_id: orgId, logo_path: path }, { onConflict: "org_id" });
+
+    if (dbError) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  } else if (kind === "avatar") {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
+
+    const { error: dbError } = await supabase
+      .from("user_profiles")
+      .upsert({ org_id: orgId, user_id: user.id, avatar_path: path }, { onConflict: "org_id,user_id" });
 
     if (dbError) return NextResponse.json({ error: "db_error" }, { status: 500 });
   } else {
