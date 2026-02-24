@@ -35,6 +35,9 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Array<{
     id: string;
+    type?: "private" | "company";
+    salutation?: string;
+    lastName?: string;
     name: string;
     addressExtra?: string;
     street: string;
@@ -51,8 +54,10 @@ export default function Page() {
   const [offerDate, setOfferDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [introSalutation, setIntroSalutation] = useState("Sehr geehrte Damen und Herren,");
+  const [introSalutationEdited, setIntroSalutationEdited] = useState(false);
   const [introText, setIntroText] = useState(
-    "Sehr geehrte Damen und Herren,\n\nHerzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"
+    "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"
   );
   const [outroText, setOutroText] = useState(
     "Bitte beachten Sie, dass eventuell zusätzliche Kosten für unvorhergesehene Schäden oder zusätzliche Arbeiten anfallen können. Sollten während der Arbeiten unvorhergesehene Probleme auftreten, werden wir Sie umgehend informieren und mögliche Lösungen sowie die damit verbundenen Kosten mit Ihnen abstimmen.\n\nWir würden uns sehr freuen, wenn unser Angebot Ihre Zustimmung findet. Sie haben Fragen oder wünschen weitere Informationen? Rufen Sie uns an - wir sind für Sie da."
@@ -149,6 +154,27 @@ export default function Page() {
 
   const selectedCustomer = customers.find((c) => c.id === customerId);
   const selectedProject = projects.find((p) => p.id === projectId);
+
+  useEffect(() => {
+    if (!selectedCustomer) return;
+    if (introSalutationEdited) return;
+
+    if (selectedCustomer.type === "private") {
+      const base = selectedCustomer.salutation === "Frau" ? "Sehr geehrte" : "Sehr geehrter";
+      const name = `${selectedCustomer.salutation || ""} ${selectedCustomer.lastName || ""}`
+        .replace(/\s+/g, " ")
+        .trim();
+      setIntroSalutation(`${base} ${name},`.replace(/\s+/g, " ").trim());
+      return;
+    }
+
+    setIntroSalutation("Sehr geehrte Damen und Herren,");
+  }, [selectedCustomer?.id, selectedCustomer?.type, selectedCustomer?.salutation, selectedCustomer?.lastName, introSalutationEdited]);
+
+  useEffect(() => {
+    // Reset manual override whenever customer changes.
+    setIntroSalutationEdited(false);
+  }, [selectedCustomer?.id]);
 
   useEffect(() => {
     if (!customerOpen) {
@@ -539,6 +565,15 @@ export default function Page() {
                 </button>
               </div>
 
+              <input
+                type="text"
+                value={introSalutation}
+                onChange={(e) => {
+                  setIntroSalutationEdited(true);
+                  setIntroSalutation(e.target.value);
+                }}
+                className="mb-2 w-full rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
               <RichTextEditor value={introText} onChange={setIntroText} rows={6} />
             </div>
           </div>

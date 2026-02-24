@@ -69,6 +69,9 @@ export async function GET(request: NextRequest) {
 
   const customers = (data as Customer[]).map((c) => ({
     id: c.id,
+    type: c.type,
+    salutation: c.salutation ?? "",
+    lastName: c.last_name ?? "",
     name:
       c.type === "company"
         ? c.company_name
