@@ -32,6 +32,7 @@ const emptyItem: OfferItem = {
 export default function Page() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customers, setCustomers] = useState<Array<{
     id: string;
@@ -94,6 +95,54 @@ export default function Page() {
   const [projectOpen, setProjectOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState("");
   const projectBoxRef = useRef<HTMLDivElement | null>(null);
+
+  async function createDraftOffer() {
+    if (!customerId) {
+      setError("Bitte wähle einen Kunden aus");
+      return null;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          customer_id: customerId,
+          project_id: projectId || undefined,
+          offer_date: offerDate,
+          intro_salutation: introSalutation,
+          intro_body_html: introText,
+        }),
+      });
+
+      const json = (await res.json().catch(() => null)) as
+        | { data?: { id?: string } | null; error?: string; message?: string }
+        | null;
+
+      if (!res.ok) {
+        const apiMessage =
+          (typeof json?.message === "string" && json.message.length > 0
+            ? json.message
+            : null) ??
+          (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
+        setError(apiMessage ?? `Speichern fehlgeschlagen (HTTP ${res.status})`);
+        return null;
+      }
+
+      const id = json?.data?.id;
+      if (!id) {
+        setError("Speichern fehlgeschlagen");
+        return null;
+      }
+
+      return id;
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   async function loadCustomers() {
     try {
@@ -351,15 +400,20 @@ export default function Page() {
               <button
                 type="button"
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
+                disabled={submitting}
+                onClick={async () => {
+                  const id = await createDraftOffer();
+                  if (id) router.push(`/app/offers/${id}/pdf-preview`);
+                }}
               >
                 Vorschau
               </button>
               <button
                 type="button"
-                disabled={loading}
+                disabled={loading || submitting}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {loading ? "Wird erstellt..." : "Fertigstellen"}
+                {submitting ? "Wird erstellt..." : "Fertigstellen"}
               </button>
             </div>
           </div>
