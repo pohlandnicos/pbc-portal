@@ -170,7 +170,13 @@ export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenCha
         | null;
 
       if (!res.ok) {
-        setError(json?.message ?? "Speichern fehlgeschlagen");
+        const apiMessage =
+          (typeof json?.message === "string" && json.message.length > 0
+            ? json.message
+            : null) ??
+          (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
+
+        setError(apiMessage ?? `Speichern fehlgeschlagen (HTTP ${res.status})`);
         return;
       }
 
