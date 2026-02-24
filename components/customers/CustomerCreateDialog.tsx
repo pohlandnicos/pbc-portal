@@ -6,6 +6,8 @@ import { z } from "zod";
 type Props = {
   onCreated: (customerId?: string) => void;
   renderTrigger?: (open: () => void) => React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const baseSchema = z.object({
@@ -64,8 +66,19 @@ const schema = baseSchema.superRefine((val, ctx) => {
   }
 });
 
-export function CustomerCreateDialog({ onCreated, renderTrigger }: Props) {
-  const [open, setOpen] = useState(false);
+export function CustomerCreateDialog({ onCreated, renderTrigger, open, onOpenChange }: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : internalOpen;
+
+  function setOpen(next: boolean) {
+    if (isControlled) {
+      onOpenChange?.(next);
+    } else {
+      setInternalOpen(next);
+    }
+  }
+
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -207,7 +220,7 @@ export function CustomerCreateDialog({ onCreated, renderTrigger }: Props) {
         </div>
       )}
 
-      {open ? (
+      {isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-2xl rounded-xl bg-white shadow-lg">
             <div className="flex items-center justify-between border-b px-5 py-4">
