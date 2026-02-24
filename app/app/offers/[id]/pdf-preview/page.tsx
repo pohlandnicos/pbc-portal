@@ -62,6 +62,41 @@ type OfferData = {
   groups: OfferGroup[];
 };
 
+type TextLayoutSettings = {
+  logo_enabled?: boolean | null;
+  logo_position?: "left" | "right" | null;
+  logo_size?: "small" | "medium" | "large" | null;
+  logo_url?: string | null;
+  sender_line_enabled?: boolean | null;
+  footer_enabled?: boolean | null;
+  footer_mode?: "standard" | "custom" | null;
+  footer_custom_html?: string | null;
+
+  company_name?: string | null;
+  street?: string | null;
+  house_number?: string | null;
+  address_extra?: string | null;
+  postal_code?: string | null;
+  city?: string | null;
+  tax_number?: string | null;
+  vat_id?: string | null;
+
+  bank_account_holder?: string | null;
+  iban?: string | null;
+  bic?: string | null;
+  bank_name?: string | null;
+
+  website?: string | null;
+  email?: string | null;
+  mobile?: string | null;
+  phone?: string | null;
+
+  legal_form?: string | null;
+  owner_name?: string | null;
+  register_court?: string | null;
+  hbr_number?: string | null;
+};
+
 function formatDateDE(iso: string) {
   if (!iso) return "";
   const d = new Date(iso);
@@ -79,6 +114,7 @@ export default function OfferPdfPreviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<OfferData | null>(null);
+  const [layout, setLayout] = useState<TextLayoutSettings | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -90,15 +126,32 @@ export default function OfferPdfPreviewPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/offers/${id}`, { cache: "no-store" });
-        const json = (await res.json().catch(() => null)) as
+        const [offerRes, layoutRes] = await Promise.all([
+          fetch(`/api/offers/${id}`, { cache: "no-store" }),
+          fetch("/api/settings/text-layout", { cache: "no-store" }),
+        ]);
+
+        const offerJson = (await offerRes.json().catch(() => null)) as
           | { data?: OfferData; error?: string; message?: string }
           | null;
-        if (!res.ok) {
-          setError(json?.message ?? json?.error ?? `Laden fehlgeschlagen (HTTP ${res.status})`);
+        const layoutJson = (await layoutRes.json().catch(() => null)) as
+          | { data?: TextLayoutSettings; error?: string; message?: string }
+          | null;
+
+        if (!offerRes.ok) {
+          setError(
+            offerJson?.message ??
+              offerJson?.error ??
+              `Laden fehlgeschlagen (HTTP ${offerRes.status})`
+          );
           return;
         }
-        setData(json?.data ?? null);
+
+        if (layoutRes.ok) {
+          setLayout(layoutJson?.data ?? null);
+        }
+
+        setData(offerJson?.data ?? null);
       } finally {
         setLoading(false);
       }
@@ -135,6 +188,69 @@ export default function OfferPdfPreviewPage() {
     return [street, extra, city].filter(Boolean).join(", ");
   }, [data?.projects]);
 
+  const senderLine = useMemo(() => {
+    if (!layout?.sender_line_enabled) return null;
+    const company = (layout.company_name ?? "").trim();
+    const street = `${layout.street ?? ""} ${layout.house_number ?? ""}`.replace(/\s+/g, " ").trim();
+    const city = `${layout.postal_code ?? ""} ${layout.city ?? ""}`.replace(/\s+/g, " ").trim();
+    return [company, street, city].filter(Boolean).join(" · ") || null;
+  }, [layout]);
+
+  const logoSizePx = useMemo(() => {
+    const size = layout?.logo_size ?? "medium";
+    if (size === "small") return 44;
+    if (size === "large") return 84;
+    return 64;
+  }, [layout?.logo_size]);
+
+  const footerColumns = useMemo(() => {
+    if (!layout?.footer_enabled) return null;
+    if (layout.footer_mode === "custom" && layout.footer_custom_html) {
+      return { mode: "custom" as const, html: layout.footer_custom_html };
+    }
+
+    const address: string[] = [];
+    if (layout?.company_name) address.push(layout.company_name);
+    const line1 = `${layout?.street ?? ""} ${layout?.house_number ?? ""}`.replace(/\s+/g, " ").trim();
+    const line2 = (layout?.address_extra ?? "").trim();
+    const line3 = `${layout?.postal_code ?? ""} ${layout?.city ?? ""}`.replace(/\s+/g, " ").trim();
+    if (line1) address.push(line1);
+    if (line2) address.push(line2);
+    if (line3) address.push(line3);
+
+    const bank: string[] = [];
+    if (layout?.bank_account_holder) bank.push(layout.bank_account_holder);
+    if (layout?.bank_name) bank.push(layout.bank_name);
+    if (layout?.iban) bank.push(layout.iban);
+    if (layout?.bic) bank.push(layout.bic);
+
+    const contact: string[] = [];
+    if (layout?.website) contact.push(layout.website);
+    if (layout?.email) contact.push(layout.email);
+    if (layout?.phone) contact.push(layout.phone);
+    if (layout?.mobile) contact.push(layout.mobile);
+
+    const legal: string[] = [];
+    const legalForm = (layout?.legal_form ?? "").trim();
+    const owner = (layout?.owner_name ?? "").trim();
+    const court = (layout?.register_court ?? "").trim();
+    const hbr = (layout?.hbr_number ?? "").trim();
+    if (legalForm) legal.push(legalForm);
+    if (owner) legal.push(owner);
+    if (court) legal.push(court);
+    if (hbr) legal.push(hbr);
+    if (layout?.tax_number) legal.push(`St.-Nr. ${layout.tax_number}`);
+    if (layout?.vat_id) legal.push(`USt-IdNr. ${layout.vat_id}`);
+
+    return {
+      mode: "standard" as const,
+      address,
+      bank,
+      contact,
+      legal,
+    };
+  }, [layout]);
+
   if (loading) {
     return <div className="min-h-screen bg-zinc-50 p-6 text-sm text-zinc-700">Lädt...</div>;
   }
@@ -162,14 +278,22 @@ export default function OfferPdfPreviewPage() {
       <div className="mx-auto max-w-[900px]">
         <div className="mx-auto w-[794px] rounded bg-white shadow">
           <div className="px-[56px] pb-[56px] pt-[56px] text-[12px] leading-[1.35] text-zinc-900">
-            <div className="flex items-start justify-between">
-              <div className="text-[10px] text-zinc-600">
-                Bausanierung Plus GmbH · Neuhauser Str. 37A · 70599 Stuttgart
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0 flex-1">
+                {senderLine ? <div className="text-[10px] text-zinc-600">{senderLine}</div> : null}
               </div>
-              <div className="text-right text-[16px] font-semibold leading-tight">
-                <div>Bausanierung</div>
-                <div>Plus</div>
-              </div>
+              {layout?.logo_enabled && layout.logo_url ? (
+                <div
+                  className={layout.logo_position === "left" ? "order-first" : "order-last"}
+                  style={{ width: logoSizePx, height: logoSizePx }}
+                >
+                  <img
+                    src={layout.logo_url}
+                    alt="Logo"
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                </div>
+              ) : null}
             </div>
 
             <div className="mt-6 flex items-start justify-between gap-10">
@@ -255,31 +379,49 @@ export default function OfferPdfPreviewPage() {
                 ))}
             </div>
 
-            <div className="mt-10 border-t border-zinc-300 pt-4">
-              <div className="grid grid-cols-3 gap-6 text-[10px]">
-                <div>
-                  <div className="mb-2 font-semibold">Anschrift</div>
-                  <div>Bausanierung Plus GmbH</div>
-                  <div>Neuhauser Str. 37A</div>
-                  <div>70599 Stuttgart</div>
-                </div>
-                <div>
-                  <div className="mb-2 font-semibold">Bankverbindung</div>
-                  <div>Bausanierung Plus GmbH</div>
-                  <div>Volksbank Bietigheim-Bissingen eG</div>
-                  <div>DE00 0000 0000 0000 0000 00</div>
-                  <div>GENODE51BIA</div>
-                </div>
-                <div>
-                  <div className="mb-2 font-semibold">Kontakt</div>
-                  <div>www.bausanierung-plus.de · service@bausanierung-plus.de</div>
-                  <div>+49 711 25296810</div>
-                  <div>Bausanierung Plus GmbH · Cem Tuncay</div>
-                </div>
+            {footerColumns ? (
+              <div className="mt-10 border-t border-zinc-300 pt-4">
+                {footerColumns.mode === "custom" ? (
+                  <div
+                    className="text-[10px] text-zinc-900"
+                    dangerouslySetInnerHTML={{ __html: footerColumns.html }}
+                  />
+                ) : (
+                  <div className="grid grid-cols-4 gap-6 text-[10px]">
+                    <div>
+                      <div className="mb-2 font-semibold">Anschrift</div>
+                      {footerColumns.address.map((l, idx) => (
+                        <div key={idx}>{l}</div>
+                      ))}
+                    </div>
+                    <div>
+                      <div className="mb-2 font-semibold">Bankverbindung</div>
+                      {footerColumns.bank.length ? (
+                        footerColumns.bank.map((l, idx) => <div key={idx}>{l}</div>)
+                      ) : (
+                        <div className="text-zinc-500">—</div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="mb-2 font-semibold">Kontakt</div>
+                      {footerColumns.contact.length ? (
+                        footerColumns.contact.map((l, idx) => <div key={idx}>{l}</div>)
+                      ) : (
+                        <div className="text-zinc-500">—</div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="mb-2 font-semibold">Unternehmensdaten</div>
+                      {footerColumns.legal.length ? (
+                        footerColumns.legal.map((l, idx) => <div key={idx}>{l}</div>)
+                      ) : (
+                        <div className="text-zinc-500">—</div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div className="mt-4 text-right text-[10px] text-zinc-700">{(data.offer_number ?? "") || data.id} · 1/1</div>
-            </div>
+            ) : null}
           </div>
         </div>
       </div>
