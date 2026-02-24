@@ -59,7 +59,11 @@ export async function GET(
   ]);
 
   if (offerResult.error || groupsResult.error) {
-    return NextResponse.json({ error: "db_error" }, { status: 500 });
+    const err = offerResult.error ?? groupsResult.error;
+    return NextResponse.json(
+      { error: "db_error", message: err?.message, details: err },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({
