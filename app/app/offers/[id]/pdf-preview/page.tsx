@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 type OfferCustomer = {
   type: "private" | "company";
@@ -72,20 +73,29 @@ function currencyEUR(value: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(value);
 }
 
-export default function OfferPdfPreviewPage({ params }: { params: { id: string } }) {
+export default function OfferPdfPreviewPage() {
+  const params = useParams<{ id: string }>();
+  const id = typeof params?.id === "string" ? params.id : "";
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<OfferData | null>(null);
 
   useEffect(() => {
     async function load() {
+      if (!id) {
+        setError("Ungültige Angebots-ID");
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/offers/${params.id}`, { cache: "no-store" });
-        const json = (await res.json().catch(() => null)) as { data?: OfferData; error?: string } | null;
+        const res = await fetch(`/api/offers/${id}`, { cache: "no-store" });
+        const json = (await res.json().catch(() => null)) as
+          | { data?: OfferData; error?: string; message?: string }
+          | null;
         if (!res.ok) {
-          setError(json?.error ?? `Laden fehlgeschlagen (HTTP ${res.status})`);
+          setError(json?.message ?? json?.error ?? `Laden fehlgeschlagen (HTTP ${res.status})`);
           return;
         }
         setData(json?.data ?? null);
@@ -95,7 +105,7 @@ export default function OfferPdfPreviewPage({ params }: { params: { id: string }
     }
 
     void load();
-  }, [params.id]);
+  }, [id]);
 
   const recipientLines = useMemo(() => {
     const c = data?.customers;
@@ -133,7 +143,7 @@ export default function OfferPdfPreviewPage({ params }: { params: { id: string }
     return (
       <div className="min-h-screen bg-zinc-50 p-6">
         <div className="mb-4 text-sm text-zinc-700">{error ?? "Fehler"}</div>
-        <Link href={`/app/offers/${params.id}`} className="text-sm text-blue-600 hover:text-blue-700">
+        <Link href={id ? `/app/offers/${id}` : "/app/offers"} className="text-sm text-blue-600 hover:text-blue-700">
           Zurück
         </Link>
       </div>
@@ -143,7 +153,7 @@ export default function OfferPdfPreviewPage({ params }: { params: { id: string }
   return (
     <div className="min-h-screen bg-zinc-100 px-4 py-8">
       <div className="mx-auto mb-4 flex max-w-[900px] items-center justify-between">
-        <Link href={`/app/offers/${params.id}`} className="text-sm text-zinc-600 hover:text-zinc-800">
+        <Link href={`/app/offers/${id}`} className="text-sm text-zinc-600 hover:text-zinc-800">
           ← Zurück
         </Link>
         <div className="text-sm text-zinc-600">Vorschau</div>
