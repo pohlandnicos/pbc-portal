@@ -65,6 +65,7 @@ export async function GET(
   return NextResponse.json({
     data: {
       ...offerResult.data,
+      title: (offerResult.data as any)?.name,
       groups: groupsResult.data
     }
   });
@@ -111,9 +112,15 @@ export async function PATCH(
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
+  const { title, ...rest } = parsed.data;
+  const updateData = {
+    ...rest,
+    ...(title ? { name: title } : null)
+  };
+
   const { data, error } = await supabase
     .from("offers")
-    .update(parsed.data)
+    .update(updateData)
     .eq("id", id)
     .eq("org_id", orgId)
     .select()

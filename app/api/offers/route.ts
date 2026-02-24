@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     .from("offers")
     .select(`
       id,
-      title,
+      name:title,
       offer_number,
       offer_date,
       status,
@@ -90,11 +90,14 @@ export async function POST(request: NextRequest) {
     status: "draft"
   });
 
+  const { title, ...rest } = parsed.data;
+
   const { data: offer, error: offerError } = await supabase
     .from("offers")
     .insert({
       org_id: orgId,
-      ...parsed.data,
+      ...rest,
+      name: title,
       status: "draft",
       total_net: 0,
       total_tax: 0,
