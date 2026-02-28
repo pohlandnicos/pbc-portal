@@ -593,6 +593,7 @@ function OfferEditor() {
       const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(urlOfferId)}`;
       window.history.replaceState(null, '', newUrl);
       setLoading(true);
+      setJustLoaded(true); // Set BEFORE loading to block autosave immediately
       setError(null);
       try {
         const res = await fetch(`/api/offers/${urlOfferId}`, { cache: "no-store" });
@@ -716,8 +717,7 @@ function OfferEditor() {
         lastPositionsSnapshotRef.current = loadedPositionsSnapshot;
         console.log("[Load] Set positions snapshot to prevent autosave overwrite");
         
-        // Prevent autosave for 3 seconds after loading to allow UI to update
-        setJustLoaded(true);
+        // Re-enable autosave after 3 seconds (justLoaded was set to true before loading started)
         setTimeout(() => {
           setJustLoaded(false);
           console.log("[Load] Autosave re-enabled after load delay");
