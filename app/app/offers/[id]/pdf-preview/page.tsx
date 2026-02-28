@@ -403,8 +403,8 @@ export default function OfferPdfPreviewPage() {
           return (
             <div
               key={pageIndex}
-              className={`${isInIframe ? 'w-full' : 'mx-auto'} rounded bg-white shadow`}
-              style={isInIframe ? {} : { width: "210mm", height: "297mm" }}
+              className={`${isInIframe ? '' : 'mx-auto'} rounded bg-white shadow`}
+              style={{ width: "210mm", height: "297mm", maxWidth: isInIframe ? "100%" : undefined }}
             >
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
