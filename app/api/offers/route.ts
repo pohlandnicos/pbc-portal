@@ -19,7 +19,11 @@ export async function GET(request: NextRequest) {
   const { orgId } = await getCurrentOrgId();
   if (!orgId) return NextResponse.json({ error: "no_org" }, { status: 403 });
 
-  const { data, error } = await supabase
+  const { searchParams } = new URL(request.url);
+  const customerId = searchParams.get("customer_id");
+  const projectId = searchParams.get("project_id");
+
+  let q = supabase
     .from("offers")
     .select(`
       id,
@@ -32,8 +36,12 @@ export async function GET(request: NextRequest) {
       customer_id,
       project_id
     `)
-    .eq("org_id", orgId)
-    .order("created_at", { ascending: false });
+    .eq("org_id", orgId);
+
+  if (customerId) q = q.eq("customer_id", customerId);
+  if (projectId) q = q.eq("project_id", projectId);
+
+  const { data, error } = await q.order("created_at", { ascending: false });
 
   if (error) {
     return NextResponse.json(

@@ -64,6 +64,22 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   const projects = projectsRes?.ok ? (projectsJson?.data ?? []) : [];
 
+  const offersRes = await fetch(
+    `${origin}/api/offers?customer_id=${encodeURIComponent(id)}`,
+    {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    }
+  ).catch(() => null);
+
+  const offersJson = (await offersRes?.json().catch(() => null)) as
+    | { data?: any[]; error?: string; message?: string }
+    | null;
+
+  const offers = offersRes?.ok ? (offersJson?.data ?? []) : [];
+
   const name = customer
     ? customer.type === "company"
       ? customer.company_name
@@ -214,7 +230,42 @@ export default async function CustomerDetailPage({ params }: Props) {
 
           <div className="rounded-xl border border-zinc-200 bg-white">
             <div className="border-b border-zinc-200 px-4 py-3 font-semibold">Angebote</div>
-            <div className="p-4 text-sm text-zinc-900">Noch keine Angebote vorhanden.</div>
+            <div className="p-4">
+              <table className="w-full text-sm">
+                <thead className="border-b border-zinc-200 text-left text-zinc-800">
+                  <tr>
+                    <th className="py-2 pr-3 font-medium">Datum</th>
+                    <th className="py-2 pr-3 font-medium">Nummer</th>
+                    <th className="py-2 pr-3 font-medium">Status</th>
+                    <th className="py-2 pr-3 font-medium">Name</th>
+                    <th className="py-2 font-medium text-right">Betrag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {offers.length === 0 ? (
+                    <tr>
+                      <td className="py-3" colSpan={5}>
+                        Noch keine Angebote vorhanden.
+                      </td>
+                    </tr>
+                  ) : (
+                    offers.map((o: any) => (
+                      <tr key={o.id} className="border-b border-zinc-200 last:border-b-0">
+                        <td className="py-3 pr-3">
+                          <a className="underline" href={`/app/offers/${o.id}`}>{o.offer_date ?? ""}</a>
+                        </td>
+                        <td className="py-3 pr-3">{o.offer_number ?? "—"}</td>
+                        <td className="py-3 pr-3">{o.status ?? ""}</td>
+                        <td className="py-3 pr-3">
+                          <a className="underline" href={`/app/offers/${o.id}`}>{o.title ?? ""}</a>
+                        </td>
+                        <td className="py-3 text-right">{typeof o.total_gross === "number" ? `${o.total_gross.toFixed(2)} €` : typeof o.total_net === "number" ? `${o.total_net.toFixed(2)} €` : "—"}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="rounded-xl border border-zinc-200 bg-white">
