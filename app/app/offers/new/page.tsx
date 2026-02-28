@@ -228,6 +228,7 @@ function OfferEditor() {
       const res = await fetch(`/api/offers/${offerId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
