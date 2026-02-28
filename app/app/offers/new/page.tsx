@@ -207,13 +207,13 @@ function OfferEditor() {
     }
     try {
       const payload = {
-        title: title,
-        customer_id: customerId,
+        title: title || undefined,
+        customer_id: customerId || undefined,
         project_id: projectId || undefined,
         offer_date: offerDate ? new Date(offerDate).toISOString() : undefined,
-        intro_salutation: introSalutation,
-        intro_body_html: introText,
-        outro_body_html: outroText,
+        intro_salutation: introSalutation || undefined,
+        intro_body_html: introText || undefined,
+        outro_body_html: outroText || undefined,
         payment_due_days: paymentDueDays,
         discount_percent: discountPercent ?? undefined,
         discount_days: discountDays ?? undefined,
