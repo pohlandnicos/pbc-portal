@@ -388,9 +388,11 @@ export default function OfferPdfPreviewPage() {
             margin: 0 !important;
             padding: 0 !important;
             overflow-x: hidden !important;
+            overflow-y: scroll !important;
             width: 100vw !important;
             max-width: 100vw !important;
             background: white !important;
+            scrollbar-gutter: stable !important;
           }
           main {
             margin: 0 !important;
@@ -401,6 +403,10 @@ export default function OfferPdfPreviewPage() {
             margin: 0 !important;
             padding: 0 !important;
             max-width: none !important;
+          }
+          ::-webkit-scrollbar {
+            width: 0px !important;
+            background: transparent !important;
           }
         `}</style>
       )}
