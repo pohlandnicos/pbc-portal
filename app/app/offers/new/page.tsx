@@ -333,6 +333,8 @@ function OfferEditor() {
   const autosavePositionsTimerRef = useRef<number | null>(null);
   const lastOfferSnapshotRef = useRef<string>("");
   const lastPositionsSnapshotRef = useRef<string>("");
+  const autosaveOfferLockRef = useRef<boolean>(false);
+  const autosavePositionsLockRef = useRef<boolean>(false);
 
   function buildOfferSnapshot() {
     return JSON.stringify({
@@ -384,28 +386,40 @@ function OfferEditor() {
   }
 
   async function autosaveOfferNow() {
-    const id = await ensureDraftExists();
-    if (!id) return;
-    setAutosaveStatus("saving");
+    if (autosaveOfferLockRef.current) return;
+    autosaveOfferLockRef.current = true;
     try {
-      await updateDraftOffer(id, true);
-      setAutosaveStatus("saved");
-    } catch (e) {
-      setAutosaveStatus("error");
-      throw e;
+      const id = await ensureDraftExists();
+      if (!id) return;
+      setAutosaveStatus("saving");
+      try {
+        await updateDraftOffer(id, true);
+        setAutosaveStatus("saved");
+      } catch (e) {
+        setAutosaveStatus("error");
+        console.error("Autosave offer failed:", e);
+      }
+    } finally {
+      autosaveOfferLockRef.current = false;
     }
   }
 
   async function autosavePositionsNow() {
-    const id = await ensureDraftExists();
-    if (!id) return;
-    setAutosaveStatus("saving");
+    if (autosavePositionsLockRef.current) return;
+    autosavePositionsLockRef.current = true;
     try {
-      await syncGroupsAndItemsToOffer(id);
-      setAutosaveStatus("saved");
-    } catch (e) {
-      setAutosaveStatus("error");
-      throw e;
+      const id = await ensureDraftExists();
+      if (!id) return;
+      setAutosaveStatus("saving");
+      try {
+        await syncGroupsAndItemsToOffer(id);
+        setAutosaveStatus("saved");
+      } catch (e) {
+        setAutosaveStatus("error");
+        console.error("Autosave positions failed:", e);
+      }
+    } finally {
+      autosavePositionsLockRef.current = false;
     }
   }
 
