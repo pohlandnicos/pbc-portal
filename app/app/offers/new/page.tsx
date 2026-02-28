@@ -950,10 +950,10 @@ function OfferEditor() {
         renderTrigger={() => null}
       />
 
-      <div className="container mx-auto">
+      <div className="container mx-auto px-6">
         <div className="space-y-6">
           {/* Header Bar */}
-          <div className="px-6 py-6 flex items-center justify-between">
+          <div className="py-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link
                 href="/app/offers"
