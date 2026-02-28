@@ -1348,9 +1348,10 @@ function OfferEditor() {
             </div>
             <div className="flex-1 overflow-auto">
               <iframe
-                src={`/pdf-preview/${existingOfferId}`}
+                src={`/app/offers/${existingOfferId}/pdf-preview`}
                 className="w-full h-full border-0"
                 title="PDF Vorschau"
+                style={{colorScheme: 'normal'}}
               />
             </div>
           </div>

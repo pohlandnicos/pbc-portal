@@ -84,9 +84,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('collapseSidebar', handleCollapse as EventListener);
   }, []);
 
+  // Detect if we're in an iframe
+  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+
   return (
     <div className="flex h-screen bg-zinc-50 text-zinc-900 overflow-hidden">
-      {/* Sidebar */}
+      {/* Sidebar - hidden when in iframe */}
+      {!isInIframe && (
       <aside className={`${isOpen ? 'w-64' : 'w-20'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300 h-screen overflow-y-auto`}>
         {/* Logo */}
         <div className="p-6 border-b border-zinc-200">
@@ -140,6 +144,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </button>
         </div>
       </aside>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 h-screen overflow-y-auto">
