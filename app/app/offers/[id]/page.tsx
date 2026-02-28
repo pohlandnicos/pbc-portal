@@ -1,9 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { cookies, headers } from "next/headers";
 
 type Offer = {
   id: string;
@@ -63,100 +59,67 @@ type Template = {
   is_default: boolean;
 };
 
-export default function OfferPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
-  const urlParams = useParams<{ id: string }>();
-  const id = typeof urlParams?.id === "string" ? urlParams.id : params?.id;
+export default async function OfferPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [offer, setOffer] = useState<Offer | null>(null);
-  const [groups, setGroups] = useState<OfferGroup[]>([]);
-  const [items, setItems] = useState<Record<string, OfferItem[]>>({});
-  const [templates, setTemplates] = useState<Template[]>([]);
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const origin = host ? `${proto}://${host}` : "";
 
-  // Lade Angebot und Gruppen
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      setError(null);
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map(({ name, value }) => `${name}=${value}`)
+    .join("; ");
 
-      try {
-        if (!id) {
-          setError("Ungültige Angebots-ID");
-          return;
-        }
+  const [offerRes, templatesRes] = await Promise.all([
+    fetch(`${origin}/api/offers/${id}`, {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    }).catch(() => null),
+    fetch(`${origin}/api/settings/offer-templates?doc_type=offer`, {
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+      },
+    }).catch(() => null),
+  ]);
 
-        const [offerRes, templatesRes] = await Promise.all([
-          fetch(`/api/offers/${id}`, { cache: "no-store" }),
-          fetch(`/api/settings/offer-templates?doc_type=offer`, { cache: "no-store" }),
-        ]);
+  const offerJson = (await offerRes?.json().catch(() => null)) as
+    | { data?: any; error?: string; message?: string }
+    | null;
 
-        const offerJson = (await offerRes.json().catch(() => null)) as
-          | { data?: any; error?: string; message?: string }
-          | null;
+  const templatesJson = (await templatesRes?.json().catch(() => null)) as
+    | { data?: any[]; error?: string; message?: string }
+    | null;
 
-        if (!offerRes.ok) {
-          throw new Error(
-            offerJson?.message ?? offerJson?.error ?? `Laden fehlgeschlagen (HTTP ${offerRes.status})`
-          );
-        }
+  const offerData = offerRes?.ok ? offerJson?.data : null;
+  const templates = templatesRes?.ok ? ((templatesJson?.data ?? []) as Template[]) : [];
 
-        const offerData = offerJson?.data;
-        if (!offerData) throw new Error("Angebot nicht gefunden");
+  const offer: Offer | null = offerData
+    ? ({
+        ...(offerData as Offer),
+        title: ((offerData as any)?.title ?? (offerData as any)?.name ?? "").toString(),
+      } as Offer)
+    : null;
 
-        setOffer({
-          ...(offerData as Offer),
-          title: ((offerData as any)?.title ?? (offerData as any)?.name ?? "").toString(),
-        });
-
-        const loadedGroups = ((offerData as any)?.groups ?? []) as Array<OfferGroup & { offer_items?: OfferItem[] }>;
-        setGroups(loadedGroups);
-
-        const itemsByGroup: Record<string, OfferItem[]> = {};
-        for (const g of loadedGroups) {
-          itemsByGroup[g.id] = ((g as any).offer_items ?? []) as OfferItem[];
-        }
-        setItems(itemsByGroup);
-
-        if (templatesRes.ok) {
-          const templatesJson = (await templatesRes.json().catch(() => null)) as
-            | { data?: Template[]; error?: string; message?: string }
-            | null;
-          setTemplates(templatesJson?.data ?? []);
-        } else {
-          setTemplates([]);
-        }
-      } catch (err) {
-        console.error(err);
-        setError(err instanceof Error ? err.message : "Fehler beim Laden");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void load();
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="rounded-xl border border-zinc-200 bg-white p-4">
-            <h1 className="text-lg font-medium mb-4">Angebot wird geladen...</h1>
-          </div>
-        </div>
-      </div>
-    );
+  const groups = offerData ? (((offerData as any)?.groups ?? []) as Array<OfferGroup & { offer_items?: OfferItem[] }>) : [];
+  const items: Record<string, OfferItem[]> = {};
+  for (const g of groups) {
+    items[g.id] = ((g as any).offer_items ?? []) as OfferItem[];
   }
 
-  if (error || !offer) {
+  if (!offerRes?.ok || !offer) {
+    const msg = offerJson?.message ?? offerJson?.error ?? "Fehler beim Laden";
     return (
       <div className="min-h-screen bg-zinc-50">
         <div className="container mx-auto px-4 py-8">
           <div className="rounded-xl border border-zinc-200 bg-white p-4">
             <h1 className="text-lg font-medium mb-4">Fehler</h1>
-            <p className="text-sm text-zinc-600">{error}</p>
+            <p className="text-sm text-zinc-600">{msg}</p>
           </div>
         </div>
       </div>
