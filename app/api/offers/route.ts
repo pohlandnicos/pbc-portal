@@ -45,7 +45,12 @@ export async function GET(request: NextRequest) {
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: "db_error" }, { status: 500 });
+  if (error) {
+    return NextResponse.json(
+      { error: "db_error", message: error.message, details: error },
+      { status: 500 }
+    );
+  }
   return NextResponse.json({ data });
 }
 
