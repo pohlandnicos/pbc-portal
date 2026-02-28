@@ -542,6 +542,14 @@ function OfferEditor() {
         const d = json?.data;
         if (!d) throw new Error("Angebot nicht gefunden");
 
+        console.log("[Load] Loaded offer data from API:", {
+          title: d.title,
+          name: d.name,
+          intro_salutation: d.intro_salutation,
+          intro_body_html: d.intro_body_html,
+          outro_body_html: d.outro_body_html,
+        });
+
         setCustomerId(d.customer_id ?? "");
         setProjectId(d.project_id ?? "");
         setTitle(d.title ?? d.name ?? "Angebot");
@@ -549,6 +557,13 @@ function OfferEditor() {
         setIntroSalutation(d.intro_salutation ?? "Sehr geehrte Damen und Herren,");
         setIntroText(d.intro_body_html ?? "");
         setOutroText(d.outro_body_html ?? "");
+
+        console.log("[Load] Set state values:", {
+          title: d.title ?? d.name ?? "Angebot",
+          introSalutation: d.intro_salutation ?? "Sehr geehrte Damen und Herren,",
+          introText: d.intro_body_html ?? "",
+          outroText: d.outro_body_html ?? "",
+        });
 
         setPaymentDueDays(d.payment_due_days ?? 7);
         setDiscountPercent(d.discount_percent ?? null);
