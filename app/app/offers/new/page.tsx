@@ -288,16 +288,19 @@ function OfferEditor() {
       return null;
     }
     try {
+      const payload = {
+        title: title || "Angebot",
+        customer_id: customerId,
+        project_id: projectId || null,
+        offer_date: offerDate || new Date().toISOString().split("T")[0],
+      };
+      console.log("[CreateDraft] Sending payload:", payload);
+      
       const res = await fetch("/api/offers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          title: title || "Angebot",
-          customer_id: customerId,
-          project_id: projectId || null,
-          offer_date: offerDate || new Date().toISOString().split("T")[0],
-        }),
+        body: JSON.stringify(payload),
       });
       const json = (await res.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
