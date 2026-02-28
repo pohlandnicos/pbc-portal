@@ -41,6 +41,7 @@ type OfferGroup = {
 
 type OfferItem = {
   id: string;
+  offer_group_id: string;
   type: "material" | "labor" | "mixed" | "other";
   position_index: string;
   name: string;
@@ -94,7 +95,10 @@ export default function OfferPage({ params }: { params: { id: string } }) {
         if (offerError) throw offerError;
         if (!offer) throw new Error("Angebot nicht gefunden");
 
-        setOffer(offer as Offer);
+        setOffer({
+          ...(offer as Offer),
+          title: ((offer as any)?.name ?? (offer as any)?.title ?? "").toString(),
+        });
 
         // Gruppen laden
         const { data: groups, error: groupsError } = await supabase
@@ -121,10 +125,10 @@ export default function OfferPage({ params }: { params: { id: string } }) {
         // Positionen nach Gruppen gruppieren
         const itemsByGroup: Record<string, OfferItem[]> = {};
         for (const item of items as OfferItem[]) {
-          if (!itemsByGroup[item.id]) {
-            itemsByGroup[item.id] = [];
+          if (!itemsByGroup[item.offer_group_id]) {
+            itemsByGroup[item.offer_group_id] = [];
           }
-          itemsByGroup[item.id].push(item);
+          itemsByGroup[item.offer_group_id].push(item);
         }
         setItems(itemsByGroup);
 
