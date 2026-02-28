@@ -42,12 +42,11 @@ function OfferEditor() {
   const searchParams = useSearchParams();
   const urlOfferIdParam = searchParams.get("offer_id") ?? "";
   
-  // Try to restore offer_id from localStorage if URL doesn't have it
+  // Only use localStorage if URL had offer_id initially (to restore after reload)
+  // Don't use localStorage for completely new offers (no URL param at all)
   const [urlOfferId, setUrlOfferId] = useState(() => {
     if (urlOfferIdParam) return urlOfferIdParam;
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('current_offer_id') ?? "";
-    }
+    // Don't restore from localStorage for new offers - only for reloads
     return "";
   });
 
@@ -559,13 +558,13 @@ function OfferEditor() {
     }
   }, [loading, existingOfferId]);
 
-  // Restore URL from localStorage if missing
+  // Clear localStorage when opening new offer page without offer_id
   useEffect(() => {
-    if (!urlOfferIdParam && urlOfferId) {
-      const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(urlOfferId)}`;
-      window.history.replaceState(null, '', newUrl);
+    if (!urlOfferIdParam && typeof window !== 'undefined') {
+      localStorage.removeItem('current_offer_id');
+      console.log("[Init] Cleared localStorage for new offer");
     }
-  }, [urlOfferIdParam, urlOfferId]);
+  }, [urlOfferIdParam]);
 
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
   useEffect(() => {
