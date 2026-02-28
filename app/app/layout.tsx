@@ -77,9 +77,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 text-zinc-900">
+    <div className="flex h-screen bg-zinc-50 text-zinc-900 overflow-hidden">
       {/* Sidebar */}
-      <aside className={`${isOpen ? 'w-64' : 'w-20'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300`}>
+      <aside className={`${isOpen ? 'w-64' : 'w-20'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300 h-screen overflow-y-auto`}>
         {/* Logo */}
         <div className="p-6 border-b border-zinc-200">
           {isOpen ? (
@@ -134,7 +134,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 h-screen overflow-y-auto">
         <div className="mx-auto max-w-7xl px-6 py-8">{children}</div>
       </main>
     </div>
