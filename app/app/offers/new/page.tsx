@@ -684,12 +684,12 @@ function OfferEditor() {
         lastPositionsSnapshotRef.current = loadedPositionsSnapshot;
         console.log("[Load] Set positions snapshot to prevent autosave overwrite");
         
-        // Prevent autosave for 2 seconds after loading to allow UI to update
+        // Prevent autosave for 3 seconds after loading to allow UI to update
         setJustLoaded(true);
         setTimeout(() => {
           setJustLoaded(false);
           console.log("[Load] Autosave re-enabled after load delay");
-        }, 2000);
+        }, 3000);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Fehler beim Laden");
       } finally {
