@@ -950,10 +950,10 @@ function OfferEditor() {
         renderTrigger={() => null}
       />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4">
         <div className="space-y-6">
           {/* Header Bar */}
-          <div className="bg-white border-b border-zinc-200 -mx-6 -mt-8 px-6 py-4">
+          <div className="py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Link
