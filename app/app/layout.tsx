@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -73,14 +74,28 @@ const navItems = [
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-zinc-50 text-zinc-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col">
+      <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300`}>
         {/* Logo */}
-        <div className="p-6 border-b border-zinc-200">
-          <div className="text-xl font-bold text-zinc-900">pbc portal</div>
+        <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
+          {!isCollapsed && <div className="text-xl font-bold text-zinc-900">pbc portal</div>}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 rounded-lg hover:bg-zinc-100 text-zinc-600"
+            title={isCollapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isCollapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              )}
+            </svg>
+          </button>
         </div>
 
         {/* Navigation */}
@@ -98,10 +113,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       ? "bg-blue-50 text-blue-700"
                       : "text-zinc-700 hover:bg-zinc-100"
                   }
+                  ${isCollapsed ? 'justify-center' : ''}
                 `}
+                title={isCollapsed ? item.label : undefined}
               >
                 {item.icon}
-                <span>{item.label}</span>
+                {!isCollapsed && <span>{item.label}</span>}
               </Link>
             );
           })}
