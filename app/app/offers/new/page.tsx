@@ -966,6 +966,33 @@ function OfferEditor() {
             </div>
 
             <div className="flex items-center gap-2">
+              {autosaveStatus !== "idle" && (
+                <span className="text-xs text-zinc-500">
+                  {autosaveStatus === "saving" && "Speichert..."}
+                  {autosaveStatus === "saved" && "✓ Gespeichert"}
+                  {autosaveStatus === "error" && "⚠ Fehler"}
+                </span>
+              )}
+              <button
+                type="button"
+                className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50 disabled:opacity-50"
+                disabled={submitting || !existingOfferId}
+                onClick={async () => {
+                  if (!existingOfferId) return;
+                  setSubmitting(true);
+                  try {
+                    await updateDraftOffer(existingOfferId, false);
+                    await syncGroupsAndItemsToOffer(existingOfferId);
+                    alert("Angebot erfolgreich gespeichert!");
+                  } catch (e) {
+                    alert("Fehler beim Speichern: " + (e instanceof Error ? e.message : "Unbekannter Fehler"));
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              >
+                💾 Speichern
+              </button>
               <button
                 type="button"
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
