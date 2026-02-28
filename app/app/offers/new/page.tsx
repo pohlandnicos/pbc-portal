@@ -787,9 +787,9 @@ function OfferEditor() {
   }, [selectedCustomer?.id, selectedCustomer?.type, selectedCustomer?.salutation, selectedCustomer?.lastName, introSalutationEdited]);
 
   useEffect(() => {
-    // Reset manual override whenever customer changes, but NOT during initial load
+    // Reset manual override whenever customer changes, but ONLY for new offers (not existing ones)
     if (loading || justLoaded) return;
-    if (!existingOfferId) return; // Don't reset for new offers
+    if (existingOfferId) return; // Don't reset for existing offers - they have saved salutations
     setIntroSalutationEdited(false);
   }, [selectedCustomer?.id, loading, justLoaded, existingOfferId]);
 
