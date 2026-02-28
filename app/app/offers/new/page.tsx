@@ -291,7 +291,7 @@ function OfferEditor() {
       const payload = {
         title: title || "Angebot",
         customer_id: customerId,
-        project_id: projectId || null,
+        project_id: projectId || undefined,
         offer_date: offerDate || new Date().toISOString().split("T")[0],
       };
       console.log("[CreateDraft] Sending payload:", payload);
