@@ -481,6 +481,7 @@ function OfferEditor() {
 
   // Autosave: offer fields
   useEffect(() => {
+    if (loading) return; // Don't autosave while loading data
     scheduleAutosaveOffer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -496,13 +497,15 @@ function OfferEditor() {
     discountDays,
     taxRate,
     showVatForLabor,
+    loading,
   ]);
 
   // Autosave: groups/items
   useEffect(() => {
+    if (loading) return; // Don't autosave while loading data
     scheduleAutosavePositions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, items]);
+  }, [groups, items, loading]);
 
   // Best-effort flush when switching tabs (not on reload/close, as that causes CORS errors)
   useEffect(() => {
