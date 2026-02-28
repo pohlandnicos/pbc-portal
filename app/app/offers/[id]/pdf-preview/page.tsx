@@ -376,9 +376,12 @@ export default function OfferPdfPreviewPage() {
     );
   }
 
+  // Detect if we're in an iframe
+  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+
   return (
-    <div className="min-h-screen bg-zinc-100 px-4 py-8">
-      <div className="mx-auto max-w-[900px] space-y-8">
+    <div className={`min-h-screen bg-zinc-100 ${isInIframe ? '' : 'px-4 py-8'}`}>
+      <div className={`mx-auto space-y-8 ${isInIframe ? 'max-w-full' : 'max-w-[900px]'}`}>
         {pages.map((pageGroups, pageIndex) => {
           const pageNo = pageIndex + 1;
           const pageCount = pages.length;
