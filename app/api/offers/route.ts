@@ -191,22 +191,20 @@ export async function POST(request: NextRequest) {
       templateUpdate.outro_body_html = outroTemplate.body_html;
     }
 
-    if (Object.keys(templateUpdate).length === 0) {
-      return NextResponse.json({ data: offer });
-    }
+    if (Object.keys(templateUpdate).length > 0) {
+      const { error: templateError } = await supabase
+        .from("offers")
+        .update({
+          ...templateUpdate
+        })
+        .eq("id", offer.id);
 
-    const { error: templateError } = await supabase
-      .from("offers")
-      .update({
-        ...templateUpdate
-      })
-      .eq("id", offer.id);
-
-    if (templateError) {
-      return NextResponse.json(
-        { error: "db_error", message: templateError.message, details: templateError },
-        { status: 500 }
-      );
+      if (templateError) {
+        return NextResponse.json(
+          { error: "db_error", message: templateError.message, details: templateError },
+          { status: 500 }
+        );
+      }
     }
   }
 
