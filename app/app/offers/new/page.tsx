@@ -565,8 +565,14 @@ function OfferEditor() {
 
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
   useEffect(() => {
+    console.log("[LoadEffect] useEffect triggered with urlOfferId:", urlOfferId);
     async function loadDraft() {
-      if (!urlOfferId) return;
+      if (!urlOfferId) {
+        console.log("[LoadEffect] No urlOfferId - skipping load");
+        setLoading(false);
+        return;
+      }
+      console.log("[LoadEffect] Starting load for offer:", urlOfferId);
       setExistingOfferId(urlOfferId);
       // Save to localStorage and ensure URL has offer_id parameter
       localStorage.setItem('current_offer_id', urlOfferId);
