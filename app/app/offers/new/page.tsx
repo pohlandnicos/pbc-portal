@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { OfferGroup, OfferItem } from "@/types/offer";
 import { handleAddGroup, handleMoveGroup, handleDeleteGroup, handleDuplicateGroup } from "@/lib/offer-handlers";
@@ -30,10 +30,22 @@ const emptyItem: OfferItem = {
 };
 
 export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-zinc-700">Lädt...</div>}>
+      <OfferEditor />
+    </Suspense>
+  );
+}
+
+function OfferEditor() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlOfferId = searchParams.get("offer_id") ?? "";
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [existingOfferId, setExistingOfferId] = useState<string>("");
   const [customers, setCustomers] = useState<Array<{
     id: string;
     type?: "private" | "company";
@@ -109,25 +121,18 @@ export default function Page() {
       throw new Error("Angebotsgruppen konnten nicht geladen werden");
     }
 
+    // Beim Bearbeiten eines bestehenden Entwurfs: bestehende Gruppen löschen,
+    // damit es keine Duplikate gibt (Items hängen an Gruppen und werden damit ebenfalls entfernt).
+    if (existingOfferId && existingOfferId === offerId) {
+      for (const eg of existingGroups) {
+        await fetch(`/api/offers/${offerId}/groups/${eg.id}`, { method: "DELETE" });
+      }
+    }
+
     const groupIdByLocalIndex = new Map<number, string>();
 
-    // 1) Erste existierende Gruppe als Basis verwenden (wird beim Offer-Create automatisch erzeugt)
-    const firstExisting = existingGroups[0];
-    const firstLocal = localGroups[0];
-
-    // Titel/Index angleichen
-    if (firstLocal?.title && firstLocal.title !== firstExisting.title) {
-      await fetch(`/api/offers/${offerId}/groups/${firstExisting.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: firstLocal.title, index: 1 }),
-      });
-    }
-    groupIdByLocalIndex.set(firstLocal.index, firstExisting.id);
-
-    // 2) Weitere Gruppen anlegen
-    for (let i = 1; i < localGroups.length; i++) {
-      const g = localGroups[i];
+    // Gruppen neu anlegen
+    for (const g of localGroups) {
       const createGroupRes = await fetch(`/api/offers/${offerId}/groups`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -137,6 +142,7 @@ export default function Page() {
       const createGroupJson = (await createGroupRes.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
         | null;
+
       if (!createGroupRes.ok) {
         const apiMessage =
           (typeof createGroupJson?.message === "string" && createGroupJson.message.length > 0
@@ -151,7 +157,7 @@ export default function Page() {
       const newGroupId = createGroupJson?.data?.id;
       if (!newGroupId) throw new Error("Gruppe anlegen fehlgeschlagen");
 
-      // Index sauber setzen (API erstellt fortlaufend, wir setzen ihn explizit passend)
+      // Index sauber setzen
       await fetch(`/api/offers/${offerId}/groups/${newGroupId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -161,7 +167,7 @@ export default function Page() {
       groupIdByLocalIndex.set(g.index, newGroupId);
     }
 
-    // 3) Items für jede Gruppe anlegen
+    // Items für jede Gruppe anlegen
     for (const g of localGroups) {
       const groupId = groupIdByLocalIndex.get(g.index);
       if (!groupId) continue;
@@ -192,6 +198,48 @@ export default function Page() {
           throw new Error(apiMessage ?? `Position anlegen fehlgeschlagen (HTTP ${itemRes.status})`);
         }
       }
+    }
+  }
+
+  async function updateDraftOffer(offerId: string) {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/offers/${offerId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          customer_id: customerId,
+          project_id: projectId || undefined,
+          offer_date: offerDate,
+          intro_salutation: introSalutation,
+          intro_body_html: introText,
+          outro_body_html: outroText,
+          payment_due_days: paymentDueDays,
+          discount_percent: discountPercent ?? undefined,
+          discount_days: discountDays ?? undefined,
+          tax_rate: taxRate,
+          show_vat_for_labor: showVatForLabor,
+        }),
+      });
+
+      const json = (await res.json().catch(() => null)) as
+        | { data?: { id?: string } | null; error?: string; message?: string }
+        | null;
+
+      if (!res.ok) {
+        const apiMessage =
+          (typeof json?.message === "string" && json.message.length > 0
+            ? json.message
+            : null) ??
+          (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
+        throw new Error(apiMessage ?? `Speichern fehlgeschlagen (HTTP ${res.status})`);
+      }
+
+      return offerId;
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -277,6 +325,83 @@ export default function Page() {
   useEffect(() => {
     void loadCustomers();
   }, []);
+
+  // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
+  useEffect(() => {
+    async function loadDraft() {
+      if (!urlOfferId) return;
+      setExistingOfferId(urlOfferId);
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/offers/${urlOfferId}`, { cache: "no-store" });
+        const json = (await res.json().catch(() => null)) as
+          | { data?: any; error?: string; message?: string }
+          | null;
+        if (!res.ok) {
+          throw new Error(json?.message ?? json?.error ?? `Laden fehlgeschlagen (HTTP ${res.status})`);
+        }
+
+        const d = json?.data;
+        if (!d) throw new Error("Angebot nicht gefunden");
+
+        setCustomerId(d.customer_id ?? "");
+        setProjectId(d.project_id ?? "");
+        setTitle(d.title ?? d.name ?? "Angebot");
+        setOfferDate(d.offer_date ?? new Date().toISOString().split("T")[0]);
+        setIntroSalutation(d.intro_salutation ?? "Sehr geehrte Damen und Herren,");
+        setIntroText(d.intro_body_html ?? "");
+        setOutroText(d.outro_body_html ?? "");
+
+        setPaymentDueDays(d.payment_due_days ?? 7);
+        setDiscountPercent(d.discount_percent ?? null);
+        setDiscountDays(d.discount_days ?? null);
+        setTaxRate(d.tax_rate ?? 19);
+        setShowVatForLabor(Boolean(d.show_vat_for_labor));
+
+        const loadedGroups = (d.groups ?? []) as Array<any>;
+        setGroups(
+          loadedGroups.map((g: any) => ({
+            id: g.id,
+            index: g.index,
+            title: g.title,
+            material_cost: g.material_cost ?? 0,
+            labor_cost: g.labor_cost ?? 0,
+            other_cost: g.other_cost ?? 0,
+            material_margin: g.material_margin ?? 0,
+            labor_margin: g.labor_margin ?? 0,
+            other_margin: g.other_margin ?? 0,
+            total_net: g.total_net ?? 0,
+          }))
+        );
+
+        const byGroup: Record<string, OfferItem[]> = {};
+        for (const g of loadedGroups) {
+          byGroup[g.id] = (g.offer_items ?? []).map((it: any, idx: number) => ({
+            id: it.id ?? `${idx + 1}`,
+            type: it.type,
+            position_index: it.position_index ?? String(idx + 1),
+            name: it.name ?? "",
+            description: it.description ?? null,
+            qty: it.qty ?? 1,
+            unit: it.unit ?? "Stück",
+            purchase_price: it.purchase_price ?? 0,
+            markup_percent: it.markup_percent ?? 0,
+            margin_amount: it.margin_amount ?? 0,
+            unit_price: it.unit_price ?? 0,
+            line_total: it.line_total ?? 0,
+          }));
+        }
+        setItems(byGroup);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Fehler beim Laden");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadDraft();
+  }, [urlOfferId]);
 
   // Lade Projekte wenn Kunde ausgewählt
   useEffect(() => {
@@ -517,7 +642,7 @@ export default function Page() {
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
                 disabled={submitting}
                 onClick={async () => {
-                  const id = await createDraftOffer();
+                  const id = existingOfferId ? await updateDraftOffer(existingOfferId) : await createDraftOffer();
                   if (!id) return;
                   try {
                     await syncGroupsAndItemsToOffer(id);
