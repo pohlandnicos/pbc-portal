@@ -951,9 +951,9 @@ function OfferEditor() {
         renderTrigger={() => null}
       />
 
-      <div className={`flex gap-4 ${showPreview ? 'h-screen overflow-hidden' : ''}`}>
+      <div className={`flex gap-0 ${showPreview ? 'h-screen overflow-hidden' : ''}`}>
         {/* Editor Section */}
-        <div className={`${showPreview ? 'flex-1 overflow-y-auto' : 'w-full'} container mx-auto px-6`}>
+        <div className={`${showPreview ? 'w-[60%] overflow-y-auto' : 'w-full'} container mx-auto px-6`}>
         <div className="space-y-6">
           {/* Header Bar */}
           <div className="py-6 flex items-center justify-between">
@@ -1325,10 +1325,13 @@ function OfferEditor() {
 
         {/* PDF Preview Section */}
         {showPreview && existingOfferId && (
-          <div className="w-1/2 h-screen bg-white border-l border-zinc-200">
+          <div className="w-[40%] h-screen bg-zinc-100 border-l border-zinc-200 flex flex-col">
+            <div className="p-4 bg-white border-b border-zinc-200">
+              <h2 className="text-sm font-semibold text-zinc-900">PDF Vorschau</h2>
+            </div>
             <iframe
-              src={`/app/offers/${existingOfferId}/pdf-preview`}
-              className="w-full h-full"
+              src={`/api/offers/${existingOfferId}/pdf`}
+              className="w-full flex-1"
               title="PDF Vorschau"
             />
           </div>
