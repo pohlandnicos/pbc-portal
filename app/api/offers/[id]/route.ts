@@ -119,7 +119,7 @@ export async function PATCH(
   const { title, ...rest } = parsed.data;
   const updateData = {
     ...rest,
-    ...(title ? { name: title } : null)
+    ...(title ? { name: title } : {})
   };
 
   const { data, error } = await supabase
