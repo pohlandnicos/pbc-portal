@@ -524,6 +524,17 @@ function OfferEditor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingOfferId]);
 
+  // Reset snapshots after loading completes to prevent autosave with stale values
+  useEffect(() => {
+    if (!loading && existingOfferId) {
+      // Wait for next tick to ensure all state updates are applied
+      setTimeout(() => {
+        lastOfferSnapshotRef.current = buildOfferSnapshot();
+        lastPositionsSnapshotRef.current = buildPositionsSnapshot();
+      }, 0);
+    }
+  }, [loading, existingOfferId]);
+
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
   useEffect(() => {
     async function loadDraft() {
@@ -606,10 +617,6 @@ function OfferEditor() {
           }));
         }
         setItems(byGroup);
-
-        // Reset autosave snapshots to avoid immediate re-save loop.
-        lastOfferSnapshotRef.current = buildOfferSnapshot();
-        lastPositionsSnapshotRef.current = buildPositionsSnapshot();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Fehler beim Laden");
       } finally {
