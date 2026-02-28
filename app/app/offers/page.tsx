@@ -127,10 +127,10 @@ export default function OffersPage() {
                 <tr
                   key={r.id}
                   className="cursor-pointer hover:bg-zinc-50"
-                  onClick={() => router.push(`/app/offers/${r.id}`)}
+                  onClick={() => router.push(`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`)}
                 >
                   <td className="px-4 py-3">
-                    <Link href={`/app/offers/${r.id}`} className="hover:underline">
+                    <Link href={`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`} className="hover:underline">
                       {formatDateDE(r.offer_date)}
                     </Link>
                   </td>
@@ -157,7 +157,7 @@ export default function OffersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Link href={`/app/offers/${r.id}`} className="hover:underline">
+                    <Link href={`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`} className="hover:underline">
                       {r.title}
                     </Link>
                   </td>

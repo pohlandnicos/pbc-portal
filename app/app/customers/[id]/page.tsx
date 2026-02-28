@@ -252,12 +252,12 @@ export default async function CustomerDetailPage({ params }: Props) {
                     offers.map((o: any) => (
                       <tr key={o.id} className="border-b border-zinc-200 last:border-b-0">
                         <td className="py-3 pr-3">
-                          <a className="underline" href={`/app/offers/${o.id}`}>{o.offer_date ?? ""}</a>
+                          <a className="underline" href={`/app/offers/new?offer_id=${encodeURIComponent(o.id)}`}>{o.offer_date ?? ""}</a>
                         </td>
                         <td className="py-3 pr-3">{o.offer_number ?? "—"}</td>
                         <td className="py-3 pr-3">{o.status ?? ""}</td>
                         <td className="py-3 pr-3">
-                          <a className="underline" href={`/app/offers/${o.id}`}>{o.title ?? ""}</a>
+                          <a className="underline" href={`/app/offers/new?offer_id=${encodeURIComponent(o.id)}`}>{o.title ?? ""}</a>
                         </td>
                         <td className="py-3 text-right">{typeof o.total_gross === "number" ? `${o.total_gross.toFixed(2)} €` : typeof o.total_net === "number" ? `${o.total_net.toFixed(2)} €` : "—"}</td>
                       </tr>

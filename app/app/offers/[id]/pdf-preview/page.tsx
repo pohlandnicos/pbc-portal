@@ -379,7 +379,7 @@ export default function OfferPdfPreviewPage() {
   return (
     <div className="min-h-screen bg-zinc-100 px-4 py-8">
       <div className="mx-auto mb-4 flex max-w-[900px] items-center justify-between">
-        <Link href={`/app/offers/${id}`} className="text-sm text-zinc-600 hover:text-zinc-800">
+        <Link href={`/app/offers/new?offer_id=${encodeURIComponent(id)}`} className="text-sm text-zinc-600 hover:text-zinc-800">
           ← Zurück
         </Link>
         <div className="text-sm text-zinc-600">Vorschau</div>
