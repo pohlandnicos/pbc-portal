@@ -79,10 +79,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-zinc-50 text-zinc-900">
       {/* Sidebar */}
-      <aside className={`w-64 bg-white border-r border-zinc-200 flex flex-col transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-64'}`}>
+      <aside className={`${isOpen ? 'w-64' : 'w-20'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300`}>
         {/* Logo */}
         <div className="p-6 border-b border-zinc-200">
-          <div className="text-xl font-bold text-zinc-900">pbc portal</div>
+          {isOpen ? (
+            <div className="text-xl font-bold text-zinc-900">pbc portal</div>
+          ) : (
+            <div className="text-xl font-bold text-zinc-900 text-center">pbc</div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -100,33 +104,37 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                       ? "bg-blue-50 text-blue-700"
                       : "text-zinc-700 hover:bg-zinc-100"
                   }
+                  ${!isOpen ? 'justify-center' : ''}
                 `}
+                title={!isOpen ? item.label : undefined}
               >
                 {item.icon}
-                <span>{item.label}</span>
+                {isOpen && <span>{item.label}</span>}
               </Link>
             );
           })}
         </nav>
+
+        {/* Toggle Button at Bottom */}
+        <div className="border-t border-zinc-200">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full p-3 flex items-center justify-center hover:bg-zinc-50 text-zinc-400 hover:text-zinc-600 transition-colors"
+            title={isOpen ? "Sidebar einklappen" : "Sidebar ausklappen"}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              )}
+            </svg>
+          </button>
+        </div>
       </aside>
 
-      {/* Toggle Button - Fixed on left edge */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`fixed top-1/2 -translate-y-1/2 z-50 bg-white border border-zinc-200 rounded-r-lg p-2 shadow-lg hover:bg-zinc-50 transition-all ${isOpen ? 'left-64' : 'left-0'}`}
-        title={isOpen ? "Sidebar einklappen" : "Sidebar ausklappen"}
-      >
-        <svg className="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          )}
-        </svg>
-      </button>
-
       {/* Main Content */}
-      <main className={`flex-1 overflow-auto transition-all duration-300 ${isOpen ? 'ml-0' : '-ml-64'}`}>
+      <main className="flex-1 overflow-auto">
         <div className="mx-auto max-w-7xl px-6 py-8">{children}</div>
       </main>
     </div>
