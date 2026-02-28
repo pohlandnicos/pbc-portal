@@ -1340,7 +1340,7 @@ function OfferEditor() {
             <div className="flex-1 overflow-auto p-4 bg-zinc-50">
               <div className="bg-white shadow-lg mx-auto" style={{width: '210mm', minHeight: '297mm'}}>
                 <iframe
-                  src={`/app/offers/${existingOfferId}/pdf-preview?embed=true`}
+                  src={`/api/offers/${existingOfferId}/pdf-html`}
                   className="w-full h-full border-0"
                   style={{minHeight: '297mm'}}
                   title="PDF Vorschau"
