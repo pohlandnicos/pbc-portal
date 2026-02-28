@@ -17,14 +17,24 @@ export default function RichTextEditor({
 }: Props) {
   const minHeight = rows * 24;
   const editorRef = useRef<HTMLDivElement | null>(null);
-  const lastHtmlRef = useRef<string>(value || "");
+  const lastHtmlRef = useRef<string>("");
   const selectionRef = useRef<Range | null>(null);
+  const isFirstRenderRef = useRef<boolean>(true);
 
   useEffect(() => {
     const el = editorRef.current;
     if (!el) return;
 
     const next = value || "";
+    
+    // Always set value on first render, even if it matches lastHtmlRef
+    if (isFirstRenderRef.current) {
+      el.innerHTML = next;
+      lastHtmlRef.current = next;
+      isFirstRenderRef.current = false;
+      return;
+    }
+    
     if (next === lastHtmlRef.current) return;
 
     // Only sync DOM when the value changes from the outside.
