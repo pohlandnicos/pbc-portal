@@ -619,7 +619,25 @@ function OfferEditor() {
         setDiscountPercent(d.discount_percent ?? null);
         setDiscountDays(d.discount_days ?? null);
         setTaxRate(d.tax_rate ?? 19);
-        setShowVatForLabor(Boolean(d.show_vat_for_labor));
+        setShowVatForLabor(d.show_vat_for_labor ?? false);
+
+        // Set snapshots with loaded values to prevent autosave from overwriting
+        const loadedOfferSnapshot = JSON.stringify({
+          customerId: d.customer_id ?? "",
+          projectId: d.project_id ?? "",
+          title: d.title ?? d.name ?? "Angebot",
+          offerDate: d.offer_date ?? new Date().toISOString().split("T")[0],
+          introSalutation: d.intro_salutation ?? "Sehr geehrte Damen und Herren,",
+          introText: d.intro_body_html ?? "",
+          outroText: d.outro_body_html ?? "",
+          paymentDueDays: d.payment_due_days ?? 7,
+          discountPercent: d.discount_percent ?? null,
+          discountDays: d.discount_days ?? null,
+          taxRate: d.tax_rate ?? 19,
+          showVatForLabor: d.show_vat_for_labor ?? false,
+        });
+        lastOfferSnapshotRef.current = loadedOfferSnapshot;
+        console.log("[Load] Set offer snapshot to prevent autosave overwrite");
 
         const loadedGroups = (d.groups ?? []) as Array<any>;
         setGroups(
@@ -655,6 +673,30 @@ function OfferEditor() {
           }));
         }
         setItems(byGroup);
+
+        // Set positions snapshot with loaded values to prevent autosave from overwriting
+        const loadedPositionsSnapshot = JSON.stringify({
+          groups: loadedGroups.map((g: any) => ({
+            id: g.id,
+            index: g.index,
+            title: g.title,
+          })),
+          items: Object.entries(byGroup).flatMap(([gid, items]: [string, any]) =>
+            items.map((i: any) => ({
+              id: i.id,
+              group_id: gid,
+              position_index: i.position_index,
+              type: i.type,
+              name: i.name,
+              qty: i.qty,
+              unit: i.unit,
+              purchase_price: i.purchase_price,
+              markup_percent: i.markup_percent,
+            }))
+          ),
+        });
+        lastPositionsSnapshotRef.current = loadedPositionsSnapshot;
+        console.log("[Load] Set positions snapshot to prevent autosave overwrite");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Fehler beim Laden");
       } finally {
