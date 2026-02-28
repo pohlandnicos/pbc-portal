@@ -481,7 +481,7 @@ export default function OfferPdfPreviewPage() {
                   )}
                 </div>
 
-                <div className="flex-1 overflow-hidden pt-4">
+                <div className={isLast ? "overflow-hidden pt-4" : "flex-1 overflow-hidden pt-4"}>
                   {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
                   {pageGroups.map((g) => (
                     <div key={`${pageIndex}-${g.id}`} className="mt-6">
@@ -532,7 +532,7 @@ export default function OfferPdfPreviewPage() {
                 ) : null}
 
                 {isLast ? (
-                  <div className="mt-4 flex justify-end">
+                  <div className="mt-2 flex justify-end">
                     <div className="w-[90mm] border-t border-zinc-300 pt-3">
                       <div className="flex items-baseline justify-between text-[11px]">
                         <div className="text-zinc-700">Gesamt Netto</div>
@@ -549,6 +549,8 @@ export default function OfferPdfPreviewPage() {
                     </div>
                   </div>
                 ) : null}
+
+                <div className="flex-1" />
 
                 {footerColumns ? (
                   <div className="mt-auto border-t border-zinc-300 pt-2">
