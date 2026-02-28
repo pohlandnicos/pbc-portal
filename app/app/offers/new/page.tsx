@@ -1348,7 +1348,7 @@ function OfferEditor() {
             </div>
             <div className="flex-1 overflow-auto">
               <iframe
-                src={`/app/offers/${existingOfferId}/pdf-preview`}
+                src={`/pdf-preview/${existingOfferId}`}
                 className="w-full h-full border-0"
                 title="PDF Vorschau"
               />
