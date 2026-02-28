@@ -118,13 +118,11 @@ function OfferEditor() {
     }
 
     const existingGroups = (offerJson?.data?.groups ?? []).slice().sort((a, b) => a.index - b.index);
-    if (existingGroups.length === 0) {
-      throw new Error("Angebotsgruppen konnten nicht geladen werden");
-    }
 
     // Beim Bearbeiten eines bestehenden Entwurfs: bestehende Gruppen löschen,
     // damit es keine Duplikate gibt (Items hängen an Gruppen und werden damit ebenfalls entfernt).
-    if (existingOfferId && existingOfferId === offerId) {
+    // Wenn noch keine Gruppen existieren (neuer Entwurf), einfach überspringen.
+    if (existingOfferId && existingOfferId === offerId && existingGroups.length > 0) {
       for (const eg of existingGroups) {
         await fetch(`/api/offers/${offerId}/groups/${eg.id}`, { method: "DELETE" });
       }
