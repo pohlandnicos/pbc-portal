@@ -532,12 +532,6 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : null}
 
-                {isLast && data.outro_body_html ? (
-                  <div className="mt-6 text-[11px] text-zinc-800">
-                    {data.outro_body_html.replace(/<[^>]*>/g, "").trim()}
-                  </div>
-                ) : null}
-
                 {isLast ? (
                   <div className="mt-2 flex justify-end">
                     <div className="w-[90mm] pt-3">
@@ -554,6 +548,12 @@ export default function OfferPdfPreviewPage() {
                         <div>{currencyEUR(finalGross)}</div>
                       </div>
                     </div>
+                  </div>
+                ) : null}
+
+                {isLast && data.outro_body_html ? (
+                  <div className="mt-6 text-[12px] text-zinc-800">
+                    {data.outro_body_html.replace(/<[^>]*>/g, "").trim()}
                   </div>
                 ) : null}
 
