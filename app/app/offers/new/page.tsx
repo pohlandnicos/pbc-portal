@@ -504,28 +504,19 @@ function OfferEditor() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, items]);
 
-  // Best-effort flush when leaving/closing tab
+  // Best-effort flush when switching tabs (not on reload/close, as that causes CORS errors)
   useEffect(() => {
-    function flush() {
-      if (!existingOfferId) return;
-      // Best-effort; we don't block navigation.
-      void autosaveOfferNow().catch(() => null);
-      void autosavePositionsNow().catch(() => null);
-    }
-
     function onVisibilityChange() {
-      if (document.visibilityState === "hidden") flush();
-    }
-
-    function onBeforeUnload() {
-      flush();
+      if (document.visibilityState === "hidden" && existingOfferId) {
+        // Save when tab becomes hidden (user switches to another tab)
+        void autosaveOfferNow().catch(() => null);
+        void autosavePositionsNow().catch(() => null);
+      }
     }
 
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("beforeunload", onBeforeUnload);
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("beforeunload", onBeforeUnload);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existingOfferId]);
