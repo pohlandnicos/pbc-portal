@@ -398,7 +398,8 @@ function OfferEditor() {
     if (!newId) return null;
     setExistingOfferId(newId);
     // Update URL so user can refresh/come back and continue editing.
-    router.replace(`/app/offers/new?offer_id=${encodeURIComponent(newId)}`);
+    const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(newId)}`;
+    window.history.replaceState(null, '', newUrl);
     return newId;
   }
 
