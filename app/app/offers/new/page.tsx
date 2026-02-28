@@ -1334,8 +1334,8 @@ function OfferEditor() {
 
         {/* PDF Preview Section */}
         {showPreview && existingOfferId && (
-          <div className="w-[40%] h-screen bg-white border-l border-zinc-200 flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
+          <div className="w-[40%] h-screen bg-zinc-100 border-l border-zinc-200 flex flex-col overflow-hidden">
+            <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-zinc-900">PDF Vorschau</h2>
               <button
                 onClick={() => setShowPreview(false)}
@@ -1346,12 +1346,11 @@ function OfferEditor() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-hidden">
               <iframe
                 src={`/app/offers/${existingOfferId}/pdf-preview`}
                 className="w-full h-full border-0"
                 title="PDF Vorschau"
-                style={{colorScheme: 'normal'}}
               />
             </div>
           </div>
