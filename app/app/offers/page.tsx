@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type OfferListRow = {
   id: string;
@@ -33,6 +34,7 @@ function currencyEUR(value: number) {
 }
 
 export default function OffersPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<OfferListRow[]>([]);
@@ -122,7 +124,11 @@ export default function OffersPage() {
               </tr>
             ) : (
               rows.map((r) => (
-                <tr key={r.id} className="hover:bg-zinc-50">
+                <tr
+                  key={r.id}
+                  className="cursor-pointer hover:bg-zinc-50"
+                  onClick={() => router.push(`/app/offers/${r.id}`)}
+                >
                   <td className="px-4 py-3">
                     <Link href={`/app/offers/${r.id}`} className="hover:underline">
                       {formatDateDE(r.offer_date)}
