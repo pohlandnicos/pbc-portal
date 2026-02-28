@@ -1347,10 +1347,11 @@ function OfferEditor() {
                   </svg>
                 </button>
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 m-0 p-0" style={{ overflow: 'hidden' }}>
                 <iframe
                   src={`/app/offers/${existingOfferId}/pdf-preview`}
-                  className="w-full h-full border-0"
+                  className="w-full h-full border-0 m-0 p-0"
+                  style={{ display: 'block', margin: 0, padding: 0 }}
                   title="PDF Vorschau"
                 />
               </div>
