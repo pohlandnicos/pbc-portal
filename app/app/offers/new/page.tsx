@@ -788,9 +788,11 @@ function OfferEditor() {
   }, [selectedCustomer?.id, selectedCustomer?.type, selectedCustomer?.salutation, selectedCustomer?.lastName, introSalutationEdited]);
 
   useEffect(() => {
-    // Reset manual override whenever customer changes.
+    // Reset manual override whenever customer changes, but NOT during initial load
+    if (loading || justLoaded) return;
+    if (!existingOfferId) return; // Don't reset for new offers
     setIntroSalutationEdited(false);
-  }, [selectedCustomer?.id]);
+  }, [selectedCustomer?.id, loading, justLoaded, existingOfferId]);
 
   useEffect(() => {
     if (!customerOpen) {
