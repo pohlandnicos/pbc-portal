@@ -210,7 +210,7 @@ function OfferEditor() {
         title: title,
         customer_id: customerId,
         project_id: projectId || undefined,
-        offer_date: offerDate,
+        offer_date: offerDate ? new Date(offerDate).toISOString() : undefined,
         intro_salutation: introSalutation,
         intro_body_html: introText,
         outro_body_html: outroText,
