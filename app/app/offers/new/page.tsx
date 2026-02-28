@@ -551,6 +551,9 @@ function OfferEditor() {
     async function loadDraft() {
       if (!urlOfferId) return;
       setExistingOfferId(urlOfferId);
+      // Ensure URL has offer_id parameter
+      const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(urlOfferId)}`;
+      window.history.replaceState(null, '', newUrl);
       setLoading(true);
       setError(null);
       try {
