@@ -98,17 +98,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                  flex items-center gap-3 rounded-lg text-sm font-medium transition-colors
                   ${
                     isActive
                       ? "bg-blue-50 text-blue-700"
                       : "text-zinc-700 hover:bg-zinc-100"
                   }
-                  ${!isOpen ? 'justify-center' : ''}
+                  ${!isOpen ? 'justify-center px-3 py-3' : 'px-4 py-3'}
                 `}
                 title={!isOpen ? item.label : undefined}
               >
-                {item.icon}
+                <span className="flex-shrink-0">{item.icon}</span>
                 {isOpen && <span>{item.label}</span>}
               </Link>
             );
