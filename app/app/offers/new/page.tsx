@@ -54,6 +54,7 @@ function OfferEditor() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingOfferId, setExistingOfferId] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [justLoaded, setJustLoaded] = useState(false);
   const [customers, setCustomers] = useState<Array<{
@@ -950,7 +951,9 @@ function OfferEditor() {
         renderTrigger={() => null}
       />
 
-      <div className="container mx-auto px-6">
+      <div className={`flex gap-4 ${showPreview ? 'h-screen overflow-hidden' : ''}`}>
+        {/* Editor Section */}
+        <div className={`${showPreview ? 'flex-1 overflow-y-auto' : 'w-full'} container mx-auto px-6`}>
         <div className="space-y-6">
           {/* Header Bar */}
           <div className="py-6 flex items-center justify-between">
@@ -1009,10 +1012,11 @@ function OfferEditor() {
                     setError(e instanceof Error ? e.message : "Speichern der Positionen fehlgeschlagen");
                     return;
                   }
-                  router.push(`/app/offers/${id}/pdf-preview`);
+                  setExistingOfferId(id);
+                  setShowPreview(!showPreview);
                 }}
               >
-                Vorschau
+                {showPreview ? "Vorschau schließen" : "Vorschau"}
               </button>
               <button
                 type="button"
@@ -1317,6 +1321,18 @@ function OfferEditor() {
             />
           </div>
         </div>
+        </div>
+
+        {/* PDF Preview Section */}
+        {showPreview && existingOfferId && (
+          <div className="w-1/2 h-screen bg-white border-l border-zinc-200">
+            <iframe
+              src={`/app/offers/${existingOfferId}/pdf-preview`}
+              className="w-full h-full"
+              title="PDF Vorschau"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
