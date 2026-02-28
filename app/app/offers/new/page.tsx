@@ -210,7 +210,7 @@ function OfferEditor() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: title,
+          title: title,
           customer_id: customerId,
           project_id: projectId || undefined,
           offer_date: offerDate,
