@@ -55,6 +55,15 @@ function OfferEditor() {
   const [error, setError] = useState<string | null>(null);
   const [existingOfferId, setExistingOfferId] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
+
+  // Auto-collapse sidebar when preview opens
+  useEffect(() => {
+    if (showPreview) {
+      window.dispatchEvent(new CustomEvent('collapseSidebar', { detail: { collapse: true } }));
+    } else {
+      window.dispatchEvent(new CustomEvent('collapseSidebar', { detail: { collapse: false } }));
+    }
+  }, [showPreview]);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [justLoaded, setJustLoaded] = useState(false);
   const [customers, setCustomers] = useState<Array<{

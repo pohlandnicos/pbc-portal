@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -75,6 +75,14 @@ const navItems = [
 export default function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    const handleCollapse = (e: CustomEvent) => {
+      setIsOpen(!e.detail.collapse);
+    };
+    window.addEventListener('collapseSidebar', handleCollapse as EventListener);
+    return () => window.removeEventListener('collapseSidebar', handleCollapse as EventListener);
+  }, []);
 
   return (
     <div className="flex h-screen bg-zinc-50 text-zinc-900 overflow-hidden">
