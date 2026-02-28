@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/types/supabase";
+import { useParams } from "next/navigation";
 
 type Offer = {
   id: string;
@@ -66,10 +65,8 @@ type Template = {
 
 export default function OfferPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const supabase = createClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const urlParams = useParams<{ id: string }>();
+  const id = typeof urlParams?.id === "string" ? urlParams.id : params?.id;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,70 +82,61 @@ export default function OfferPage({ params }: { params: { id: string } }) {
       setError(null);
 
       try {
-        // Angebot laden
-        const { data: offer, error: offerError } = await supabase
-          .from("offers")
-          .select()
-          .eq("id", params.id)
-          .single();
+        if (!id) {
+          setError("Ungültige Angebots-ID");
+          return;
+        }
 
-        if (offerError) throw offerError;
-        if (!offer) throw new Error("Angebot nicht gefunden");
+        const [offerRes, templatesRes] = await Promise.all([
+          fetch(`/api/offers/${id}`, { cache: "no-store" }),
+          fetch(`/api/settings/offer-templates?doc_type=offer`, { cache: "no-store" }),
+        ]);
+
+        const offerJson = (await offerRes.json().catch(() => null)) as
+          | { data?: any; error?: string; message?: string }
+          | null;
+
+        if (!offerRes.ok) {
+          throw new Error(
+            offerJson?.message ?? offerJson?.error ?? `Laden fehlgeschlagen (HTTP ${offerRes.status})`
+          );
+        }
+
+        const offerData = offerJson?.data;
+        if (!offerData) throw new Error("Angebot nicht gefunden");
 
         setOffer({
-          ...(offer as Offer),
-          title: ((offer as any)?.name ?? (offer as any)?.title ?? "").toString(),
+          ...(offerData as Offer),
+          title: ((offerData as any)?.title ?? (offerData as any)?.name ?? "").toString(),
         });
 
-        // Gruppen laden
-        const { data: groups, error: groupsError } = await supabase
-          .from("offer_groups")
-          .select()
-          .eq("offer_id", params.id)
-          .order("index");
+        const loadedGroups = ((offerData as any)?.groups ?? []) as Array<OfferGroup & { offer_items?: OfferItem[] }>;
+        setGroups(loadedGroups);
 
-        if (groupsError) throw groupsError;
-        setGroups(groups as OfferGroup[]);
-
-        // Positionen laden
-        const { data: items, error: itemsError } = await supabase
-          .from("offer_items")
-          .select()
-          .in(
-            "offer_group_id",
-            (groups as OfferGroup[]).map((g) => g.id)
-          )
-          .order("position_index");
-
-        if (itemsError) throw itemsError;
-
-        // Positionen nach Gruppen gruppieren
         const itemsByGroup: Record<string, OfferItem[]> = {};
-        for (const item of items as OfferItem[]) {
-          if (!itemsByGroup[item.offer_group_id]) {
-            itemsByGroup[item.offer_group_id] = [];
-          }
-          itemsByGroup[item.offer_group_id].push(item);
+        for (const g of loadedGroups) {
+          itemsByGroup[g.id] = ((g as any).offer_items ?? []) as OfferItem[];
         }
         setItems(itemsByGroup);
 
-        // Textvorlagen laden
-        const { data: templates, error: templatesError } = await supabase
-          .from("offer_templates")
-          .select();
-
-        if (templatesError) throw templatesError;
-        setTemplates(templates as Template[]);
+        if (templatesRes.ok) {
+          const templatesJson = (await templatesRes.json().catch(() => null)) as
+            | { data?: Template[]; error?: string; message?: string }
+            | null;
+          setTemplates(templatesJson?.data ?? []);
+        } else {
+          setTemplates([]);
+        }
       } catch (err) {
         console.error(err);
-        setError("Fehler beim Laden");
+        setError(err instanceof Error ? err.message : "Fehler beim Laden");
       } finally {
         setLoading(false);
       }
     }
 
     void load();
-  }, [supabase, params.id]);
+  }, [id]);
 
   if (loading) {
     return (
