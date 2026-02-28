@@ -388,8 +388,19 @@ export default function OfferPdfPreviewPage() {
             margin: 0 !important;
             padding: 0 !important;
             overflow-x: hidden !important;
-            width: 100% !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
             background: white !important;
+          }
+          main {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+          }
+          main > div {
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
           }
         `}</style>
       )}
