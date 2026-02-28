@@ -380,8 +380,8 @@ export default function OfferPdfPreviewPage() {
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   return (
-    <div className={`min-h-screen ${isInIframe ? 'bg-white' : 'bg-zinc-100 px-4 py-8'}`}>
-      <div className={`mx-auto ${isInIframe ? 'max-w-full space-y-0' : 'max-w-[900px] space-y-8'}`}>
+    <div className={`min-h-screen ${isInIframe ? 'bg-white overflow-x-hidden' : 'bg-zinc-100 px-4 py-8'}`}>
+      <div className={`${isInIframe ? 'w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]' : 'mx-auto max-w-[900px] space-y-8'}`}>
         {pages.map((pageGroups, pageIndex) => {
           const pageNo = pageIndex + 1;
           const pageCount = pages.length;
