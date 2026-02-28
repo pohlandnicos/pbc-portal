@@ -79,12 +79,22 @@ function OfferEditor() {
   );
   const [introSalutation, setIntroSalutation] = useState("Sehr geehrte Damen und Herren,");
   const [introSalutationEdited, setIntroSalutationEdited] = useState(false);
-  const [introText, setIntroText] = useState(
+  const [introText, setIntroTextRaw] = useState(
     "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"
   );
-  const [outroText, setOutroText] = useState(
+  const [outroText, setOutroTextRaw] = useState(
     "Bitte beachten Sie, dass eventuell zusätzliche Kosten für unvorhergesehene Schäden oder zusätzliche Arbeiten anfallen können. Sollten während der Arbeiten unvorhergesehene Probleme auftreten, werden wir Sie umgehend informieren und mögliche Lösungen sowie die damit verbundenen Kosten mit Ihnen abstimmen.\n\nWir würden uns sehr freuen, wenn unser Angebot Ihre Zustimmung findet. Sie haben Fragen oder wünschen weitere Informationen? Rufen Sie uns an - wir sind für Sie da."
   );
+  
+  const setIntroText = (value: string) => {
+    console.log("[State] setIntroText called with:", value.substring(0, 50) + "...");
+    setIntroTextRaw(value);
+  };
+  
+  const setOutroText = (value: string) => {
+    console.log("[State] setOutroText called with:", value.substring(0, 50) + "...");
+    setOutroTextRaw(value);
+  };
   const [groups, setGroups] = useState<OfferGroup[]>([
     {
       id: "1",
