@@ -283,23 +283,32 @@ function OfferEditor() {
   const projectBoxRef = useRef<HTMLDivElement | null>(null);
 
   async function createDraftOffer() {
+    if (!customerId) {
+      console.log("[CreateDraft] No customer ID - cannot create offer");
+      return null;
+    }
     try {
-      const res = await fetch("/api/offers/new", {
-        method: "GET",
+      const res = await fetch("/api/offers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
+        body: JSON.stringify({
+          title: title || "Angebot",
+          customer_id: customerId,
+          project_id: projectId || null,
+          offer_date: offerDate || new Date().toISOString().split("T")[0],
+          status: "draft",
+        }),
       });
-      
       const json = (await res.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
         | null;
-      
       if (!res.ok) {
         const apiMessage =
           (typeof json?.message === "string" && json.message.length > 0 ? json.message : null) ??
           (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
         throw new Error(apiMessage ?? `Angebot erstellen fehlgeschlagen (HTTP ${res.status})`);
       }
-      
       return json?.data?.id ?? null;
     } catch (e) {
       console.error("[CreateDraft] Error creating draft:", e);
@@ -539,26 +548,11 @@ function OfferEditor() {
   }, [urlOfferIdParam]);
 
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
-  // Wenn keine offer_id: Sofort neues Angebot erstellen
   useEffect(() => {
     console.log("[LoadEffect] useEffect triggered with urlOfferId:", urlOfferId);
     async function loadDraft() {
       if (!urlOfferId) {
-        console.log("[LoadEffect] No urlOfferId - creating new draft offer");
-        // Create new draft offer immediately so it appears in overview
-        try {
-          const newId = await createDraftOffer();
-          if (newId) {
-            setExistingOfferId(newId);
-            setUrlOfferId(newId);
-            const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(newId)}`;
-            window.history.replaceState(null, '', newUrl);
-            localStorage.setItem('current_offer_id', newId);
-            console.log("[LoadEffect] Created new draft offer:", newId);
-          }
-        } catch (e) {
-          console.error("[LoadEffect] Failed to create draft offer:", e);
-        }
+        console.log("[LoadEffect] No urlOfferId - waiting for customer selection to create offer");
         setLoading(false);
         return;
       }
