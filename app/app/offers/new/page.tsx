@@ -508,45 +508,44 @@ function OfferEditor() {
     }, 1500);
   }
 
-  // Autosave: offer fields
-  useEffect(() => {
-    if (loading) return; // Don't autosave while loading data
-    if (justLoaded) return; // Don't autosave immediately after loading
-    scheduleAutosaveOffer();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    customerId,
-    projectId,
-    title,
-    offerDate,
-    introSalutation,
-    introText,
-    outroText,
-    paymentDueDays,
-    discountPercent,
-    discountDays,
-    taxRate,
-    showVatForLabor,
-    loading,
-    justLoaded,
-  ]);
+  // AUTOSAVE DISABLED - Use manual Save button instead
+  // Autosave was causing data corruption due to stale state values
+  // useEffect(() => {
+  //   if (loading) return;
+  //   if (justLoaded) return;
+  //   scheduleAutosaveOffer();
+  // }, [
+  //   customerId,
+  //   projectId,
+  //   title,
+  //   offerDate,
+  //   introSalutation,
+  //   introText,
+  //   outroText,
+  //   paymentDueDays,
+  //   discountPercent,
+  //   discountDays,
+  //   taxRate,
+  //   showVatForLabor,
+  //   loading,
+  //   justLoaded,
+  // ]);
 
-  // Autosave: groups/items
-  useEffect(() => {
-    if (loading) return; // Don't autosave while loading data
-    if (justLoaded) return; // Don't autosave immediately after loading
-    scheduleAutosavePositions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, items, loading, justLoaded]);
+  // useEffect(() => {
+  //   if (loading) return;
+  //   if (justLoaded) return;
+  //   scheduleAutosavePositions();
+  // }, [groups, items, loading, justLoaded]);
 
+  // DISABLED - Autosave on visibility change also disabled to prevent data corruption
   // Best-effort flush when switching tabs (not on reload/close, as that causes CORS errors)
   useEffect(() => {
     function onVisibilityChange() {
-      if (document.visibilityState === "hidden" && existingOfferId) {
-        // Save when tab becomes hidden (user switches to another tab)
-        void autosaveOfferNow().catch(() => null);
-        void autosavePositionsNow().catch(() => null);
-      }
+      // DISABLED - use manual Save button only
+      // if (document.visibilityState === "hidden" && existingOfferId) {
+      //   void autosaveOfferNow().catch(() => null);
+      //   void autosavePositionsNow().catch(() => null);
+      // }
     }
 
     document.addEventListener("visibilitychange", onVisibilityChange);
@@ -966,13 +965,6 @@ function OfferEditor() {
             </div>
 
             <div className="flex items-center gap-2">
-              {autosaveStatus !== "idle" && (
-                <span className="text-xs text-zinc-500">
-                  {autosaveStatus === "saving" && "Speichert..."}
-                  {autosaveStatus === "saved" && "✓ Gespeichert"}
-                  {autosaveStatus === "error" && "⚠ Fehler"}
-                </span>
-              )}
               <button
                 type="button"
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50 disabled:opacity-50 flex items-center gap-2"
