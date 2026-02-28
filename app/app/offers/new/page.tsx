@@ -245,6 +245,12 @@ function OfferEditor() {
             ? json.message
             : null) ??
           (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
+        
+        if (isAutosave) {
+          console.error("[Autosave] PATCH failed with status", res.status, "- Full response:", json);
+          console.error("[Autosave] Payload that was sent:", payload);
+        }
+        
         throw new Error(apiMessage ?? `Speichern fehlgeschlagen (HTTP ${res.status})`);
       }
 
