@@ -297,7 +297,6 @@ function OfferEditor() {
           customer_id: customerId,
           project_id: projectId || null,
           offer_date: offerDate || new Date().toISOString().split("T")[0],
-          status: "draft",
         }),
       });
       const json = (await res.json().catch(() => null)) as
