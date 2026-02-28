@@ -23,24 +23,14 @@ export async function GET(request: NextRequest) {
     .from("offers")
     .select(`
       id,
-      name:title,
+      name,
       offer_number,
       offer_date,
       status,
       total_net,
       total_gross,
-      customers (
-        id,
-        type,
-        company_name,
-        salutation,
-        first_name,
-        last_name
-      ),
-      projects (
-        id,
-        title
-      )
+      customer_id,
+      project_id
     `)
     .eq("org_id", orgId)
     .order("created_at", { ascending: false });
@@ -51,7 +41,79 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-  return NextResponse.json({ data });
+
+  const rawRows = (data ?? []) as unknown as Array<{
+    id: string;
+    name: string;
+    offer_number: string | null;
+    offer_date: string;
+    status: "draft" | "sent" | "accepted" | "rejected" | "cancelled";
+    total_net: number | null;
+    total_gross: number | null;
+    customer_id: string | null;
+    project_id: string | null;
+  }>;
+
+  const rows = rawRows.map((r) => ({
+    id: r.id,
+    title: r.name,
+    offer_number: r.offer_number,
+    offer_date: r.offer_date,
+    status: r.status,
+    total_net: r.total_net,
+    total_gross: r.total_gross,
+    customer_id: r.customer_id,
+    project_id: r.project_id,
+  }));
+
+  const customerIds = Array.from(
+    new Set(rows.map((r) => r.customer_id).filter(Boolean) as string[])
+  );
+  const projectIds = Array.from(
+    new Set(rows.map((r) => r.project_id).filter(Boolean) as string[])
+  );
+
+  const [{ data: customers, error: customersError }, { data: projects, error: projectsError }] =
+    await Promise.all([
+      customerIds.length
+        ? supabase
+            .from("customers")
+            .select("id, type, company_name, salutation, first_name, last_name")
+            .in("id", customerIds)
+        : Promise.resolve({ data: [], error: null } as any),
+      projectIds.length
+        ? supabase.from("projects").select("id, title").in("id", projectIds)
+        : Promise.resolve({ data: [], error: null } as any),
+    ]);
+
+  if (customersError) {
+    return NextResponse.json(
+      { error: "db_error", message: customersError.message, details: customersError },
+      { status: 500 }
+    );
+  }
+
+  if (projectsError) {
+    return NextResponse.json(
+      { error: "db_error", message: projectsError.message, details: projectsError },
+      { status: 500 }
+    );
+  }
+
+  const customerById = new Map(
+    ((customers ?? []) as any[]).map((c) => [c.id as string, c] as const)
+  );
+  const projectById = new Map(
+    ((projects ?? []) as any[]).map((p) => [p.id as string, p] as const)
+  );
+
+  const hydrated = rows.map((r) => ({
+    ...r,
+    customers: r.customer_id ? (customerById.get(r.customer_id) ?? null) : null,
+    projects: r.project_id ? (projectById.get(r.project_id) ?? null) : null,
+  }));
+
+  return NextResponse.json({ data: hydrated });
 }
 
 // POST /api/offers - Neues Angebot erstellen
