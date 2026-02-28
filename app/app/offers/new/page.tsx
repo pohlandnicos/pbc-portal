@@ -961,7 +961,7 @@ function OfferEditor() {
               >
                 ←
               </Link>
-              <h1 className="text-lg font-medium">Angebot</h1>
+              <h1 className="text-lg font-medium">{title || "Angebot"}</h1>
             </div>
 
             <div className="flex items-center gap-2">
