@@ -591,6 +591,10 @@ function OfferEditor() {
         setTitle(d.title ?? d.name ?? "Angebot");
         setOfferDate(d.offer_date ?? new Date().toISOString().split("T")[0]);
         setIntroSalutation(d.intro_salutation ?? "Sehr geehrte Damen und Herren,");
+        // Mark as edited if custom salutation was saved
+        if (d.intro_salutation) {
+          setIntroSalutationEdited(true);
+        }
         setIntroText(d.intro_body_html ?? "");
         setOutroText(d.outro_body_html ?? "");
 
