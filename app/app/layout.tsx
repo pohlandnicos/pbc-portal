@@ -81,21 +81,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className={`${isCollapsed ? 'w-20' : 'w-64'} bg-white border-r border-zinc-200 flex flex-col transition-all duration-300`}>
         {/* Logo */}
-        <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
+        <div className="p-6 border-b border-zinc-200">
           {!isCollapsed && <div className="text-xl font-bold text-zinc-900">pbc portal</div>}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-lg hover:bg-zinc-100 text-zinc-600"
-            title={isCollapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isCollapsed ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-              )}
-            </svg>
-          </button>
+          {isCollapsed && <div className="text-xl font-bold text-zinc-900 text-center">pbc</div>}
         </div>
 
         {/* Navigation */}
@@ -123,6 +111,23 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+
+        {/* Toggle Button at Bottom */}
+        <div className="border-t border-zinc-200">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="w-full p-4 flex items-center justify-center hover:bg-zinc-50 text-zinc-500 hover:text-zinc-700 transition-colors"
+            title={isCollapsed ? "Sidebar ausklappen" : "Sidebar einklappen"}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isCollapsed ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              )}
+            </svg>
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
