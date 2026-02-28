@@ -215,20 +215,22 @@ function OfferEditor() {
       setError(null);
     }
     try {
-      const payload = {
+      const payload: any = {
         title: title,
-        customer_id: customerId || undefined,
-        project_id: projectId || undefined,
         offer_date: offerDate ? new Date(offerDate).toISOString() : undefined,
         intro_salutation: introSalutation,
         intro_body_html: introText,
         outro_body_html: outroText,
         payment_due_days: paymentDueDays,
-        discount_percent: discountPercent ?? undefined,
-        discount_days: discountDays ?? undefined,
         tax_rate: taxRate,
         show_vat_for_labor: showVatForLabor,
       };
+      
+      // Only include customer_id and project_id if they have values
+      if (customerId) payload.customer_id = customerId;
+      if (projectId) payload.project_id = projectId;
+      if (discountPercent !== null && discountPercent !== undefined) payload.discount_percent = discountPercent;
+      if (discountDays !== null && discountDays !== undefined) payload.discount_days = discountDays;
       
       if (isAutosave) {
         console.log("[Autosave] PATCH payload:", payload);
