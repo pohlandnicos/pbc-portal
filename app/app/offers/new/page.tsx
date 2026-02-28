@@ -283,56 +283,34 @@ function OfferEditor() {
   const projectBoxRef = useRef<HTMLDivElement | null>(null);
 
   async function createDraftOffer() {
-    if (!customerId) {
-      setError("Bitte wähle einen Kunden aus");
-      return null;
-    }
-
-    setSubmitting(true);
-    setError(null);
     try {
-      const res = await fetch("/api/offers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          customer_id: customerId,
-          project_id: projectId || undefined,
-          offer_date: offerDate,
-          intro_salutation: introSalutation,
-          intro_body_html: introText,
-          outro_body_html: outroText,
-          payment_due_days: paymentDueDays,
-          discount_percent: discountPercent ?? undefined,
-          discount_days: discountDays ?? undefined,
-          tax_rate: taxRate,
-          show_vat_for_labor: showVatForLabor,
-        }),
+      const res = await fetch("/api/offers/new", {
+        method: "GET",
+        credentials: "include",
       });
-
+      
+      // API redirects to /app/offers/{id}, extract ID from redirect
+      const redirectUrl = res.url;
+      const match = redirectUrl.match(/\/app\/offers\/([^\/]+)/);
+      if (match && match[1]) {
+        return match[1];
+      }
+      
+      // Fallback: try to get ID from response
       const json = (await res.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
         | null;
-
       if (!res.ok) {
         const apiMessage =
-          (typeof json?.message === "string" && json.message.length > 0
-            ? json.message
-            : null) ??
+          (typeof json?.message === "string" && json.message.length > 0 ? json.message : null) ??
           (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
-        setError(apiMessage ?? `Speichern fehlgeschlagen (HTTP ${res.status})`);
-        return null;
+        throw new Error(apiMessage ?? `Angebot erstellen fehlgeschlagen (HTTP ${res.status})`);
       }
-
-      const id = json?.data?.id;
-      if (!id) {
-        setError("Speichern fehlgeschlagen");
-        return null;
-      }
-
-      return id;
-    } finally {
-      setSubmitting(false);
+      return json?.data?.id ?? null;
+    } catch (e) {
+      console.error("[CreateDraft] Error creating draft:", e);
+      setError(e instanceof Error ? e.message : "Fehler beim Erstellen");
+      return null;
     }
   }
 
@@ -567,11 +545,26 @@ function OfferEditor() {
   }, [urlOfferIdParam]);
 
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
+  // Wenn keine offer_id: Sofort neues Angebot erstellen
   useEffect(() => {
     console.log("[LoadEffect] useEffect triggered with urlOfferId:", urlOfferId);
     async function loadDraft() {
       if (!urlOfferId) {
-        console.log("[LoadEffect] No urlOfferId - skipping load");
+        console.log("[LoadEffect] No urlOfferId - creating new draft offer");
+        // Create new draft offer immediately so it appears in overview
+        try {
+          const newId = await createDraftOffer();
+          if (newId) {
+            setExistingOfferId(newId);
+            setUrlOfferId(newId);
+            const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(newId)}`;
+            window.history.replaceState(null, '', newUrl);
+            localStorage.setItem('current_offer_id', newId);
+            console.log("[LoadEffect] Created new draft offer:", newId);
+          }
+        } catch (e) {
+          console.error("[LoadEffect] Failed to create draft offer:", e);
+        }
         setLoading(false);
         return;
       }
