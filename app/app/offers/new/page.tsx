@@ -392,13 +392,23 @@ function OfferEditor() {
   }
 
   async function ensureDraftExists() {
-    if (existingOfferId) return existingOfferId;
-    if (!customerId) return null;
+    console.log("[EnsureDraft] Called - existingOfferId:", existingOfferId, "customerId:", customerId);
+    if (existingOfferId) {
+      console.log("[EnsureDraft] Using existing offer ID:", existingOfferId);
+      return existingOfferId;
+    }
+    if (!customerId) {
+      console.log("[EnsureDraft] No customer ID - cannot create offer");
+      return null;
+    }
+    console.log("[EnsureDraft] Creating new draft offer...");
     const newId = await createDraftOffer();
+    console.log("[EnsureDraft] Created offer with ID:", newId);
     if (!newId) return null;
     setExistingOfferId(newId);
     // Update URL so user can refresh/come back and continue editing.
     const newUrl = `/app/offers/new?offer_id=${encodeURIComponent(newId)}`;
+    console.log("[EnsureDraft] Setting URL to:", newUrl);
     window.history.replaceState(null, '', newUrl);
     return newId;
   }
