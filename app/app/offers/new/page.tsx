@@ -953,7 +953,7 @@ function OfferEditor() {
       <div className="container mx-auto px-4">
         <div className="space-y-6">
           {/* Header Bar */}
-          <div className="py-4">
+          <div className="pt-6 pb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Link
