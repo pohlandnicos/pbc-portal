@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import Head from "next/head";
 
 type OfferCustomer = {
   type: "private" | "company";
@@ -380,13 +381,25 @@ export default function OfferPdfPreviewPage() {
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   return (
-    <div className={`${isInIframe ? 'bg-white m-0 p-0' : 'min-h-screen bg-zinc-100 px-4 py-8'}`}>
-      <div className={`${isInIframe ? 'm-0 p-0' : 'mx-auto max-w-[900px] space-y-8'}`}>
-        {pages.map((pageGroups, pageIndex) => {
-          const pageNo = pageIndex + 1;
-          const pageCount = pages.length;
-          const isFirst = pageIndex === 0;
-          const isLast = pageIndex === pageCount - 1;
+    <>
+      {isInIframe && (
+        <style>{`
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+            width: 100% !important;
+            background: white !important;
+          }
+        `}</style>
+      )}
+      <div className={`min-h-screen ${isInIframe ? 'bg-white m-0 p-0' : 'bg-zinc-100 px-4 py-8'}`}>
+        <div className={`mx-auto ${isInIframe ? 'max-w-full space-y-0' : 'max-w-[900px] space-y-8'}`}>
+          {pages.map((pageGroups, pageIndex) => {
+            const pageNo = pageIndex + 1;
+            const pageCount = pages.length;
+            const isFirst = pageIndex === 0;
+            const isLast = pageIndex === pageCount - 1;
 
           const runningSubtotalNet = pages.slice(0, pageIndex + 1).reduce((sumP, pg) => {
             return (
@@ -611,6 +624,6 @@ export default function OfferPdfPreviewPage() {
         })}
       </div>
     </div>
+    </>
   );
-
 }
