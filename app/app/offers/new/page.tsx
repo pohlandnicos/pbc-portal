@@ -242,9 +242,7 @@ function OfferEditor() {
       if (discountPercent !== null && discountPercent !== undefined) payload.discount_percent = discountPercent;
       if (discountDays !== null && discountDays !== undefined) payload.discount_days = discountDays;
       
-      if (isAutosave) {
-        console.log("[Autosave] PATCH payload:", payload);
-      }
+      console.log(isAutosave ? "[Autosave] PATCH payload:" : "[ManualSave] PATCH payload:", payload);
 
       const res = await fetch(`/api/offers/${offerId}`, {
         method: "PATCH",
@@ -979,6 +977,12 @@ function OfferEditor() {
                 disabled={submitting || !existingOfferId}
                 onClick={async () => {
                   if (!existingOfferId) return;
+                  console.log("[ManualSave] Current state values:", {
+                    title,
+                    introSalutation,
+                    introText: introText.substring(0, 50) + "...",
+                    outroText: outroText.substring(0, 50) + "...",
+                  });
                   setSubmitting(true);
                   try {
                     await updateDraftOffer(existingOfferId, false);
