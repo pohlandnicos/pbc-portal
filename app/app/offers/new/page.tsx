@@ -200,15 +200,17 @@ function OfferEditor() {
     }
   }
 
-  async function updateDraftOffer(offerId: string) {
-    setSubmitting(true);
-    setError(null);
+  async function updateDraftOffer(offerId: string, isAutosave = false) {
+    if (!isAutosave) {
+      setSubmitting(true);
+      setError(null);
+    }
     try {
       const res = await fetch(`/api/offers/${offerId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title,
+          name: title,
           customer_id: customerId,
           project_id: projectId || undefined,
           offer_date: offerDate,
@@ -238,7 +240,9 @@ function OfferEditor() {
 
       return offerId;
     } finally {
-      setSubmitting(false);
+      if (!isAutosave) {
+        setSubmitting(false);
+      }
     }
   }
 
@@ -384,7 +388,7 @@ function OfferEditor() {
     if (!id) return;
     setAutosaveStatus("saving");
     try {
-      await updateDraftOffer(id);
+      await updateDraftOffer(id, true);
       setAutosaveStatus("saved");
     } catch (e) {
       setAutosaveStatus("error");
