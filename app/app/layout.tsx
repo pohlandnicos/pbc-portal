@@ -135,7 +135,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 h-screen overflow-y-auto">
-        <div className="mx-auto max-w-7xl px-6 py-8">{children}</div>
+        <div className="mx-auto max-w-7xl">{children}</div>
       </main>
     </div>
   );
