@@ -8,13 +8,12 @@ import { CustomerCreateDialog } from "@/components/customers/CustomerCreateDialo
 type CustomerRow = {
   id: string;
   type: "private" | "company";
-  company_name: string | null;
-  salutation: string | null;
-  first_name: string | null;
-  last_name: string | null;
-  billing_address_extra: string | null;
-  billing_city: string;
-  projectsCount: number;
+  name: string;
+  addressExtra?: string;
+  street?: string;
+  zip?: string;
+  city?: string;
+  projectsCount?: number;
 };
 
 export default function CustomersPage() {
@@ -46,13 +45,11 @@ export default function CustomersPage() {
   }, []);
 
   const displayRows = useMemo(() => {
-    return rows.map((r) => {
-      const name =
-        r.type === "company"
-          ? r.company_name ?? ""
-          : `${r.salutation ?? ""} ${r.first_name ?? ""} ${r.last_name ?? ""}`.trim();
-      return { ...r, name };
-    });
+    return rows.map((r) => ({
+      ...r,
+      projectsCount: r.projectsCount ?? 0,
+      addressExtra: r.addressExtra ?? "",
+    }));
   }, [rows]);
 
   return (
@@ -109,7 +106,7 @@ export default function CustomersPage() {
                       {r.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3">{r.billing_address_extra ?? ""}</td>
+                  <td className="px-4 py-3">{r.addressExtra ?? ""}</td>
                   <td className="px-4 py-3">{r.projectsCount ?? 0}</td>
                 </tr>
               ))
