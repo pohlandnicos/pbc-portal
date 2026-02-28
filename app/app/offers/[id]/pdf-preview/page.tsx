@@ -380,8 +380,8 @@ export default function OfferPdfPreviewPage() {
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
   return (
-    <div className={`min-h-screen ${isInIframe ? 'bg-white overflow-x-hidden' : 'bg-zinc-100 px-4 py-8'}`}>
-      <div className={`${isInIframe ? 'w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]' : 'mx-auto max-w-[900px] space-y-8'}`}>
+    <div className={`${isInIframe ? 'bg-white m-0 p-0' : 'min-h-screen bg-zinc-100 px-4 py-8'}`}>
+      <div className={`${isInIframe ? 'm-0 p-0' : 'mx-auto max-w-[900px] space-y-8'}`}>
         {pages.map((pageGroups, pageIndex) => {
           const pageNo = pageIndex + 1;
           const pageCount = pages.length;
@@ -403,13 +403,13 @@ export default function OfferPdfPreviewPage() {
           return (
             <div
               key={pageIndex}
-              className={`${isInIframe ? 'w-full' : 'mx-auto'} rounded bg-white shadow`}
-              style={isInIframe ? { minHeight: "297mm" } : { width: "210mm", height: "297mm" }}
+              className={`${isInIframe ? 'w-full' : 'mx-auto rounded shadow'} bg-white`}
+              style={isInIframe ? { minHeight: "297mm", margin: 0, padding: 0 } : { width: "210mm", height: "297mm" }}
             >
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
                 style={isInIframe 
-                  ? { paddingTop: "16mm", paddingBottom: "6mm", paddingLeft: "8px", paddingRight: "8px" }
+                  ? { padding: 0, margin: 0 }
                   : { paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "6mm" }
                 }
               >
