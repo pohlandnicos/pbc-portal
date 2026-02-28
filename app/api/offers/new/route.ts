@@ -38,13 +38,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (groupError) throw groupError;
 
-    return NextResponse.redirect(
-      new URL(`/app/app/offers/${offer.id}`, "https://pbc-portal.vercel.app")
-    );
+    return NextResponse.json({ data: { id: offer.id } }, { status: 200 });
   } catch (err) {
     console.error("Error:", err);
-    return NextResponse.redirect(
-      new URL("/app/app/offers", "https://pbc-portal.vercel.app")
+    return NextResponse.json(
+      { error: "Failed to create offer" },
+      { status: 500 }
     );
   }
 }

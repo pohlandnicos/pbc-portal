@@ -289,23 +289,17 @@ function OfferEditor() {
         credentials: "include",
       });
       
-      // API redirects to /app/offers/{id}, extract ID from redirect
-      const redirectUrl = res.url;
-      const match = redirectUrl.match(/\/app\/offers\/([^\/]+)/);
-      if (match && match[1]) {
-        return match[1];
-      }
-      
-      // Fallback: try to get ID from response
       const json = (await res.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
         | null;
+      
       if (!res.ok) {
         const apiMessage =
           (typeof json?.message === "string" && json.message.length > 0 ? json.message : null) ??
           (typeof json?.error === "string" && json.error.length > 0 ? json.error : null);
         throw new Error(apiMessage ?? `Angebot erstellen fehlgeschlagen (HTTP ${res.status})`);
       }
+      
       return json?.data?.id ?? null;
     } catch (e) {
       console.error("[CreateDraft] Error creating draft:", e);
