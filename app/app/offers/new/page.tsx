@@ -56,6 +56,7 @@ function OfferEditor() {
   const [error, setError] = useState<string | null>(null);
   const [existingOfferId, setExistingOfferId] = useState<string>("");
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [justLoaded, setJustLoaded] = useState(false);
   const [customers, setCustomers] = useState<Array<{
     id: string;
     type?: "private" | "company";
@@ -502,6 +503,7 @@ function OfferEditor() {
   // Autosave: offer fields
   useEffect(() => {
     if (loading) return; // Don't autosave while loading data
+    if (justLoaded) return; // Don't autosave immediately after loading
     scheduleAutosaveOffer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -518,14 +520,16 @@ function OfferEditor() {
     taxRate,
     showVatForLabor,
     loading,
+    justLoaded,
   ]);
 
   // Autosave: groups/items
   useEffect(() => {
     if (loading) return; // Don't autosave while loading data
+    if (justLoaded) return; // Don't autosave immediately after loading
     scheduleAutosavePositions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, items, loading]);
+  }, [groups, items, loading, justLoaded]);
 
   // Best-effort flush when switching tabs (not on reload/close, as that causes CORS errors)
   useEffect(() => {
@@ -697,6 +701,13 @@ function OfferEditor() {
         });
         lastPositionsSnapshotRef.current = loadedPositionsSnapshot;
         console.log("[Load] Set positions snapshot to prevent autosave overwrite");
+        
+        // Prevent autosave for 2 seconds after loading to allow UI to update
+        setJustLoaded(true);
+        setTimeout(() => {
+          setJustLoaded(false);
+          console.log("[Load] Autosave re-enabled after load delay");
+        }, 2000);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Fehler beim Laden");
       } finally {
