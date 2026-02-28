@@ -206,28 +206,38 @@ function OfferEditor() {
       setError(null);
     }
     try {
+      const payload = {
+        title: title,
+        customer_id: customerId,
+        project_id: projectId || undefined,
+        offer_date: offerDate,
+        intro_salutation: introSalutation,
+        intro_body_html: introText,
+        outro_body_html: outroText,
+        payment_due_days: paymentDueDays,
+        discount_percent: discountPercent ?? undefined,
+        discount_days: discountDays ?? undefined,
+        tax_rate: taxRate,
+        show_vat_for_labor: showVatForLabor,
+      };
+      
+      if (isAutosave) {
+        console.log("[Autosave] PATCH payload:", payload);
+      }
+
       const res = await fetch(`/api/offers/${offerId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title,
-          customer_id: customerId,
-          project_id: projectId || undefined,
-          offer_date: offerDate,
-          intro_salutation: introSalutation,
-          intro_body_html: introText,
-          outro_body_html: outroText,
-          payment_due_days: paymentDueDays,
-          discount_percent: discountPercent ?? undefined,
-          discount_days: discountDays ?? undefined,
-          tax_rate: taxRate,
-          show_vat_for_labor: showVatForLabor,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const json = (await res.json().catch(() => null)) as
         | { data?: { id?: string } | null; error?: string; message?: string }
         | null;
+
+      if (isAutosave) {
+        console.log("[Autosave] PATCH response:", { status: res.status, ok: res.ok, json });
+      }
 
       if (!res.ok) {
         const apiMessage =
@@ -386,18 +396,27 @@ function OfferEditor() {
   }
 
   async function autosaveOfferNow() {
-    if (autosaveOfferLockRef.current) return;
+    if (autosaveOfferLockRef.current) {
+      console.log("[Autosave] Offer autosave skipped - already in progress");
+      return;
+    }
     autosaveOfferLockRef.current = true;
     try {
+      console.log("[Autosave] Starting offer autosave...");
       const id = await ensureDraftExists();
-      if (!id) return;
+      if (!id) {
+        console.log("[Autosave] No offer ID - skipping");
+        return;
+      }
+      console.log("[Autosave] Saving offer fields to ID:", id);
       setAutosaveStatus("saving");
       try {
         await updateDraftOffer(id, true);
+        console.log("[Autosave] Offer fields saved successfully");
         setAutosaveStatus("saved");
       } catch (e) {
         setAutosaveStatus("error");
-        console.error("Autosave offer failed:", e);
+        console.error("[Autosave] Offer save failed:", e);
       }
     } finally {
       autosaveOfferLockRef.current = false;
