@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 type OfferListRow = {
   id: string;
@@ -34,7 +33,6 @@ function currencyEUR(value: number) {
 }
 
 export default function OffersPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<OfferListRow[]>([]);
@@ -124,15 +122,20 @@ export default function OffersPage() {
               </tr>
             ) : (
               rows.map((r) => (
+                (() => {
+                  const href = `/app/offers/new?offer_id=${encodeURIComponent(r.id)}`;
+                  return (
                 <tr
                   key={r.id}
                   className="cursor-pointer hover:bg-zinc-50"
-                  onClick={() => router.push(`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`)}
+                  onClick={() => {
+                    window.location.href = href;
+                  }}
                 >
                   <td className="px-4 py-3">
-                    <Link href={`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`} className="hover:underline">
+                    <a href={href} className="hover:underline">
                       {formatDateDE(r.offer_date)}
-                    </Link>
+                    </a>
                   </td>
                   <td className="px-4 py-3 text-zinc-700">{r.offer_number ?? "—"}</td>
                   <td className="px-4 py-3">
@@ -157,9 +160,9 @@ export default function OffersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Link href={`/app/offers/new?offer_id=${encodeURIComponent(r.id)}`} className="hover:underline">
+                    <a href={href} className="hover:underline">
                       {r.title}
-                    </Link>
+                    </a>
                   </td>
                   <td className="px-4 py-3 text-zinc-700">{customerNameByRow.get(r.id) || "—"}</td>
                   <td className="px-4 py-3 text-right">
@@ -170,6 +173,8 @@ export default function OffersPage() {
                         : "—"}
                   </td>
                 </tr>
+                  );
+                })()
               ))
             )}
           </tbody>
