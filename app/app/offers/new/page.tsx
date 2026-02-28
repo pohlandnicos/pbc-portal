@@ -46,6 +46,7 @@ function OfferEditor() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [existingOfferId, setExistingOfferId] = useState<string>("");
+  const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [customers, setCustomers] = useState<Array<{
     id: string;
     type?: "private" | "company";
@@ -326,6 +327,167 @@ function OfferEditor() {
     void loadCustomers();
   }, []);
 
+  const autosaveOfferTimerRef = useRef<number | null>(null);
+  const autosavePositionsTimerRef = useRef<number | null>(null);
+  const lastOfferSnapshotRef = useRef<string>("");
+  const lastPositionsSnapshotRef = useRef<string>("");
+
+  function buildOfferSnapshot() {
+    return JSON.stringify({
+      customerId,
+      projectId,
+      title,
+      offerDate,
+      introSalutation,
+      introText,
+      outroText,
+      paymentDueDays,
+      discountPercent,
+      discountDays,
+      taxRate,
+      showVatForLabor,
+    });
+  }
+
+  function buildPositionsSnapshot() {
+    const g = (groups ?? []).map((x) => ({ id: x.id, index: x.index, title: x.title }));
+    const it = Object.fromEntries(
+      Object.entries(items ?? {}).map(([gid, arr]) => [
+        gid,
+        (arr ?? []).map((i) => ({
+          id: i.id,
+          type: i.type,
+          position_index: i.position_index,
+          name: i.name,
+          description: i.description,
+          qty: i.qty,
+          unit: i.unit,
+          purchase_price: i.purchase_price,
+          markup_percent: i.markup_percent,
+        })),
+      ])
+    );
+    return JSON.stringify({ groups: g, items: it });
+  }
+
+  async function ensureDraftExists() {
+    if (existingOfferId) return existingOfferId;
+    if (!customerId) return null;
+    const newId = await createDraftOffer();
+    if (!newId) return null;
+    setExistingOfferId(newId);
+    // Update URL so user can refresh/come back and continue editing.
+    router.replace(`/app/offers/new?offer_id=${encodeURIComponent(newId)}`);
+    return newId;
+  }
+
+  async function autosaveOfferNow() {
+    const id = await ensureDraftExists();
+    if (!id) return;
+    setAutosaveStatus("saving");
+    try {
+      await updateDraftOffer(id);
+      setAutosaveStatus("saved");
+    } catch (e) {
+      setAutosaveStatus("error");
+      throw e;
+    }
+  }
+
+  async function autosavePositionsNow() {
+    const id = await ensureDraftExists();
+    if (!id) return;
+    setAutosaveStatus("saving");
+    try {
+      await syncGroupsAndItemsToOffer(id);
+      setAutosaveStatus("saved");
+    } catch (e) {
+      setAutosaveStatus("error");
+      throw e;
+    }
+  }
+
+  function scheduleAutosaveOffer() {
+    const snap = buildOfferSnapshot();
+    if (snap === lastOfferSnapshotRef.current) return;
+    lastOfferSnapshotRef.current = snap;
+
+    if (autosaveOfferTimerRef.current) {
+      window.clearTimeout(autosaveOfferTimerRef.current);
+    }
+    autosaveOfferTimerRef.current = window.setTimeout(() => {
+      void autosaveOfferNow().catch(() => {
+        // error state is handled
+      });
+    }, 800);
+  }
+
+  function scheduleAutosavePositions() {
+    const snap = buildPositionsSnapshot();
+    if (snap === lastPositionsSnapshotRef.current) return;
+    lastPositionsSnapshotRef.current = snap;
+
+    if (autosavePositionsTimerRef.current) {
+      window.clearTimeout(autosavePositionsTimerRef.current);
+    }
+    autosavePositionsTimerRef.current = window.setTimeout(() => {
+      void autosavePositionsNow().catch(() => {
+        // error state is handled
+      });
+    }, 1500);
+  }
+
+  // Autosave: offer fields
+  useEffect(() => {
+    scheduleAutosaveOffer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    customerId,
+    projectId,
+    title,
+    offerDate,
+    introSalutation,
+    introText,
+    outroText,
+    paymentDueDays,
+    discountPercent,
+    discountDays,
+    taxRate,
+    showVatForLabor,
+  ]);
+
+  // Autosave: groups/items
+  useEffect(() => {
+    scheduleAutosavePositions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups, items]);
+
+  // Best-effort flush when leaving/closing tab
+  useEffect(() => {
+    function flush() {
+      if (!existingOfferId) return;
+      // Best-effort; we don't block navigation.
+      void autosaveOfferNow().catch(() => null);
+      void autosavePositionsNow().catch(() => null);
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "hidden") flush();
+    }
+
+    function onBeforeUnload() {
+      flush();
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingOfferId]);
+
   // Wenn offer_id in der URL ist: Entwurf laden und Formular befüllen
   useEffect(() => {
     async function loadDraft() {
@@ -393,6 +555,10 @@ function OfferEditor() {
           }));
         }
         setItems(byGroup);
+
+        // Reset autosave snapshots to avoid immediate re-save loop.
+        lastOfferSnapshotRef.current = buildOfferSnapshot();
+        lastPositionsSnapshotRef.current = buildPositionsSnapshot();
       } catch (e) {
         setError(e instanceof Error ? e.message : "Fehler beim Laden");
       } finally {
