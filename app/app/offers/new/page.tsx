@@ -408,6 +408,14 @@ function OfferEditor() {
   }
 
   async function autosaveOfferNow() {
+    if (loading) {
+      console.log("[Autosave] Skipped - still loading data");
+      return;
+    }
+    if (justLoaded) {
+      console.log("[Autosave] Skipped - just loaded, waiting for UI update");
+      return;
+    }
     if (autosaveOfferLockRef.current) {
       console.log("[Autosave] Offer autosave skipped - already in progress");
       return;
@@ -415,15 +423,15 @@ function OfferEditor() {
     autosaveOfferLockRef.current = true;
     try {
       console.log("[Autosave] Starting offer autosave...");
-      const id = await ensureDraftExists();
-      if (!id) {
+      const offerId = await ensureDraftExists();
+      if (!offerId) {
         console.log("[Autosave] No offer ID - skipping");
         return;
       }
-      console.log("[Autosave] Saving offer fields to ID:", id);
+      console.log("[Autosave] Saving offer fields to ID:", offerId);
       setAutosaveStatus("saving");
       try {
-        await updateDraftOffer(id, true);
+        await updateDraftOffer(offerId, true);
         console.log("[Autosave] Offer fields saved successfully");
         setAutosaveStatus("saved");
       } catch (e) {
@@ -436,6 +444,14 @@ function OfferEditor() {
   }
 
   async function autosavePositionsNow() {
+    if (loading) {
+      console.log("[Autosave] Positions skipped - still loading data");
+      return;
+    }
+    if (justLoaded) {
+      console.log("[Autosave] Positions skipped - just loaded, waiting for UI update");
+      return;
+    }
     if (autosavePositionsLockRef.current) return;
     autosavePositionsLockRef.current = true;
     try {
