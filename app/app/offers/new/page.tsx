@@ -1337,15 +1337,12 @@ function OfferEditor() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto p-4 bg-zinc-50">
-              <div className="bg-white shadow-lg mx-auto" style={{width: '210mm', minHeight: '297mm'}}>
-                <iframe
-                  src={`/api/offers/${existingOfferId}/pdf-html`}
-                  className="w-full h-full border-0"
-                  style={{minHeight: '297mm'}}
-                  title="PDF Vorschau"
-                />
-              </div>
+            <div className="flex-1 overflow-auto">
+              <iframe
+                src={`/app/offers/${existingOfferId}/pdf-preview`}
+                className="w-full h-full border-0"
+                title="PDF Vorschau"
+              />
             </div>
           </div>
         )}
