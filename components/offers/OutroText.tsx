@@ -22,6 +22,7 @@ export default function OutroText({ outroBody, onOutroBodyChange }: Props) {
         value={outroBody}
         onChange={onOutroBodyChange}
         rows={6}
+        fontSize="base"
       />
     </div>
   );

@@ -5,6 +5,7 @@ type Props = {
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
+  fontSize?: "sm" | "base";
 };
 
 export default function RichTextEditor({
@@ -12,6 +13,7 @@ export default function RichTextEditor({
   onChange,
   placeholder,
   rows = 6,
+  fontSize = "sm",
 }: Props) {
   const minHeight = rows * 24;
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -231,7 +233,7 @@ export default function RichTextEditor({
         onMouseUp={saveSelection}
         onKeyUp={saveSelection}
         onFocus={saveSelection}
-        className="w-full px-3 py-2 text-base outline-none whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+        className={`w-full px-3 py-2 ${fontSize === "base" ? "text-base" : "text-sm"} outline-none whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1`}
         style={{ minHeight }}
         data-placeholder={placeholder}
       />
