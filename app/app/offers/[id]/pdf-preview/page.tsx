@@ -57,6 +57,7 @@ type OfferData = {
   project_number?: string | null;
   intro_salutation: string | null;
   intro_body_html: string | null;
+  outro_body_html?: string | null;
   total_net?: number | null;
   total_tax?: number | null;
   total_gross?: number | null;
@@ -531,9 +532,15 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : null}
 
+                {isLast && data.outro_body_html ? (
+                  <div className="mt-6 text-[11px] text-zinc-800">
+                    {data.outro_body_html.replace(/<[^>]*>/g, "").trim()}
+                  </div>
+                ) : null}
+
                 {isLast ? (
                   <div className="mt-2 flex justify-end">
-                    <div className="w-[90mm] border-t border-zinc-300 pt-3">
+                    <div className="w-[90mm] pt-3">
                       <div className="flex items-baseline justify-between text-[11px]">
                         <div className="text-zinc-700">Gesamt Netto</div>
                         <div className="font-semibold">{currencyEUR(finalNet)}</div>
