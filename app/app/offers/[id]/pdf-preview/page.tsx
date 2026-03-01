@@ -807,49 +807,47 @@ export default function OfferPdfPreviewPage() {
                 </div>
 
                 {!isLast ? (
-                  <div className="flex-1 min-h-0 pt-4 flex flex-col">
-                    <div className="flex-1 min-h-0">
-                      {pageGroups.map((g) => (
-                        <div key={`${pageIndex}-${g.id}`} className="mt-6">
-                          <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
-                          <div className="border-b border-zinc-300 pb-1">
-                            <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
-                              <div>Pos.</div>
-                              <div>Bezeichnung</div>
-                              <div className="text-right">Menge</div>
-                              <div>Einheit</div>
-                              <div className="text-right">Einzelpreis</div>
-                              <div className="text-right">Gesamtpreis</div>
-                            </div>
-                          </div>
-
-                          <div>
-                            {g.offer_items.map((it, idx) => (
-                              <div key={it.id} className="border-b border-zinc-200 py-3">
-                                <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
-                                  <div className="text-[10px] text-zinc-600">{it.position_index ?? idx + 1}</div>
-                                  <div>
-                                    <div className="text-[11px] font-semibold">{it.name}</div>
-                                    {it.description ? (
-                                      <div
-                                        className="mt-1 text-[10px] text-zinc-700 whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
-                                        dangerouslySetInnerHTML={{
-                                          __html: sanitizeRichTextHtml(it.description),
-                                        }}
-                                      />
-                                    ) : null}
-                                  </div>
-                                  <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
-                                  <div className="text-[11px]">{it.unit}</div>
-                                  <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
-                                  <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
-                                </div>
-                              </div>
-                            ))}
+                  <div className="pt-4">
+                    {pageGroups.map((g) => (
+                      <div key={`${pageIndex}-${g.id}`} className="mt-6">
+                        <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
+                        <div className="border-b border-zinc-300 pb-1">
+                          <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3 text-[10px] text-zinc-600">
+                            <div>Pos.</div>
+                            <div>Bezeichnung</div>
+                            <div className="text-right">Menge</div>
+                            <div>Einheit</div>
+                            <div className="text-right">Einzelpreis</div>
+                            <div className="text-right">Gesamtpreis</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        <div>
+                          {g.offer_items.map((it, idx) => (
+                            <div key={it.id} className="border-b border-zinc-200 py-3">
+                              <div className="grid grid-cols-[52px_1fr_64px_60px_90px_90px] gap-3">
+                                <div className="text-[10px] text-zinc-600">{it.position_index ?? idx + 1}</div>
+                                <div>
+                                  <div className="text-[11px] font-semibold">{it.name}</div>
+                                  {it.description ? (
+                                    <div
+                                      className="mt-1 text-[10px] text-zinc-700 whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+                                      dangerouslySetInnerHTML={{
+                                        __html: sanitizeRichTextHtml(it.description),
+                                      }}
+                                    />
+                                  ) : null}
+                                </div>
+                                <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
+                                <div className="text-[11px]">{it.unit}</div>
+                                <div className="text-right text-[11px]">{currencyEUR(it.unit_price)}</div>
+                                <div className="text-right text-[11px]">{currencyEUR(it.line_total)}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <div className="pt-4">
