@@ -123,9 +123,9 @@ type PagedGroup = {
 function paginateOfferGroups(groups: OfferGroup[]) {
   // These capacities are heuristics ("row units") used to avoid clipping at the page bottom.
   // We keep them conservative because the last page also contains totals + footer.
-  const FIRST_PAGE_CAPACITY = 16;
-  const OTHER_PAGE_CAPACITY = 22;
-  const SAFETY_ROWS = 2;
+  const FIRST_PAGE_CAPACITY = 14;
+  const OTHER_PAGE_CAPACITY = 18;
+  const SAFETY_ROWS = 5;
 
   const pages: PagedGroup[][] = [];
   let current: PagedGroup[] = [];
@@ -627,7 +627,7 @@ export default function OfferPdfPreviewPage() {
                   )}
                 </div>
 
-                <div className={isLast ? "overflow-hidden pt-4" : "flex-1 overflow-hidden pt-4"}>
+                <div className={isLast ? "pt-4" : "flex-1 min-h-0 pt-4"}>
                   {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
                   {pageGroups.map((g) => (
                     <div key={`${pageIndex}-${g.id}`} className="mt-6">
