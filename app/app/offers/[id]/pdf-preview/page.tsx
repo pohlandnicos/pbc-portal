@@ -119,11 +119,22 @@ function htmlToPlainTextPreserveLines(html: string) {
     html
       .replace(/\r\n/g, "\n")
       .replace(/<\s*br\s*\/?>/gi, "\n")
+      // Some editors (e.g. contenteditable) wrap each line in <div>...</div>
+      .replace(/<\s*\/div\s*>\s*<\s*div\s*>/gi, "\n")
+      .replace(/<\s*div\s*>/gi, "")
+      .replace(/<\s*\/div\s*>/gi, "\n")
       .replace(/<\s*\/p\s*>\s*<\s*p\s*>/gi, "\n\n")
       .replace(/<\s*p\s*>/gi, "")
       .replace(/<\s*\/p\s*>/gi, "")
+      .replace(/<\s*li\s*>/gi, "\n- ")
+      .replace(/<\s*\/li\s*>/gi, "")
+      .replace(/<\s*ul\s*>/gi, "")
+      .replace(/<\s*\/ul\s*>/gi, "\n")
       .replace(/<[^>]*>/g, "")
       .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
       .replace(/\n{3,}/g, "\n\n")
       .trim()
   );
