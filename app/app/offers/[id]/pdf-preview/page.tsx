@@ -896,6 +896,17 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 )}
 
+                {!isLast ? (
+                  <div className="mt-2 flex justify-end">
+                    <div className="w-[90mm] border-t border-zinc-300 pt-2">
+                      <div className="flex items-baseline justify-between text-[11px]">
+                        <div className="text-zinc-700">Zwischensumme</div>
+                        <div className="font-semibold">{currencyEUR(runningSubtotalNet)}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 {isLast ? (
                   <div className="mt-2 flex justify-end">
                     <div className="w-[90mm] pt-3">
@@ -929,17 +940,6 @@ export default function OfferPdfPreviewPage() {
                 <div className="flex-1" style={{ minHeight: "10mm" }} />
 
                 <div>
-                  {!isLast ? (
-                    <div className="flex justify-end" style={{ marginBottom: "4mm" }}>
-                      <div className="w-[90mm] border-t border-zinc-300 pt-2">
-                        <div className="flex items-baseline justify-between text-[11px]">
-                          <div className="text-zinc-700">Zwischensumme</div>
-                          <div className="font-semibold">{currencyEUR(runningSubtotalNet)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-
                   {footerColumns ? (
                     <div className="border-t border-zinc-300 pt-2">
                       {footerColumns.mode === "custom" ? (
