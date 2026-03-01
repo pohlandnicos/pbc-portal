@@ -443,7 +443,7 @@ export default function OfferPdfPreviewPage() {
       <div className={`min-h-screen ${isInIframe ? 'bg-white m-0 p-0' : 'bg-zinc-100 px-4 py-8'}`}>
         <div
           ref={isInIframe ? iframeContainerRef : undefined}
-          className={`${isInIframe ? 'w-full max-w-full space-y-0' : 'mx-auto max-w-[900px] space-y-8'}`}
+          className={`${isInIframe ? 'w-full max-w-full space-y-6 py-6 px-4' : 'mx-auto max-w-[900px] space-y-8'}`}
         >
           {pages.map((pageGroups, pageIndex) => {
             const pageNo = pageIndex + 1;
@@ -478,7 +478,7 @@ export default function OfferPdfPreviewPage() {
           return (
             <div key={pageIndex} className={isInIframe ? "w-full" : ""} style={pageWrapperStyle}>
               <div
-                className={`${isInIframe ? '' : 'mx-auto rounded shadow'} bg-white`}
+                className={`${isInIframe ? 'border border-zinc-200 shadow-sm' : 'mx-auto rounded shadow'} bg-white`}
                 style={pageOuterStyle}
               >
               <div
