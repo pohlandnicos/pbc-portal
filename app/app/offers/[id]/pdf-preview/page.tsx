@@ -230,10 +230,20 @@ export default function OfferPdfPreviewPage() {
         setLoading(false);
         return;
       }
+
+      const t0 = performance.now();
+      console.log("[PdfPreviewTiming] load start", { id, t0 });
+
       setLoading(true);
       setError(null);
       try {
+        const tFetch0 = performance.now();
         const offerRes = await fetch(`/api/offers/${id}`, { cache: "no-store" });
+        console.log("[PdfPreviewTiming] /api/offers fetch done", {
+          ms: Math.round(performance.now() - tFetch0),
+          ok: offerRes.ok,
+          status: offerRes.status,
+        });
         const offerJson = (await offerRes.json().catch(() => null)) as
           | { data?: OfferData; error?: string; message?: string }
           | null;
@@ -255,6 +265,7 @@ export default function OfferPdfPreviewPage() {
           .catch(() => null);
       } finally {
         setLoading(false);
+        console.log("[PdfPreviewTiming] load end", { ms: Math.round(performance.now() - t0) });
       }
     }
 

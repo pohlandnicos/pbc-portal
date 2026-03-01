@@ -58,10 +58,13 @@ function OfferEditor() {
   const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
   const previewPostTimerRef = useRef<number | null>(null);
   const [previewLoaded, setPreviewLoaded] = useState(false);
+  const previewOpenStartedAtRef = useRef<number | null>(null);
 
   // Auto-collapse sidebar when preview opens
   useEffect(() => {
     if (showPreview) {
+      previewOpenStartedAtRef.current = performance.now();
+      console.log("[PreviewTiming] open start", { t: previewOpenStartedAtRef.current });
       window.dispatchEvent(new CustomEvent('collapseSidebar', { detail: { collapse: true } }));
       window.dispatchEvent(new CustomEvent('setMainFullWidth', { detail: { fullWidth: true } }));
     } else {
@@ -142,6 +145,8 @@ function OfferEditor() {
     if (!existingOfferId) return;
     const win = previewIframeRef.current?.contentWindow;
     if (!win) return;
+
+    console.log("[PreviewTiming] posting draft", { t: performance.now() });
 
     const draftGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
     const draftOfferGroups = draftGroups.map((g) => ({
@@ -1424,6 +1429,14 @@ function OfferEditor() {
                   loading="eager"
                   onLoad={() => {
                     setPreviewLoaded(true);
+                    const started = previewOpenStartedAtRef.current;
+                    if (typeof started === "number") {
+                      console.log("[PreviewTiming] iframe onLoad", {
+                        dtMs: Math.round(performance.now() - started),
+                      });
+                    } else {
+                      console.log("[PreviewTiming] iframe onLoad", { t: performance.now() });
+                    }
                     postPreviewDraft();
                   }}
                   className={`w-full h-full border-0 m-0 p-0 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
