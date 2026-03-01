@@ -233,32 +233,26 @@ export default function OfferPdfPreviewPage() {
       setLoading(true);
       setError(null);
       try {
-        const [offerRes, layoutRes] = await Promise.all([
-          fetch(`/api/offers/${id}`, { cache: "no-store" }),
-          fetch("/api/settings/text-layout", { cache: "no-store" }),
-        ]);
-
+        const offerRes = await fetch(`/api/offers/${id}`, { cache: "no-store" });
         const offerJson = (await offerRes.json().catch(() => null)) as
           | { data?: OfferData; error?: string; message?: string }
           | null;
-        const layoutJson = (await layoutRes.json().catch(() => null)) as
-          | { data?: TextLayoutSettings; error?: string; message?: string }
-          | null;
 
         if (!offerRes.ok) {
-          setError(
-            offerJson?.message ??
-              offerJson?.error ??
-              `Laden fehlgeschlagen (HTTP ${offerRes.status})`
-          );
+          setError(offerJson?.message ?? offerJson?.error ?? `Laden fehlgeschlagen (HTTP ${offerRes.status})`);
           return;
         }
 
-        if (layoutRes.ok) {
-          setLayout(layoutJson?.data ?? null);
-        }
-
         setData(offerJson?.data ?? null);
+
+        // Layout is non-blocking: fetch in background
+        void fetch("/api/settings/text-layout", { cache: "no-store" })
+          .then((layoutRes) => layoutRes.json().catch(() => null).then((layoutJson) => ({ layoutRes, layoutJson })))
+          .then(({ layoutRes, layoutJson }) => {
+            if (!layoutRes.ok) return;
+            setLayout((layoutJson as any)?.data ?? null);
+          })
+          .catch(() => null);
       } finally {
         setLoading(false);
       }

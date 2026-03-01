@@ -1390,7 +1390,7 @@ function OfferEditor() {
         </div>
 
         {/* PDF Preview Section */}
-        <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-0'} h-screen bg-white flex flex-col overflow-hidden transition-all duration-300`}>
+        <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-[1px]'} h-screen bg-white flex flex-col overflow-hidden transition-all duration-300`}>
           {existingOfferId && (
             <>
               <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
@@ -1413,6 +1413,7 @@ function OfferEditor() {
                 <iframe
                   ref={previewIframeRef}
                   src={`/app/offers/${existingOfferId}/pdf-preview`}
+                  loading="eager"
                   onLoad={() => setPreviewLoaded(true)}
                   className={`w-full h-full border-0 m-0 p-0 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                   style={{ display: 'block', margin: 0, padding: 0 }}
