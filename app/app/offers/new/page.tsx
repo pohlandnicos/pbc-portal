@@ -60,8 +60,10 @@ function OfferEditor() {
   useEffect(() => {
     if (showPreview) {
       window.dispatchEvent(new CustomEvent('collapseSidebar', { detail: { collapse: true } }));
+      window.dispatchEvent(new CustomEvent('setMainFullWidth', { detail: { fullWidth: true } }));
     } else {
       window.dispatchEvent(new CustomEvent('collapseSidebar', { detail: { collapse: false } }));
+      window.dispatchEvent(new CustomEvent('setMainFullWidth', { detail: { fullWidth: false } }));
     }
   }, [showPreview]);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");

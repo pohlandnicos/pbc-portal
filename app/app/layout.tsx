@@ -72,9 +72,10 @@ const navItems = [
   },
 ];
 
-export default function AppLayout({ children }: { children: ReactNode }) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
+  const [isFullWidth, setIsFullWidth] = useState(false);
 
   useEffect(() => {
     const handleCollapse = (e: CustomEvent) => {
@@ -82,6 +83,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     };
     window.addEventListener('collapseSidebar', handleCollapse as EventListener);
     return () => window.removeEventListener('collapseSidebar', handleCollapse as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handleFullWidth = (e: CustomEvent) => {
+      setIsFullWidth(Boolean(e.detail?.fullWidth));
+    };
+    window.addEventListener('setMainFullWidth', handleFullWidth as EventListener);
+    return () => window.removeEventListener('setMainFullWidth', handleFullWidth as EventListener);
   }, []);
 
   // Detect if we're in an iframe
@@ -148,7 +157,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <main className="flex-1 h-screen overflow-y-auto">
-        <div className={isInIframe ? "" : "mx-auto max-w-7xl"}>{children}</div>
+        <div className={isInIframe || isFullWidth ? "" : "mx-auto max-w-7xl"}>{children}</div>
       </main>
     </div>
   );
