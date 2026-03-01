@@ -509,17 +509,32 @@ export default function OfferPdfPreviewPage() {
             );
           }, 0);
 
+          const pageWidthMm = 210;
+          const pageHeightMm = 297;
+          const pxPerMm = 96 / 25.4;
+          const pageWidthPx = pageWidthMm * pxPerMm;
+          const pageHeightPx = pageHeightMm * pxPerMm;
+
           const pageOuterStyle = isInIframe
             ? ({
                 width: "210mm",
                 height: "297mm",
-                // Use zoom so the layout itself is scaled; this prevents horizontal overflow/swiping.
-                zoom: iframeScale,
+                transform: `scale(${iframeScale})`,
+                transformOrigin: "top left",
+                position: "absolute",
+                top: 0,
+                left: 0,
               } as const)
             : ({ width: "210mm", height: "297mm" } as const);
 
           const pageWrapperStyle = isInIframe
-            ? ({ width: "100%", display: "flex", justifyContent: "center" } as const)
+            ? ({
+                width: `${pageWidthPx * iframeScale}px`,
+                height: `${pageHeightPx * iframeScale}px`,
+                marginLeft: "auto",
+                marginRight: "auto",
+                position: "relative",
+              } as const)
             : undefined;
 
           return (
