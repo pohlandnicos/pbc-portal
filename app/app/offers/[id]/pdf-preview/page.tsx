@@ -267,6 +267,27 @@ export default function OfferPdfPreviewPage() {
     void load();
   }, [id]);
 
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      const msg = e.data as any;
+      if (!msg || msg.type !== "offerDraft" || !msg.payload) return;
+
+      setData((prev) => {
+        if (!prev) return prev;
+        const p = msg.payload as Partial<OfferData>;
+        return {
+          ...prev,
+          ...p,
+          groups: Array.isArray(p.groups) ? (p.groups as any) : prev.groups,
+        };
+      });
+    };
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
   const recipientLines = useMemo(() => {
     const c = data?.customers;
     if (!c) return [] as string[];

@@ -55,6 +55,9 @@ function OfferEditor() {
   const [error, setError] = useState<string | null>(null);
   const [existingOfferId, setExistingOfferId] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
+  const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const previewPostTimerRef = useRef<number | null>(null);
+  const [previewLoaded, setPreviewLoaded] = useState(false);
 
   // Auto-collapse sidebar when preview opens
   useEffect(() => {
@@ -66,6 +69,11 @@ function OfferEditor() {
       window.dispatchEvent(new CustomEvent('setMainFullWidth', { detail: { fullWidth: false } }));
     }
   }, [showPreview]);
+
+  useEffect(() => {
+    // Reset loading state when switching to a different offer
+    setPreviewLoaded(false);
+  }, [existingOfferId]);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [justLoaded, setJustLoaded] = useState(false);
   const [customers, setCustomers] = useState<Array<{
@@ -129,6 +137,53 @@ function OfferEditor() {
   const [discountDays, setDiscountDays] = useState<number | null>(null);
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
+
+  useEffect(() => {
+    if (!showPreview) return;
+    if (!existingOfferId) return;
+
+    const win = previewIframeRef.current?.contentWindow;
+    if (!win) return;
+
+    if (previewPostTimerRef.current) {
+      window.clearTimeout(previewPostTimerRef.current);
+    }
+
+    previewPostTimerRef.current = window.setTimeout(() => {
+      const draftGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
+      const draftOfferGroups = draftGroups.map((g) => ({
+        id: g.id,
+        index: g.index,
+        title: g.title,
+        offer_items: (items[g.id] ?? []).map((it) => ({
+          id: it.id,
+          position_index: it.position_index,
+          name: it.name,
+          description: it.description ?? null,
+          qty: it.qty,
+          unit: it.unit,
+          unit_price: it.unit_price,
+          line_total: it.line_total,
+        })),
+      }));
+
+      win.postMessage(
+        {
+          type: "offerDraft",
+          payload: {
+            title,
+            offer_date: offerDate,
+            intro_salutation: introSalutation,
+            intro_body_html: introText,
+            outro_body_html: outroText,
+            tax_rate: taxRate,
+            groups: draftOfferGroups,
+          },
+        },
+        window.location.origin
+      );
+    }, 250);
+  }, [showPreview, existingOfferId, title, offerDate, introSalutation, introText, outroText, taxRate, groups, items]);
 
   async function syncGroupsAndItemsToOffer(offerId: string) {
     const localGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
@@ -1336,7 +1391,7 @@ function OfferEditor() {
 
         {/* PDF Preview Section */}
         <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-0'} h-screen bg-white flex flex-col overflow-hidden transition-all duration-300`}>
-          {showPreview && existingOfferId && (
+          {existingOfferId && (
             <>
               <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-zinc-900">PDF Vorschau</h2>
@@ -1349,10 +1404,17 @@ function OfferEditor() {
                   </svg>
                 </button>
               </div>
-              <div className="flex-1 m-0 p-0" style={{ overflow: 'hidden' }}>
+              <div className="relative flex-1 m-0 p-0" style={{ overflow: 'hidden' }}>
+                {!previewLoaded && showPreview && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white text-sm text-zinc-600">
+                    Lädt Vorschau...
+                  </div>
+                )}
                 <iframe
+                  ref={previewIframeRef}
                   src={`/app/offers/${existingOfferId}/pdf-preview`}
-                  className="w-full h-full border-0 m-0 p-0"
+                  onLoad={() => setPreviewLoaded(true)}
+                  className={`w-full h-full border-0 m-0 p-0 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                   style={{ display: 'block', margin: 0, padding: 0 }}
                   title="PDF Vorschau"
                 />
