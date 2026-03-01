@@ -151,7 +151,7 @@ function paginateOfferGroups(groups: OfferGroup[]) {
   // We keep them conservative because the last page also contains totals + footer.
   const FIRST_PAGE_CAPACITY = 20;
   const OTHER_PAGE_CAPACITY = 30;
-  const SAFETY_ROWS = 3;
+  const SAFETY_ROWS = 4;
 
   const itemUnits = (it: OfferItem) => {
     // Each item row contains name + (optional) description.
@@ -806,7 +806,7 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : null}
 
-                <div className="flex-1" />
+                <div className="flex-1" style={{ minHeight: "6mm" }} />
 
                 <div>
                   {!isLast ? (
