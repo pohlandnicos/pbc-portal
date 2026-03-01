@@ -268,12 +268,23 @@ export default function OfferPdfPreviewPage() {
       if (!msg || msg.type !== "offerDraft" || !msg.payload) return;
 
       setData((prev) => {
-        if (!prev) return prev;
         const p = msg.payload as Partial<OfferData>;
+        const base: OfferData = prev ?? {
+          id,
+          title: typeof p.title === "string" ? p.title : "Angebot",
+          offer_date: typeof (p as any).offer_date === "string" ? (p as any).offer_date : new Date().toISOString(),
+          intro_salutation: typeof p.intro_salutation === "string" ? p.intro_salutation : null,
+          intro_body_html: typeof p.intro_body_html === "string" ? p.intro_body_html : null,
+          outro_body_html: typeof p.outro_body_html === "string" ? p.outro_body_html : null,
+          tax_rate: typeof p.tax_rate === "number" ? p.tax_rate : null,
+          customers: null,
+          projects: null,
+          groups: Array.isArray((p as any).groups) ? ((p as any).groups as any) : [],
+        };
         return {
-          ...prev,
+          ...base,
           ...p,
-          groups: Array.isArray(p.groups) ? (p.groups as any) : prev.groups,
+          groups: Array.isArray(p.groups) ? (p.groups as any) : base.groups,
         };
       });
     };
@@ -410,7 +421,7 @@ export default function OfferPdfPreviewPage() {
     };
   }, [layout]);
 
-  if (loading) {
+  if (loading && !data) {
     return <div className="min-h-screen bg-zinc-50 p-6 text-sm text-zinc-700">Lädt...</div>;
   }
 

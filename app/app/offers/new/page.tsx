@@ -138,6 +138,45 @@ function OfferEditor() {
   const [taxRate, setTaxRate] = useState(19);
   const [showVatForLabor, setShowVatForLabor] = useState(false);
 
+  const postPreviewDraft = () => {
+    if (!existingOfferId) return;
+    const win = previewIframeRef.current?.contentWindow;
+    if (!win) return;
+
+    const draftGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
+    const draftOfferGroups = draftGroups.map((g) => ({
+      id: g.id,
+      index: g.index,
+      title: g.title,
+      offer_items: (items[g.id] ?? []).map((it) => ({
+        id: it.id,
+        position_index: it.position_index,
+        name: it.name,
+        description: it.description ?? null,
+        qty: it.qty,
+        unit: it.unit,
+        unit_price: it.unit_price,
+        line_total: it.line_total,
+      })),
+    }));
+
+    win.postMessage(
+      {
+        type: "offerDraft",
+        payload: {
+          title,
+          offer_date: offerDate,
+          intro_salutation: introSalutation,
+          intro_body_html: introText,
+          outro_body_html: outroText,
+          tax_rate: taxRate,
+          groups: draftOfferGroups,
+        },
+      },
+      window.location.origin
+    );
+  };
+
   useEffect(() => {
     if (!showPreview) return;
     if (!existingOfferId) return;
@@ -150,38 +189,7 @@ function OfferEditor() {
     }
 
     previewPostTimerRef.current = window.setTimeout(() => {
-      const draftGroups = (groups ?? []).slice().sort((a, b) => a.index - b.index);
-      const draftOfferGroups = draftGroups.map((g) => ({
-        id: g.id,
-        index: g.index,
-        title: g.title,
-        offer_items: (items[g.id] ?? []).map((it) => ({
-          id: it.id,
-          position_index: it.position_index,
-          name: it.name,
-          description: it.description ?? null,
-          qty: it.qty,
-          unit: it.unit,
-          unit_price: it.unit_price,
-          line_total: it.line_total,
-        })),
-      }));
-
-      win.postMessage(
-        {
-          type: "offerDraft",
-          payload: {
-            title,
-            offer_date: offerDate,
-            intro_salutation: introSalutation,
-            intro_body_html: introText,
-            outro_body_html: outroText,
-            tax_rate: taxRate,
-            groups: draftOfferGroups,
-          },
-        },
-        window.location.origin
-      );
+      postPreviewDraft();
     }, 250);
   }, [showPreview, existingOfferId, title, offerDate, introSalutation, introText, outroText, taxRate, groups, items]);
 
@@ -1414,7 +1422,10 @@ function OfferEditor() {
                   ref={previewIframeRef}
                   src={`/app/offers/${existingOfferId}/pdf-preview`}
                   loading="eager"
-                  onLoad={() => setPreviewLoaded(true)}
+                  onLoad={() => {
+                    setPreviewLoaded(true);
+                    postPreviewDraft();
+                  }}
                   className={`w-full h-full border-0 m-0 p-0 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                   style={{ display: 'block', margin: 0, padding: 0 }}
                   title="PDF Vorschau"
