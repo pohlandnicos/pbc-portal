@@ -702,7 +702,6 @@ export default function OfferPdfPreviewPage() {
 
                 {!isLast ? (
                   <div className="flex-1 min-h-0 pt-4 flex flex-col">
-                    {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
                     <div className="flex-1 min-h-0">
                       {pageGroups.map((g) => (
                         <div key={`${pageIndex}-${g.id}`} className="mt-6">
@@ -743,7 +742,6 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : (
                   <div className="pt-4">
-                    {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
                     {pageGroups.map((g) => (
                       <div key={`${pageIndex}-${g.id}`} className="mt-6">
                         <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
