@@ -521,7 +521,7 @@ export default function OfferPdfPreviewPage() {
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
                 style={isInIframe 
-                  ? { padding: 0, margin: 0 }
+                  ? { paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "6mm" }
                   : { paddingLeft: "22mm", paddingRight: "18mm", paddingTop: "16mm", paddingBottom: "6mm" }
                 }
               >
