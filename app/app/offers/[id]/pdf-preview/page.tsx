@@ -209,11 +209,14 @@ export default function OfferPdfPreviewPage() {
       const pxPerMm = 96 / 25.4;
       const pageWidthPx = pageWidthMm * pxPerMm;
 
-      const available = Math.max(0, el.clientWidth - padL - padR);
+      // Subtract a few extra pixels for borders/shadows and rounding errors,
+      // otherwise the scaled A4 can clip on the right edge in narrow panes.
+      const fudgePx = 12;
+      const available = Math.max(0, el.clientWidth - padL - padR - fudgePx);
       if (!available) return;
 
       // Fit page into available width (never upscale)
-      const safety = 0.98;
+      const safety = 0.97;
       const next = Math.min(1, (available / pageWidthPx) * safety);
       setIframeScale(next);
     };
