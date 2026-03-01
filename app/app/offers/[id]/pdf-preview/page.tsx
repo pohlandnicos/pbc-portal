@@ -376,8 +376,11 @@ export default function OfferPdfPreviewPage() {
     );
   }
 
-  // Detect if we're in an iframe
-  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+  const [isInIframe, setIsInIframe] = useState(false);
+
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top);
+  }, []);
 
   const iframeContainerRef = useRef<HTMLDivElement | null>(null);
   const [iframeScale, setIframeScale] = useState(1);

@@ -76,6 +76,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
   const [isFullWidth, setIsFullWidth] = useState(false);
+  const [isInIframe, setIsInIframe] = useState(false);
 
   useEffect(() => {
     const handleCollapse = (e: CustomEvent) => {
@@ -93,8 +94,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('setMainFullWidth', handleFullWidth as EventListener);
   }, []);
 
-  // Detect if we're in an iframe
-  const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top);
+  }, []);
 
   return (
     <div className="flex h-screen bg-zinc-50 text-zinc-900 overflow-hidden">
