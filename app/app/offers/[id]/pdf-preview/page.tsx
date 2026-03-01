@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import Head from "next/head";
 
 type OfferCustomer = {
   type: "private" | "company";
@@ -380,6 +379,34 @@ export default function OfferPdfPreviewPage() {
   // Detect if we're in an iframe
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top;
 
+  const iframeContainerRef = useRef<HTMLDivElement | null>(null);
+  const [iframeScale, setIframeScale] = useState(1);
+
+  useEffect(() => {
+    if (!isInIframe) return;
+
+    const updateScale = () => {
+      const el = iframeContainerRef.current;
+      if (!el) return;
+
+      // A4 width in CSS units (as used in the page style below)
+      const pageWidthMm = 210;
+      const pxPerMm = 96 / 25.4;
+      const pageWidthPx = pageWidthMm * pxPerMm;
+
+      const available = el.clientWidth;
+      if (!available) return;
+
+      // Fit page into available width (never upscale)
+      const next = Math.min(1, available / pageWidthPx);
+      setIframeScale(next);
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [isInIframe]);
+
   return (
     <>
       {isInIframe && (
@@ -411,7 +438,10 @@ export default function OfferPdfPreviewPage() {
         `}</style>
       )}
       <div className={`min-h-screen ${isInIframe ? 'bg-white m-0 p-0' : 'bg-zinc-100 px-4 py-8'}`}>
-        <div className={`${isInIframe ? 'w-full max-w-full space-y-0' : 'mx-auto max-w-[900px] space-y-8'}`}>
+        <div
+          ref={isInIframe ? iframeContainerRef : undefined}
+          className={`${isInIframe ? 'w-full max-w-full space-y-0' : 'mx-auto max-w-[900px] space-y-8'}`}
+        >
           {pages.map((pageGroups, pageIndex) => {
             const pageNo = pageIndex + 1;
             const pageCount = pages.length;
@@ -430,12 +460,24 @@ export default function OfferPdfPreviewPage() {
             );
           }, 0);
 
+          const pageOuterStyle = isInIframe
+            ? ({ width: "210mm", height: "297mm", transform: `scale(${iframeScale})`, transformOrigin: "top left" } as const)
+            : ({ width: "210mm", height: "297mm" } as const);
+
+          const pageHeightMm = 297;
+          const pxPerMm = 96 / 25.4;
+          const pageHeightPx = pageHeightMm * pxPerMm;
+
+          const pageWrapperStyle = isInIframe
+            ? ({ height: `${pageHeightPx * iframeScale}px`, width: "100%", overflow: "hidden" } as const)
+            : undefined;
+
           return (
-            <div
-              key={pageIndex}
-              className={`${isInIframe ? 'w-full' : 'mx-auto rounded shadow'} bg-white`}
-              style={isInIframe ? { minHeight: "297mm", margin: 0, padding: 0 } : { width: "210mm", height: "297mm" }}
-            >
+            <div key={pageIndex} className={isInIframe ? "w-full" : ""} style={pageWrapperStyle}>
+              <div
+                className={`${isInIframe ? '' : 'mx-auto rounded shadow'} bg-white`}
+                style={pageOuterStyle}
+              >
               <div
                 className="flex h-full flex-col text-[12px] leading-[1.35] text-zinc-900"
                 style={isInIframe 
@@ -635,6 +677,7 @@ export default function OfferPdfPreviewPage() {
                 ) : (
                   <div className="mt-auto pt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
                 )}
+              </div>
               </div>
             </div>
           );
