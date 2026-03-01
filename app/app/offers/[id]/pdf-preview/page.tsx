@@ -411,7 +411,7 @@ export default function OfferPdfPreviewPage() {
         `}</style>
       )}
       <div className={`min-h-screen ${isInIframe ? 'bg-white m-0 p-0' : 'bg-zinc-100 px-4 py-8'}`}>
-        <div className={`mx-auto ${isInIframe ? 'max-w-full space-y-0' : 'max-w-[900px] space-y-8'}`}>
+        <div className={`${isInIframe ? 'w-full max-w-full space-y-0' : 'mx-auto max-w-[900px] space-y-8'}`}>
           {pages.map((pageGroups, pageIndex) => {
             const pageNo = pageIndex + 1;
             const pageCount = pages.length;

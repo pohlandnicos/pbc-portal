@@ -1333,7 +1333,7 @@ function OfferEditor() {
         </div>
 
         {/* PDF Preview Section */}
-        <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-0'} h-screen flex flex-col overflow-hidden transition-all duration-300`}>
+        <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-0'} h-screen bg-white flex flex-col overflow-hidden transition-all duration-300`}>
           {showPreview && existingOfferId && (
             <>
               <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
