@@ -1068,6 +1068,7 @@ function OfferEditor() {
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50 disabled:opacity-50 flex items-center gap-2"
                 disabled={submitting || !existingOfferId}
                 onClick={async () => {
+                  console.log("[Click] Speichern");
                   if (!existingOfferId) return;
                   console.log("[ManualSave] Current state values:", {
                     title,
@@ -1097,6 +1098,7 @@ function OfferEditor() {
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
                 disabled={submitting}
                 onClick={async () => {
+                  console.log("[Click] Vorschau");
                   if (showPreview) {
                     setShowPreview(false);
                     return;
