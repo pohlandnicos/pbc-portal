@@ -200,16 +200,21 @@ export default function OfferPdfPreviewPage() {
       const el = iframeContainerRef.current;
       if (!el) return;
 
+      const cs = window.getComputedStyle(el);
+      const padL = Number.parseFloat(cs.paddingLeft || "0") || 0;
+      const padR = Number.parseFloat(cs.paddingRight || "0") || 0;
+
       // A4 width in CSS units (as used in the page style below)
       const pageWidthMm = 210;
       const pxPerMm = 96 / 25.4;
       const pageWidthPx = pageWidthMm * pxPerMm;
 
-      const available = el.clientWidth;
+      const available = Math.max(0, el.clientWidth - padL - padR);
       if (!available) return;
 
       // Fit page into available width (never upscale)
-      const next = Math.min(1, available / pageWidthPx);
+      const safety = 0.98;
+      const next = Math.min(1, (available / pageWidthPx) * safety);
       setIframeScale(next);
     };
 
