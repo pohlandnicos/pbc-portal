@@ -210,12 +210,26 @@ function paginateOfferGroups(groups: OfferGroup[]) {
   // We keep them conservative because the last page also contains totals + footer.
   const FIRST_PAGE_CAPACITY = 20;
   const OTHER_PAGE_CAPACITY = 30;
-  const SAFETY_ROWS = 4;
+  const SAFETY_ROWS = 6;
+
+  const descriptionUnits = (raw: string) => {
+    const s = String(raw ?? "");
+    if (!s.trim()) return 0;
+
+    // The editor stores rich text as HTML and uses <div> blocks for Enter.
+    // Estimate height by counting common line break markers.
+    const breaks = (
+      s.match(/<\s*br\b[^>]*>|<\s*\/div\s*>|<\s*\/p\s*>|<\s*\/li\s*>|\n|\u2028|\u2029/gi) ??
+      []
+    ).length;
+
+    // Base description takes at least one extra unit; add a few more for multi-line text.
+    return 1 + Math.min(4, breaks);
+  };
 
   const itemUnits = (it: OfferItem) => {
-    // Each item row contains name + (optional) description.
-    // Treat description as additional height so we page-break before clipping.
-    return it.description && String(it.description).trim() ? 2 : 1;
+    // Base row for the item name
+    return 1 + descriptionUnits(it.description ?? "");
   };
 
   const pages: PagedGroup[][] = [];
@@ -883,7 +897,7 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : null}
 
-                <div className="flex-1" style={{ minHeight: "6mm" }} />
+                <div className="flex-1" style={{ minHeight: "10mm" }} />
 
                 <div>
                   {!isLast ? (
