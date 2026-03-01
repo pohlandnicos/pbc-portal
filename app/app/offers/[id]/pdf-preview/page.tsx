@@ -595,29 +595,48 @@ export default function OfferPdfPreviewPage() {
                     ) : null}
                   </div>
 
-                  <div className="grid grid-cols-[90mm_1fr] gap-6" style={{ marginTop: "10mm", minHeight: "45mm" }}>
-                    <div>
-                      {senderLine ? <div className="mb-1 text-[10px] text-zinc-600">{senderLine}</div> : null}
-                      {recipientLines.map((l, idx) => (
-                        <div key={idx}>{l}</div>
-                      ))}
-                    </div>
+                  {isFirst ? (
+                    <div className="grid grid-cols-[90mm_1fr] gap-6" style={{ marginTop: "10mm", minHeight: "45mm" }}>
+                      <div>
+                        {senderLine ? <div className="mb-1 text-[10px] text-zinc-600">{senderLine}</div> : null}
+                        {recipientLines.map((l, idx) => (
+                          <div key={idx}>{l}</div>
+                        ))}
+                      </div>
 
-                    <div className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <div className="text-zinc-600">Angebotsdatum:</div>
-                        <div>{formatDateDE(data.offer_date)}</div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <div className="text-zinc-600">Projektnummer:</div>
-                        <div>{data.project_number ?? ""}</div>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <div className="text-zinc-600">Angebotsnummer:</div>
-                        <div>{data.offer_number ?? data.id}</div>
+                      <div className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <div className="text-zinc-600">Angebotsdatum:</div>
+                          <div>{formatDateDE(data.offer_date)}</div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <div className="text-zinc-600">Projektnummer:</div>
+                          <div>{data.project_number ?? ""}</div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <div className="text-zinc-600">Angebotsnummer:</div>
+                          <div>{data.offer_number ?? data.id}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div style={{ marginTop: "10mm", minHeight: "30mm" }}>
+                      <div className="max-w-[90mm]">
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Angebotsdatum:</div>
+                          <div>{formatDateDE(data.offer_date)}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Projektnummer:</div>
+                          <div>{data.project_number ?? ""}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Angebotsnummer:</div>
+                          <div>{data.offer_number ?? data.id}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {isFirst ? (
                     <div className="mt-4">
