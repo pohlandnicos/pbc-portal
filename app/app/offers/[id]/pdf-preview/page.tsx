@@ -184,6 +184,40 @@ function paginateOfferGroups(groups: OfferGroup[]) {
 export default function OfferPdfPreviewPage() {
   const params = useParams<{ id: string }>();
   const id = typeof params?.id === "string" ? params.id : "";
+
+  const [isInIframe, setIsInIframe] = useState(false);
+  const iframeContainerRef = useRef<HTMLDivElement | null>(null);
+  const [iframeScale, setIframeScale] = useState(1);
+
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top);
+  }, []);
+
+  useEffect(() => {
+    if (!isInIframe) return;
+
+    const updateScale = () => {
+      const el = iframeContainerRef.current;
+      if (!el) return;
+
+      // A4 width in CSS units (as used in the page style below)
+      const pageWidthMm = 210;
+      const pxPerMm = 96 / 25.4;
+      const pageWidthPx = pageWidthMm * pxPerMm;
+
+      const available = el.clientWidth;
+      if (!available) return;
+
+      // Fit page into available width (never upscale)
+      const next = Math.min(1, available / pageWidthPx);
+      setIframeScale(next);
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [isInIframe]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<OfferData | null>(null);
@@ -375,40 +409,6 @@ export default function OfferPdfPreviewPage() {
       </div>
     );
   }
-
-  const [isInIframe, setIsInIframe] = useState(false);
-
-  useEffect(() => {
-    setIsInIframe(window.self !== window.top);
-  }, []);
-
-  const iframeContainerRef = useRef<HTMLDivElement | null>(null);
-  const [iframeScale, setIframeScale] = useState(1);
-
-  useEffect(() => {
-    if (!isInIframe) return;
-
-    const updateScale = () => {
-      const el = iframeContainerRef.current;
-      if (!el) return;
-
-      // A4 width in CSS units (as used in the page style below)
-      const pageWidthMm = 210;
-      const pxPerMm = 96 / 25.4;
-      const pageWidthPx = pageWidthMm * pxPerMm;
-
-      const available = el.clientWidth;
-      if (!available) return;
-
-      // Fit page into available width (never upscale)
-      const next = Math.min(1, available / pageWidthPx);
-      setIframeScale(next);
-    };
-
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, [isInIframe]);
 
   return (
     <>
