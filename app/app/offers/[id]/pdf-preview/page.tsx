@@ -801,7 +801,9 @@ export default function OfferPdfPreviewPage() {
 
                 {isLast && data.outro_body_html ? (
                   <div className="mt-6 text-[12px] text-zinc-800">
-                    {data.outro_body_html.replace(/<[^>]*>/g, "").trim()}
+                    <div style={{ whiteSpace: "pre-line" }}>
+                      {htmlToPlainTextPreserveLines(data.outro_body_html)}
+                    </div>
                   </div>
                 ) : null}
 
