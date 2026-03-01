@@ -188,6 +188,7 @@ export default function OfferPdfPreviewPage() {
   const [isInIframe, setIsInIframe] = useState(false);
   const iframeContainerRef = useRef<HTMLDivElement | null>(null);
   const [iframeScale, setIframeScale] = useState(1);
+  const [iframeOffsetX, setIframeOffsetX] = useState(0);
 
   useEffect(() => {
     setIsInIframe(window.self !== window.top);
@@ -219,6 +220,11 @@ export default function OfferPdfPreviewPage() {
       const safety = 0.97;
       const next = Math.min(1, (available / pageWidthPx) * safety);
       setIframeScale(next);
+
+      // Center the scaled page within the available width.
+      const scaledWidth = pageWidthPx * next;
+      const offset = Math.max(0, (available - scaledWidth) / 2);
+      setIframeOffsetX(offset);
     };
 
     updateScale();
@@ -509,7 +515,12 @@ export default function OfferPdfPreviewPage() {
           }, 0);
 
           const pageOuterStyle = isInIframe
-            ? ({ width: "210mm", height: "297mm", transform: `scale(${iframeScale})`, transformOrigin: "top left" } as const)
+            ? ({
+                width: "210mm",
+                height: "297mm",
+                transform: `translateX(${iframeOffsetX}px) scale(${iframeScale})`,
+                transformOrigin: "top left",
+              } as const)
             : ({ width: "210mm", height: "297mm" } as const);
 
           const pageHeightMm = 297;
@@ -517,7 +528,7 @@ export default function OfferPdfPreviewPage() {
           const pageHeightPx = pageHeightMm * pxPerMm;
 
           const pageWrapperStyle = isInIframe
-            ? ({ height: `${pageHeightPx * iframeScale}px`, width: "100%", overflow: "hidden" } as const)
+            ? ({ height: `${pageHeightPx * iframeScale}px`, width: "100%" } as const)
             : undefined;
 
           return (
