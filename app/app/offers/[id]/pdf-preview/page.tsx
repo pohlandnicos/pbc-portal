@@ -113,6 +113,22 @@ function currencyEUR(value: number) {
   return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(value);
 }
 
+function htmlToPlainTextPreserveLines(html: string) {
+  if (!html) return "";
+  return (
+    html
+      .replace(/\r\n/g, "\n")
+      .replace(/<\s*br\s*\/?>/gi, "\n")
+      .replace(/<\s*\/p\s*>\s*<\s*p\s*>/gi, "\n\n")
+      .replace(/<\s*p\s*>/gi, "")
+      .replace(/<\s*\/p\s*>/gi, "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+  );
+}
+
 type PagedGroup = {
   id: string;
   index: number;
@@ -614,9 +630,11 @@ export default function OfferPdfPreviewPage() {
                       <div className="mt-4 text-[12px]">
                         <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
                         <div className="mt-1 text-zinc-800">
-                          {data.intro_body_html
-                            ? data.intro_body_html.replace(/<[^>]*>/g, "").trim()
-                            : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
+                          <div style={{ whiteSpace: "pre-line" }}>
+                            {data.intro_body_html
+                              ? htmlToPlainTextPreserveLines(data.intro_body_html)
+                              : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
+                          </div>
                         </div>
                       </div>
                     </div>
