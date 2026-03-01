@@ -146,6 +146,58 @@ function htmlToPlainTextPreserveLines(html: string) {
   );
 }
 
+function sanitizeRichTextHtml(html: string) {
+  if (!html) return "";
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+    const root = doc.body.firstElementChild;
+    if (!root) return "";
+
+    const allowed = new Set([
+      "DIV",
+      "P",
+      "BR",
+      "B",
+      "STRONG",
+      "I",
+      "EM",
+      "U",
+      "UL",
+      "OL",
+      "LI",
+      "SPAN",
+    ]);
+
+    const walk = (node: Node) => {
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as Element;
+        const tag = el.tagName.toUpperCase();
+
+        if (!allowed.has(tag)) {
+          const text = doc.createTextNode(el.textContent ?? "");
+          el.replaceWith(text);
+          return;
+        }
+
+        for (const attr of Array.from(el.attributes)) {
+          el.removeAttribute(attr.name);
+        }
+      }
+
+      for (const child of Array.from(node.childNodes)) {
+        walk(child);
+      }
+    };
+
+    walk(root);
+    return root.innerHTML;
+  } catch {
+    return "";
+  }
+}
+
 type PagedGroup = {
   id: string;
   index: number;
@@ -691,11 +743,16 @@ export default function OfferPdfPreviewPage() {
                       <div className="mt-4 text-[12px]">
                         <div className="font-normal">{data.intro_salutation ?? "Sehr geehrte Damen und Herren,"}</div>
                         <div className="mt-1 text-zinc-800">
-                          <div style={{ whiteSpace: "pre-line" }}>
-                            {data.intro_body_html
-                              ? htmlToPlainTextPreserveLines(data.intro_body_html)
-                              : "Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:"}
-                          </div>
+                          {data.intro_body_html ? (
+                            <div
+                              className="whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+                              dangerouslySetInnerHTML={{
+                                __html: sanitizeRichTextHtml(data.intro_body_html),
+                              }}
+                            />
+                          ) : (
+                            <div>Herzlichen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen hiermit folgendes Angebot:</div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -807,9 +864,12 @@ export default function OfferPdfPreviewPage() {
 
                 {isLast && data.outro_body_html ? (
                   <div className="mt-6 text-[12px] text-zinc-800">
-                    <div style={{ whiteSpace: "pre-line" }}>
-                      {htmlToPlainTextPreserveLines(data.outro_body_html)}
-                    </div>
+                    <div
+                      className="whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeRichTextHtml(data.outro_body_html),
+                      }}
+                    />
                   </div>
                 ) : null}
 
