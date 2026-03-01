@@ -788,7 +788,12 @@ export default function OfferPdfPreviewPage() {
                                   <div>
                                     <div className="text-[11px] font-semibold">{it.name}</div>
                                     {it.description ? (
-                                      <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
+                                      <div
+                                        className="mt-1 text-[10px] text-zinc-700 whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+                                        dangerouslySetInnerHTML={{
+                                          __html: sanitizeRichTextHtml(it.description),
+                                        }}
+                                      />
                                     ) : null}
                                   </div>
                                   <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
@@ -827,7 +832,12 @@ export default function OfferPdfPreviewPage() {
                                 <div>
                                   <div className="text-[11px] font-semibold">{it.name}</div>
                                   {it.description ? (
-                                    <div className="mt-1 text-[10px] text-zinc-700">{it.description}</div>
+                                    <div
+                                      className="mt-1 text-[10px] text-zinc-700 whitespace-pre-wrap [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:my-1"
+                                      dangerouslySetInnerHTML={{
+                                        __html: sanitizeRichTextHtml(it.description),
+                                      }}
+                                    />
                                   ) : null}
                                 </div>
                                 <div className="text-right text-[11px]">{String(it.qty).replace(".", ",")}</div>
