@@ -685,15 +685,6 @@ export default function OfferPdfPreviewPage() {
                         </div>
                       ))}
                     </div>
-
-                    <div className="mt-auto flex justify-end">
-                      <div className="w-[90mm] border-t border-zinc-300 pt-2">
-                        <div className="flex items-baseline justify-between text-[11px]">
-                          <div className="text-zinc-700">Zwischensumme</div>
-                          <div className="font-semibold">{currencyEUR(runningSubtotalNet)}</div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 ) : (
                   <div className="pt-4">
@@ -761,55 +752,68 @@ export default function OfferPdfPreviewPage() {
                   </div>
                 ) : null}
 
-                {isLast ? <div className="flex-1" /> : null}
+                <div className="flex-1" />
 
-                {footerColumns ? (
-                  <div className="mt-auto border-t border-zinc-300 pt-2">
-                    {footerColumns.mode === "custom" ? (
-                      <div
-                        className="text-[10px] text-zinc-900"
-                        dangerouslySetInnerHTML={{ __html: footerColumns.html }}
-                      />
-                    ) : (
-                      <div className="grid grid-cols-4 gap-6 text-[10px]">
-                        <div>
-                          <div className="mb-2 font-semibold">Anschrift</div>
-                          {footerColumns.address.map((l, idx) => (
-                            <div key={idx}>{l}</div>
-                          ))}
-                        </div>
-                        <div>
-                          <div className="mb-2 font-semibold">Bankverbindung</div>
-                          {footerColumns.bank.length ? (
-                            footerColumns.bank.map((l, idx) => <div key={idx}>{l}</div>)
-                          ) : (
-                            <div className="text-zinc-500">—</div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="mb-2 font-semibold">Kontakt</div>
-                          {footerColumns.contact.length ? (
-                            footerColumns.contact.map((l, idx) => <div key={idx}>{l}</div>)
-                          ) : (
-                            <div className="text-zinc-500">—</div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="mb-2 font-semibold">Unternehmensdaten</div>
-                          {footerColumns.legal.length ? (
-                            footerColumns.legal.map((l, idx) => <div key={idx}>{l}</div>)
-                          ) : (
-                            <div className="text-zinc-500">—</div>
-                          )}
+                <div>
+                  {!isLast ? (
+                    <div className="flex justify-end">
+                      <div className="w-[90mm] border-t border-zinc-300 pt-2">
+                        <div className="flex items-baseline justify-between text-[11px]">
+                          <div className="text-zinc-700">Zwischensumme</div>
+                          <div className="font-semibold">{currencyEUR(runningSubtotalNet)}</div>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  ) : null}
 
-                    <div className="mt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
-                  </div>
-                ) : (
-                  <div className="mt-auto pt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
-                )}
+                  {footerColumns ? (
+                    <div className="border-t border-zinc-300 pt-2">
+                      {footerColumns.mode === "custom" ? (
+                        <div
+                          className="text-[10px] text-zinc-900"
+                          dangerouslySetInnerHTML={{ __html: footerColumns.html }}
+                        />
+                      ) : (
+                        <div className="grid grid-cols-4 gap-6 text-[10px]">
+                          <div>
+                            <div className="mb-2 font-semibold">Anschrift</div>
+                            {footerColumns.address.map((l, idx) => (
+                              <div key={idx}>{l}</div>
+                            ))}
+                          </div>
+                          <div>
+                            <div className="mb-2 font-semibold">Bankverbindung</div>
+                            {footerColumns.bank.length ? (
+                              footerColumns.bank.map((l, idx) => <div key={idx}>{l}</div>)
+                            ) : (
+                              <div className="text-zinc-500">—</div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="mb-2 font-semibold">Kontakt</div>
+                            {footerColumns.contact.length ? (
+                              footerColumns.contact.map((l, idx) => <div key={idx}>{l}</div>)
+                            ) : (
+                              <div className="text-zinc-500">—</div>
+                            )}
+                          </div>
+                          <div>
+                            <div className="mb-2 font-semibold">Unternehmensdaten</div>
+                            {footerColumns.legal.length ? (
+                              footerColumns.legal.map((l, idx) => <div key={idx}>{l}</div>)
+                            ) : (
+                              <div className="text-zinc-500">—</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
+                    </div>
+                  ) : (
+                    <div className="pt-2 text-right text-[10px] text-zinc-600">Seite {pageNo}/{pageCount}</div>
+                  )}
+                </div>
               </div>
               </div>
             </div>
