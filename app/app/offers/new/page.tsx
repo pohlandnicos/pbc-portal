@@ -1030,9 +1030,9 @@ function OfferEditor() {
         renderTrigger={() => null}
       />
 
-      <div className={`flex gap-0 ${showPreview ? 'h-screen overflow-hidden' : ''}`}>
+      <div className={`${showPreview ? 'h-screen overflow-hidden' : ''}`}>
         {/* Editor Section */}
-        <div className={`${showPreview ? 'w-[60%] overflow-y-auto' : 'w-full'} container mx-auto px-6`}>
+        <div className="container mx-auto px-6">
         <div className="space-y-6">
           {/* Header Bar */}
           <div className="py-6 flex items-center justify-between">
@@ -1403,50 +1403,51 @@ function OfferEditor() {
         </div>
 
         {/* PDF Preview Section */}
-        <div className={`${showPreview && existingOfferId ? 'w-[40%]' : 'w-[1px]'} h-screen bg-white flex flex-col overflow-hidden transition-all duration-300`}>
-          {existingOfferId && (
-            <>
-              <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-zinc-900">PDF Vorschau</h2>
-                <button
-                  onClick={() => setShowPreview(false)}
-                  className="text-zinc-400 hover:text-zinc-600"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="relative flex-1 m-0 p-0" style={{ overflow: 'hidden' }}>
-                {!previewLoaded && showPreview && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white text-sm text-zinc-600">
-                    Lädt Vorschau...
-                  </div>
-                )}
-                <iframe
-                  ref={previewIframeRef}
-                  src={`/app/offers/${existingOfferId}/pdf-preview`}
-                  loading="eager"
-                  onLoad={() => {
-                    setPreviewLoaded(true);
-                    const started = previewOpenStartedAtRef.current;
-                    if (typeof started === "number") {
-                      console.log("[PreviewTiming] iframe onLoad", {
-                        dtMs: Math.round(performance.now() - started),
-                      });
-                    } else {
-                      console.log("[PreviewTiming] iframe onLoad", { t: performance.now() });
-                    }
-                    postPreviewDraft();
-                  }}
-                  className={`w-full h-full border-0 m-0 p-0 ${showPreview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                  style={{ display: 'block', margin: 0, padding: 0 }}
-                  title="PDF Vorschau"
-                />
-              </div>
-            </>
-          )}
-        </div>
+        {existingOfferId && (
+          <div
+            className={`fixed top-0 right-0 h-screen w-[40vw] bg-white border-l border-zinc-200 flex flex-col overflow-hidden transition-transform duration-300 ${showPreview ? 'translate-x-0' : 'translate-x-full'}`}
+            style={{ willChange: 'transform' }}
+          >
+            <div className="px-4 py-3 bg-white border-b border-zinc-200 flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-zinc-900">PDF Vorschau</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="text-zinc-400 hover:text-zinc-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="relative flex-1 m-0 p-0" style={{ overflow: 'hidden' }}>
+              {!previewLoaded && showPreview && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white text-sm text-zinc-600">
+                  Lädt Vorschau...
+                </div>
+              )}
+              <iframe
+                ref={previewIframeRef}
+                src={`/app/offers/${existingOfferId}/pdf-preview`}
+                loading="eager"
+                onLoad={() => {
+                  setPreviewLoaded(true);
+                  const started = previewOpenStartedAtRef.current;
+                  if (typeof started === "number") {
+                    console.log("[PreviewTiming] iframe onLoad", {
+                      dtMs: Math.round(performance.now() - started),
+                    });
+                  } else {
+                    console.log("[PreviewTiming] iframe onLoad", { t: performance.now() });
+                  }
+                  postPreviewDraft();
+                }}
+                className="w-full h-full border-0 m-0 p-0"
+                style={{ display: 'block', margin: 0, padding: 0 }}
+                title="PDF Vorschau"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
