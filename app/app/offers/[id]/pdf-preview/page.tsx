@@ -115,26 +115,25 @@ function currencyEUR(value: number) {
 
 function htmlToPlainTextPreserveLines(html: string) {
   if (!html) return "";
+  const blockTags = "p|div|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote|pre";
   return (
     html
       .replace(/\r\n/g, "\n")
-      .replace(/<\s*br\s*\/?>/gi, "\n")
-      // Some editors (e.g. contenteditable) wrap each line in <div>...</div>
-      .replace(/<\s*\/div\s*>\s*<\s*div\s*>/gi, "\n")
-      .replace(/<\s*div\s*>/gi, "")
-      .replace(/<\s*\/div\s*>/gi, "\n")
-      .replace(/<\s*\/p\s*>\s*<\s*p\s*>/gi, "\n\n")
-      .replace(/<\s*p\s*>/gi, "")
-      .replace(/<\s*\/p\s*>/gi, "")
-      .replace(/<\s*li\s*>/gi, "\n- ")
-      .replace(/<\s*\/li\s*>/gi, "")
-      .replace(/<\s*ul\s*>/gi, "")
-      .replace(/<\s*\/ul\s*>/gi, "\n")
+      // Line breaks
+      .replace(/<\s*br\b[^>]*>/gi, "\n")
+      // Treat closing block tags as newlines (handles attributes/whitespace variations)
+      .replace(new RegExp(`<\\s*\\/(?:${blockTags})\\s*>`, "gi"), "\n")
+      // Strip opening block tags (regardless of attributes)
+      .replace(new RegExp(`<\\s*(?:${blockTags})\\b[^>]*>`, "gi"), "")
+      // List items: prefix bullet for readability
+      .replace(/\n\s*\n\s*-\s*/g, "\n- ")
       .replace(/<[^>]*>/g, "")
       .replace(/&nbsp;/g, " ")
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, "\"")
+      .replace(/&#39;/g, "'")
       .replace(/\n{3,}/g, "\n\n")
       .trim()
   );
