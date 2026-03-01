@@ -205,11 +205,17 @@ type PagedGroup = {
   offer_items: OfferItem[];
 };
 
-function paginateOfferGroups(groups: OfferGroup[]) {
+function paginateOfferGroups(
+  groups: OfferGroup[],
+  opts?: {
+    firstPageCapacity?: number;
+    otherPageCapacity?: number;
+  }
+) {
   // These capacities are heuristics ("row units") used to avoid clipping at the page bottom.
   // We keep them conservative because the last page also contains totals + footer.
-  const FIRST_PAGE_CAPACITY = 20;
-  const OTHER_PAGE_CAPACITY = 30;
+  const FIRST_PAGE_CAPACITY = opts?.firstPageCapacity ?? 20;
+  const OTHER_PAGE_CAPACITY = opts?.otherPageCapacity ?? 30;
   const SAFETY_ROWS = 6;
 
   const descriptionUnits = (raw: string) => {
@@ -479,7 +485,30 @@ export default function OfferPdfPreviewPage() {
     return [company, street, city].filter(Boolean).join(" · ") || null;
   }, [layout]);
 
-  const pages = useMemo(() => paginateOfferGroups(data?.groups ?? []), [data?.groups]);
+  const estimateRichTextUnits = (raw: string) => {
+    const s = String(raw ?? "");
+    if (!s.trim()) return 0;
+    const breaks = (
+      s.match(/<\s*br\b[^>]*>|<\s*\/div\s*>|<\s*\/p\s*>|<\s*\/li\s*>|\n|\u2028|\u2029/gi) ??
+      []
+    ).length;
+
+    // Convert visual lines into row-units; cap so we don't overreact.
+    const lines = Math.max(1, breaks + 1);
+    return Math.min(12, lines);
+  };
+
+  const pages = useMemo(() => {
+    const introUnits = estimateRichTextUnits(data?.intro_body_html ?? "");
+    const baseFirst = 20;
+    // Reserve extra space on the first page when intro grows.
+    // Tuned so items don't run into subtotal/footer.
+    const firstPageCapacity = Math.max(8, baseFirst - Math.max(0, introUnits - 2));
+    return paginateOfferGroups(data?.groups ?? [], {
+      firstPageCapacity,
+      otherPageCapacity: 30,
+    });
+  }, [data?.groups, data?.intro_body_html]);
 
   const computedNetTotal = useMemo(() => {
     const groups = data?.groups ?? [];
