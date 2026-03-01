@@ -608,13 +608,13 @@ export default function OfferPdfPreviewPage() {
                 }
               >
                 <div>
-                  <div className="flex items-start justify-between">
+                  <div className={`flex justify-between ${isFirst ? "items-start" : "items-center"}`}>
                     {isFirst ? (
                       <div className="min-w-0 flex-1" />
                     ) : (
                       <div
                         className="min-w-0 flex-1 text-[10px] text-zinc-700"
-                        style={{ marginTop: "-10mm" }}
+                        style={{ marginTop: "-6mm" }}
                       >
                         <div className="flex gap-2">
                           <div className="text-zinc-600">Angebotsdatum:</div>
