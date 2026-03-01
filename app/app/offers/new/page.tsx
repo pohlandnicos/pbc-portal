@@ -1097,16 +1097,22 @@ function OfferEditor() {
                 className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm hover:bg-zinc-50"
                 disabled={submitting}
                 onClick={async () => {
-                  const id = existingOfferId ? await updateDraftOffer(existingOfferId) : await createDraftOffer();
-                  if (!id) return;
-                  try {
-                    await syncGroupsAndItemsToOffer(id);
-                  } catch (e) {
-                    setError(e instanceof Error ? e.message : "Speichern der Positionen fehlgeschlagen");
+                  if (showPreview) {
+                    setShowPreview(false);
                     return;
                   }
+
+                  // Instant open: do NOT block on syncing groups/items.
+                  // Preview renders from live editor state via postMessage.
+                  if (existingOfferId) {
+                    setShowPreview(true);
+                    return;
+                  }
+
+                  const id = await createDraftOffer();
+                  if (!id) return;
                   setExistingOfferId(id);
-                  setShowPreview(!showPreview);
+                  setShowPreview(true);
                 }}
               >
                 {showPreview ? "Vorschau schließen" : "Vorschau"}
