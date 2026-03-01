@@ -139,9 +139,15 @@ type PagedGroup = {
 function paginateOfferGroups(groups: OfferGroup[]) {
   // These capacities are heuristics ("row units") used to avoid clipping at the page bottom.
   // We keep them conservative because the last page also contains totals + footer.
-  const FIRST_PAGE_CAPACITY = 14;
-  const OTHER_PAGE_CAPACITY = 18;
-  const SAFETY_ROWS = 5;
+  const FIRST_PAGE_CAPACITY = 20;
+  const OTHER_PAGE_CAPACITY = 30;
+  const SAFETY_ROWS = 3;
+
+  const itemUnits = (it: OfferItem) => {
+    // Each item row contains name + (optional) description.
+    // Treat description as additional height so we page-break before clipping.
+    return it.description && String(it.description).trim() ? 2 : 1;
+  };
 
   const pages: PagedGroup[][] = [];
   let current: PagedGroup[] = [];
@@ -174,9 +180,24 @@ function paginateOfferGroups(groups: OfferGroup[]) {
         continue;
       }
 
-      const take = Math.min(availableForThisGroup, items.length - offset);
-      const chunk = items.slice(offset, offset + take);
-      offset += take;
+      // Take as many items as fit into the available row-units.
+      let used = 0;
+      let takeCount = 0;
+      while (offset + takeCount < items.length) {
+        const u = itemUnits(items[offset + takeCount]);
+        if (takeCount > 0 && used + u > availableForThisGroup) break;
+        if (takeCount === 0 && u > availableForThisGroup) {
+          // Always take at least one item to prevent infinite loops.
+          takeCount = 1;
+          used = u;
+          break;
+        }
+        if (used + u > availableForThisGroup) break;
+        used += u;
+        takeCount += 1;
+      }
+      const chunk = items.slice(offset, offset + takeCount);
+      offset += takeCount;
 
       const existingIndex = current.findIndex((x) => x.id === g.id);
       if (existingIndex >= 0) {
@@ -189,7 +210,8 @@ function paginateOfferGroups(groups: OfferGroup[]) {
         remaining -= needsHeaderRows;
       }
 
-      remaining -= chunk.length;
+      // Subtract the row-units rather than the raw item count.
+      remaining -= chunk.reduce((sum, it) => sum + itemUnits(it), 0);
 
       if (remaining <= SAFETY_ROWS && offset < items.length) {
         pushPageIfNeeded();
@@ -667,7 +689,7 @@ export default function OfferPdfPreviewPage() {
                 {!isLast ? (
                   <div className="flex-1 min-h-0 pt-4 flex flex-col">
                     {isFirst ? <div className="text-[12px] font-semibold">Positionsübersicht</div> : null}
-                    <div className="flex-1 min-h-0 overflow-hidden">
+                    <div className="flex-1 min-h-0">
                       {pageGroups.map((g) => (
                         <div key={`${pageIndex}-${g.id}`} className="mt-6">
                           <div className="mb-2 text-[12px] font-semibold">{g.title}</div>
