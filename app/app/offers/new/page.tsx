@@ -77,6 +77,20 @@ function OfferEditor() {
     // Reset loading state when switching to a different offer
     setPreviewLoaded(false);
   }, [existingOfferId]);
+
+  useEffect(() => {
+    if (!showPreview) return;
+    if (!existingOfferId) return;
+
+    const doc = previewIframeRef.current?.contentDocument;
+    if (doc?.readyState === "complete") {
+      setPreviewLoaded(true);
+    }
+
+    // Send immediately on open for instant first paint
+    postPreviewDraft();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPreview, existingOfferId]);
   const [autosaveStatus, setAutosaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [justLoaded, setJustLoaded] = useState(false);
   const [customers, setCustomers] = useState<Array<{
