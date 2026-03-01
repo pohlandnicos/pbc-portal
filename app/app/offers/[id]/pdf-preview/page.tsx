@@ -118,7 +118,14 @@ function htmlToPlainTextPreserveLines(html: string) {
   const blockTags = "p|div|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote|pre";
   return (
     html
+      // Normalize various newline encodings that can come from editors/storage.
+      // - literal "\\n" sequences
+      // - CRLF
+      // - Unicode line separators
+      .replace(/\\n/g, "\n")
+      .replace(/\u2028|\u2029/g, "\n")
       .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
       // Line breaks
       .replace(/<\s*br\b[^>]*>/gi, "\n")
       // Treat closing block tags as newlines (handles attributes/whitespace variations)
