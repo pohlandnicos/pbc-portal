@@ -930,7 +930,7 @@ export default function OfferPdfPreviewPage() {
 
                 <div>
                   {!isLast ? (
-                    <div className="flex justify-end">
+                    <div className="flex justify-end" style={{ marginBottom: "4mm" }}>
                       <div className="w-[90mm] border-t border-zinc-300 pt-2">
                         <div className="flex items-baseline justify-between text-[11px]">
                           <div className="text-zinc-700">Zwischensumme</div>
