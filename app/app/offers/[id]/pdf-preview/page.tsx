@@ -610,7 +610,27 @@ export default function OfferPdfPreviewPage() {
               >
                 <div>
                   <div className="flex items-start justify-between">
-                    <div className="min-w-0 flex-1" />
+                    {isFirst ? (
+                      <div className="min-w-0 flex-1" />
+                    ) : (
+                      <div
+                        className="min-w-0 flex-1 text-[10px] text-zinc-700"
+                        style={{ marginTop: "-10mm" }}
+                      >
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Angebotsdatum:</div>
+                          <div className="text-zinc-900">{formatDateDE(data.offer_date)}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Projektnummer:</div>
+                          <div className="text-zinc-900">{data.project_number ?? ""}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="text-zinc-600">Angebotsnummer:</div>
+                          <div className="text-zinc-900">{data.offer_number ?? data.id}</div>
+                        </div>
+                      </div>
+                    )}
                     {layout?.logo_enabled && layout.logo_url ? (
                       <div
                         style={{
@@ -652,24 +672,7 @@ export default function OfferPdfPreviewPage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div style={{ marginTop: "10mm", minHeight: "30mm" }}>
-                      <div className="max-w-[90mm]">
-                        <div className="flex gap-2">
-                          <div className="text-zinc-600">Angebotsdatum:</div>
-                          <div>{formatDateDE(data.offer_date)}</div>
-                        </div>
-                        <div className="flex gap-2">
-                          <div className="text-zinc-600">Projektnummer:</div>
-                          <div>{data.project_number ?? ""}</div>
-                        </div>
-                        <div className="flex gap-2">
-                          <div className="text-zinc-600">Angebotsnummer:</div>
-                          <div>{data.offer_number ?? data.id}</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  ) : null}
 
                   {isFirst ? (
                     <div className="mt-4">
