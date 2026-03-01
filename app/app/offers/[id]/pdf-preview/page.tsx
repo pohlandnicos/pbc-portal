@@ -121,8 +121,11 @@ type PagedGroup = {
 };
 
 function paginateOfferGroups(groups: OfferGroup[]) {
-  const FIRST_PAGE_CAPACITY = 18;
-  const OTHER_PAGE_CAPACITY = 26;
+  // These capacities are heuristics ("row units") used to avoid clipping at the page bottom.
+  // We keep them conservative because the last page also contains totals + footer.
+  const FIRST_PAGE_CAPACITY = 16;
+  const OTHER_PAGE_CAPACITY = 22;
+  const SAFETY_ROWS = 2;
 
   const pages: PagedGroup[][] = [];
   let current: PagedGroup[] = [];
@@ -142,7 +145,13 @@ function paginateOfferGroups(groups: OfferGroup[]) {
 
     while (offset < items.length) {
       const needsHeaderRows = current.some((x) => x.id === g.id) ? 0 : 2;
-      const availableForThisGroup = Math.max(0, remaining - needsHeaderRows);
+      // If we're too close to the bottom, start a new page before adding more content.
+      if (remaining - needsHeaderRows <= SAFETY_ROWS) {
+        pushPageIfNeeded();
+        continue;
+      }
+
+      const availableForThisGroup = Math.max(0, remaining - needsHeaderRows - SAFETY_ROWS);
 
       if (availableForThisGroup === 0) {
         pushPageIfNeeded();
@@ -166,7 +175,7 @@ function paginateOfferGroups(groups: OfferGroup[]) {
 
       remaining -= chunk.length;
 
-      if (remaining <= 0 && offset < items.length) {
+      if (remaining <= SAFETY_ROWS && offset < items.length) {
         pushPageIfNeeded();
       }
     }
